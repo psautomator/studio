@@ -44,7 +44,7 @@ export default function DashboardPage() {
                  {badges.length === 0 && <span className="text-xs text-muted-foreground">No badges yet.</span>}
               </div>
             </div>
-            <Button variant="outline" size="sm" asChild className="mt-2">
+            <Button variant="secondary" size="sm" asChild className="mt-2">
               <Link href="/progress">View Full Progress <ArrowRight className="ml-2 h-4 w-4" /></Link>
             </Button>
           </CardContent>
@@ -77,10 +77,10 @@ export default function DashboardPage() {
             <CardDescription>Jump back into learning.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            <Button variant="secondary" className="w-full justify-start" asChild>
+            <Button variant="secondary" className="w-full justify-start border border-transparent hover:border-primary/50" asChild>
               <Link href="/flashcards"><BookOpen className="mr-2 h-4 w-4" /> {translations.flashcards}</Link>
             </Button>
-            <Button variant="secondary" className="w-full justify-start" asChild>
+            <Button variant="secondary" className="w-full justify-start border border-transparent hover:border-primary/50" asChild>
               <Link href="/quizzes"><HelpCircle className="mr-2 h-4 w-4" /> {translations.quizzes}</Link>
             </Button>
           </CardContent>

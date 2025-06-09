@@ -29,13 +29,13 @@
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
-    --sidebar-background: 240 5.9% 10%; /* Dark sidebar for contrast */
+    --sidebar-background: 215 28% 17%; /* #1F2937 */
     --sidebar-foreground: 0 0% 98%;
     --sidebar-primary: 145 37% 50%; /* Primary color for sidebar active items */
     --sidebar-primary-foreground: 0 0% 98%;
     --sidebar-accent: 240 3.7% 15.9%;
     --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-border: 240 3.7% 15.9%; /* Consider matching this to sidebar-background or a slightly lighter tone of it */
     --sidebar-ring: 145 37% 50%;
   }
 
@@ -59,13 +59,13 @@
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
     --ring: 145 37% 45%;
-    --sidebar-background: 0 0% 6%; /* Slightly lighter dark for sidebar */
+    --sidebar-background: 215 28% 17%; /* #1F2937 */
     --sidebar-foreground: 0 0% 98%;
     --sidebar-primary: 145 37% 55%;
     --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 3.7% 20%;
+    --sidebar-accent: 240 3.7% 22%; /* Slightly lighter accent for dark sidebar */
     --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 240 3.7% 20%;
+    --sidebar-border: 240 3.7% 22%; /* Consistent with accent or slightly different shade of background */
     --sidebar-ring: 145 37% 55%;
   }
 }
