@@ -13,6 +13,7 @@ import {
   UserCircle,
   Shield,
   User,
+  GraduationCap, // Added for Grammar
 } from 'lucide-react';
 import {
   Sidebar,
@@ -42,6 +43,7 @@ const mainNavItems = [
   { href: '/flashcards', labelKey: 'flashcards', icon: BookOpen },
   { href: '/quizzes', labelKey: 'quizzes', icon: HelpCircle },
   { href: '/pronunciation', labelKey: 'pronunciation', icon: Volume2 },
+  { href: '/grammar', labelKey: 'grammar', icon: GraduationCap },
   { href: '/progress', labelKey: 'progress', icon: BarChart3 },
   { href: '/goals', labelKey: 'goals', icon: Target },
 ];

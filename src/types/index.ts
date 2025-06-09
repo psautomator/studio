@@ -58,3 +58,18 @@ export interface Badge {
   threshold?: number; // e.g., XP needed or streak length
 }
 
+export interface GrammarExample {
+  javanese: string;
+  dutch: string;
+  audioUrl?: string;
+}
+
+export interface GrammarLesson {
+  id: string;
+  title: string;
+  explanation: string; // Could be Markdown
+  level: 'Beginner' | 'Intermediate' | 'Advanced';
+  category: string;
+  examples: GrammarExample[];
+  // Future: exercises: Exercise[];
+}

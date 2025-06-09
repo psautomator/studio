@@ -1,5 +1,5 @@
 
-import type { Word, Quiz, QuizQuestion, User, Badge } from '@/types'; // Updated Quiz import
+import type { Word, Quiz, QuizQuestion, User, Badge, GrammarLesson } from '@/types'; // Updated Quiz import
 
 export const placeholderWords: Word[] = [
   {
@@ -255,3 +255,43 @@ export const placeholderAdminUsers: User[] = [
     { id: 'user3', name: 'Admin Account', email: 'admin@example.com', role: 'admin', xp: 0, streak: 0, badges: [] },
 ];
 
+export const placeholderGrammarLessons: GrammarLesson[] = [
+  {
+    id: 'gl1',
+    title: 'Introduction to Ngoko and Krama',
+    explanation: "Javanese has different speech levels. Ngoko is informal, used with friends and family. Krama is formal, used in respectful situations or with strangers. This lesson introduces the basic concepts and when to use which.\n\n**Key Differences:**\n- Vocabulary: Many common words have different Ngoko and Krama versions.\n- Pronouns: 'I' is 'aku' (Ngoko) and 'kula' (Krama).\n- Politeness: Krama shows more respect.",
+    level: 'Beginner',
+    category: 'Formality',
+    examples: [
+      { javanese: 'Aku mangan sega.', dutch: 'Ik eet rijst. (Ngoko)' },
+      { javanese: 'Kula nedha sekul.', dutch: 'Ik eet rijst. (Krama)' },
+      { javanese: 'Kowe arep lunga?', dutch: 'Ga jij weg? (Ngoko)' },
+      { javanese: 'Sampeyan badhe tindak?', dutch: 'Gaat u weg? (Krama)' },
+    ],
+  },
+  {
+    id: 'gl2',
+    title: 'Basic Sentence Structure (S-P-O)',
+    explanation: "The basic sentence structure in Javanese is often Subject-Predicate-Object (S-P-O), similar to English and Dutch.\n\n- **Subject (Subjek):** Who or what is doing the action.\n- **Predicate (Predikat):** The verb or action.\n- **Object (Objek):** Who or what receives the action.",
+    level: 'Beginner',
+    category: 'Sentence Structure',
+    examples: [
+      { javanese: 'Aku maca buku.', dutch: 'Ik lees een boek.' },
+      { javanese: 'Bapak ngunjuk kopi.', dutch: 'Vader drinkt koffie. (Krama for "drinken" - ngunjuk)' },
+      { javanese: 'Kucing mangan iwak.', dutch: 'De kat eet vis.' },
+    ],
+  },
+  {
+    id: 'gl3',
+    title: 'Possessive Pronouns',
+    explanation: "Possessive pronouns indicate ownership. In Javanese Ngoko, you often append '-ku' (my), '-mu' (your - informal), or '-e' (his/her/its).\n\nFor Krama, it's often different words or structures, e.g., 'gadhahan kula' (mine).",
+    level: 'Intermediate',
+    category: 'Pronouns',
+    examples: [
+      { javanese: 'Omahku gedhe.', dutch: 'Mijn huis is groot. (Ngoko)' },
+      { javanese: 'Jenengmu sapa?', dutch: 'Wat is jouw naam? (Ngoko)' },
+      { javanese: 'Kucingé lucu.', dutch: 'Zijn/haar kat is schattig. (Ngoko)' },
+      { javanese: 'Punika buku kagunganipun Bapak.', dutch: 'Dit is het boek van vader. (Krama-like possessive)' },
+    ],
+  },
+];

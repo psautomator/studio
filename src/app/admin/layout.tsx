@@ -15,7 +15,7 @@ import {
   SidebarProvider,
 } from '@/components/ui/sidebar';
 import { Navbar } from '@/components/layout/navbar'; // Could have an AdminNavbar
-import { Package, Users, FileText, LayoutDashboard, Home } from 'lucide-react'; // Added Home icon
+import { Package, Users, FileText, LayoutDashboard, Home, ListChecks } from 'lucide-react'; // Added Home, ListChecks icon
 import { APP_NAME } from '@/lib/constants';
 import { useLanguage } from '@/hooks/use-language';
 
@@ -23,6 +23,7 @@ const adminNavItems = [
   { href: '/admin', label: 'Admin Dashboard', icon: LayoutDashboard },
   { href: '/admin/words', label: 'Words Management', icon: FileText },
   { href: '/admin/quizzes', label: 'Quizzes Management', icon: Package },
+  { href: '/admin/grammar', label: 'Grammar Management', icon: ListChecks },
   { href: '/admin/users', label: 'Users Management', icon: Users },
 ];
 
