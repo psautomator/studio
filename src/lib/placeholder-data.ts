@@ -258,15 +258,17 @@ export const placeholderAdminUsers: User[] = [
 export const placeholderGrammarLessons: GrammarLesson[] = [
   {
     id: 'gl1',
-    title: 'Introduction to Ngoko and Krama',
-    explanation: "Javanese has different speech levels. Ngoko is informal, used with friends and family. Krama is formal, used in respectful situations or with strangers. This lesson introduces the basic concepts and when to use which.\n\n**Key Differences:**\n- Vocabulary: Many common words have different Ngoko and Krama versions.\n- Pronouns: 'I' is 'aku' (Ngoko) and 'kula' (Krama).\n- Politeness: Krama shows more respect.",
+    title: 'Introduction to Javanese Speech Levels',
+    explanation: "Javanese is unique for its distinct speech levels, which are crucial for polite and appropriate conversation. The main levels are:\n\n- **Ngoko:** This is the informal or 'low' level. It's used when speaking to close friends, family members of similar age or younger, or in very casual situations. Using Ngoko with someone deserving higher respect can be considered rude.\n\n- **Krama:** This is the formal or 'high' level. It's used when addressing elders, strangers, superiors, or in formal settings (like speeches or official occasions). Krama shows respect and politeness. Many common Ngoko words have different Krama equivalents.\n\n- **Madya:** This is an intermediate level, sometimes considered 'middle' Javanese. It mixes elements of Ngoko and Krama and is often used with acquaintances or people you know but are not extremely close to, or when trying to be polite but not overly formal. It can be a bit more nuanced to master.\n\n**Key Differences to Note:**\n*   **Vocabulary:** The most significant difference lies in vocabulary. For example, 'to eat' is 'mangan' (Ngoko) but 'dahar' (Krama).\n*   **Pronouns:** Personal pronouns change dramatically, e.g., 'I' is 'aku' (Ngoko) and 'kula' (Krama).\n*   **Affixes:** Some grammatical affixes can also change between levels.\n\nUnderstanding when to use each level is a key part of learning Javanese effectively.",
     level: 'Beginner',
-    category: 'Formality',
+    category: 'Formality & Speech Levels',
     examples: [
       { javanese: 'Aku mangan sega.', dutch: 'Ik eet rijst. (Ngoko)' },
       { javanese: 'Kula nedha sekul.', dutch: 'Ik eet rijst. (Krama)' },
       { javanese: 'Kowe arep lunga?', dutch: 'Ga jij weg? (Ngoko)' },
       { javanese: 'Sampeyan badhe tindak?', dutch: 'Gaat u weg? (Krama)' },
+      { javanese: 'Jenengku Budi.', dutch: 'Mijn naam is Budi. (Ngoko)' },
+      { javanese: 'Asma kula Budi.', dutch: 'Mijn naam is Budi. (Krama)' },
     ],
   },
   {
