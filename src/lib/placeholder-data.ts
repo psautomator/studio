@@ -140,6 +140,7 @@ export const placeholderQuizzes: Quiz[] = [
     id: 'quizSet1',
     title: 'Javanese Greetings',
     description: 'Test your knowledge of common Javanese greetings and politeness.',
+    category: 'Greetings & Politeness',
     difficulty: 'easy',
     status: 'published',
     questions: [
@@ -174,6 +175,7 @@ export const placeholderQuizzes: Quiz[] = [
     id: 'quizSet2',
     title: 'Basic Javanese Vocabulary & Sentences',
     description: 'A quiz on fundamental Javanese words, colors, and simple sentences.',
+    category: 'Basic Vocabulary',
     difficulty: 'medium',
     status: 'published',
     questions: [
@@ -232,6 +234,7 @@ export const placeholderQuizzes: Quiz[] = [
     id: 'quizSet3',
     title: 'Javanese Numbers (Draft)',
     description: 'A quiz about numbers in Javanese, currently in draft.',
+    category: 'Numbers',
     difficulty: 'easy',
     status: 'draft',
     questions: [

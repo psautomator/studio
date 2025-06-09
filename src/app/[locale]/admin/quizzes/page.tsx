@@ -48,6 +48,7 @@ function QuizForm({
   const { translations } = useLanguage();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [category, setCategory] = useState('');
   const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('easy');
   const [status, setStatus] = useState<'published' | 'draft' | 'archived'>('draft');
   const [questions, setQuestions] = useState<Partial<QuizQuestion>[]>([
@@ -61,12 +62,14 @@ function QuizForm({
     'translation-word-to-javanese',
     'translation-sentence-to-javanese',
     'fill-in-the-blank-mcq',
+    'fill-in-the-blank-text-input',
   ];
 
   useEffect(() => {
     if (quiz) {
       setTitle(quiz.title || '');
       setDescription(quiz.description || '');
+      setCategory(quiz.category || '');
       setDifficulty(quiz.difficulty || 'easy');
       setStatus(quiz.status || 'draft');
       setQuestions(quiz.questions?.length ? quiz.questions.map(q => ({...q})) : [{ questionType: 'multiple-choice', questionText: '', options: [{ text: '', isCorrect: false }, { text: '', isCorrect: false }] }]);
@@ -74,6 +77,7 @@ function QuizForm({
       // Reset form for new quiz
       setTitle('');
       setDescription('');
+      setCategory('');
       setDifficulty('easy');
       setStatus('draft');
       setQuestions([{ questionType: 'multiple-choice', questionText: '', options: [{ text: '', isCorrect: false }, { text: '', isCorrect: false }] }]);
@@ -85,6 +89,15 @@ function QuizForm({
     const newQuestions = [...questions];
     const currentQuestion = { ...newQuestions[qIndex] };
     (currentQuestion[field as keyof QuizQuestion] as any) = value; // Type assertion
+    
+    // If changing to fill-in-the-blank-text-input, ensure options array is initialized correctly
+    if (field === 'questionType' && value === 'fill-in-the-blank-text-input') {
+        currentQuestion.options = [{ text: '', isCorrect: true }];
+    } else if (field === 'questionType' && value !== 'fill-in-the-blank-text-input' && (!currentQuestion.options || currentQuestion.options.length === 0)) {
+        // If changing to other MCQ types and options are empty, initialize with two default options
+        currentQuestion.options = [{ text: '', isCorrect: false }, { text: '', isCorrect: false }];
+    }
+
     newQuestions[qIndex] = currentQuestion;
     setQuestions(newQuestions);
   };
@@ -95,7 +108,13 @@ function QuizForm({
     const currentQuestion = { ...newQuestions[qIndex] };
     const newOptions = [...(currentQuestion.options || [])];
     if (field === 'text' && typeof value === 'string') newOptions[oIndex] = { ...newOptions[oIndex], text: value };
-    if (field === 'isCorrect' && typeof value === 'boolean') newOptions[oIndex] = { ...newOptions[oIndex], isCorrect: value };
+    if (field === 'isCorrect' && typeof value === 'boolean') {
+        if (currentQuestion.questionType === 'fill-in-the-blank-text-input') {
+            newOptions[oIndex] = { ...newOptions[oIndex], isCorrect: true }; // Always true for this type
+        } else {
+            newOptions[oIndex] = { ...newOptions[oIndex], isCorrect: value };
+        }
+    }
     currentQuestion.options = newOptions;
     newQuestions[qIndex] = currentQuestion;
     setQuestions(newQuestions);
@@ -127,14 +146,24 @@ function QuizForm({
 
 
   const handleSubmit = () => {
-    if (!title || questions.some(q => !q.questionText || q.options?.some(opt => !opt.text) || !q.options?.some(opt => opt.isCorrect))) {
-      alert('Title, all question texts, all option texts, and at least one correct answer per question are required.');
-      return;
+    if (!title) {
+        alert('Quiz Title is required.');
+        return;
+    }
+    if (questions.some(q => {
+        if (!q.questionText) return true;
+        if (q.questionType === 'fill-in-the-blank-text-input') {
+            return !q.options || q.options.length === 0 || !q.options[0].text;
+        }
+        return q.options?.some(opt => !opt.text) || !q.options?.some(opt => opt.isCorrect);
+    })) {
+        alert('All question texts, all option texts (or correct answer for fill-in-the-blank), and at least one correct answer per MCQ question are required.');
+        return;
     }
     
     const finalQuestions: QuizQuestion[] = questions.map((q, index) => ({
         id: q.id || `q-${Date.now()}-${index}`, // Generate ID if not present
-        questionType: q.questionType!, // Assert as it's set by default
+        questionType: q.questionType!, 
         questionText: q.questionText!,
         options: q.options! as QuizOption[],
         explanation: q.explanation,
@@ -145,6 +174,7 @@ function QuizForm({
       id: quiz?.id || `quiz-${Date.now()}`,
       title,
       description,
+      category,
       difficulty,
       status,
       questions: finalQuestions,
@@ -170,6 +200,10 @@ function QuizForm({
           <div>
             <Label htmlFor="description">Description (optional)</Label>
             <Textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} className="mt-1" />
+          </div>
+          <div>
+            <Label htmlFor="category">Category (optional)</Label>
+            <Input id="category" value={category} onChange={(e) => setCategory(e.target.value)} className="mt-1" placeholder="e.g., Vocabulary, Grammar Topic, Numbers" />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -228,34 +262,47 @@ function QuizForm({
                     </SelectContent>
                   </Select>
                 </div>
-                <Textarea id={`questionText-${qIndex}`} value={q.questionText || ''} onChange={(e) => handleQuestionChange(qIndex, 'questionText', e.target.value)} placeholder="Enter question text" />
+                <Textarea id={`questionText-${qIndex}`} value={q.questionText || ''} onChange={(e) => handleQuestionChange(qIndex, 'questionText', e.target.value)} placeholder={q.questionType === 'fill-in-the-blank-text-input' ? "Enter sentence with '_______' for the blank" : "Enter question text"} />
                  
-                 <div className="space-y-2">
-                    <Label>Options</Label>
-                    {q.options?.map((opt, oIndex) => (
-                        <div key={oIndex} className="flex items-center gap-2">
-                        <Input
-                            type="text"
-                            placeholder={`Option ${oIndex + 1}`}
-                            value={opt.text}
-                            onChange={(e) => handleOptionChange(qIndex, oIndex, 'text', e.target.value)}
-                            className="flex-grow"
+                 {q.questionType === 'fill-in-the-blank-text-input' ? (
+                    <div>
+                        <Label htmlFor={`correctAnswer-${qIndex}`}>Correct Answer</Label>
+                        <Input 
+                            id={`correctAnswer-${qIndex}`} 
+                            value={q.options && q.options.length > 0 ? q.options[0].text : ''} 
+                            onChange={(e) => handleOptionChange(qIndex, 0, 'text', e.target.value)} 
+                            placeholder="Enter the correct word for the blank" 
+                            className="mt-1"
                         />
-                        <div className="flex items-center space-x-2">
-                            <Checkbox
-                            id={`isCorrect-${qIndex}-${oIndex}`}
-                            checked={opt.isCorrect}
-                            onCheckedChange={(checked) => handleOptionChange(qIndex, oIndex, 'isCorrect', !!checked)}
+                    </div>
+                 ) : (
+                    <div className="space-y-2">
+                        <Label>Options</Label>
+                        {q.options?.map((opt, oIndex) => (
+                            <div key={oIndex} className="flex items-center gap-2">
+                            <Input
+                                type="text"
+                                placeholder={`Option ${oIndex + 1}`}
+                                value={opt.text}
+                                onChange={(e) => handleOptionChange(qIndex, oIndex, 'text', e.target.value)}
+                                className="flex-grow"
                             />
-                            <Label htmlFor={`isCorrect-${qIndex}-${oIndex}`} className="text-sm">Correct</Label>
-                        </div>
-                        {(q.options?.length || 0) > 2 && (
-                            <Button variant="ghost" size="icon" onClick={() => removeOption(qIndex, oIndex)}><X className="h-4 w-4" /></Button>
-                        )}
-                        </div>
-                    ))}
-                    <Button variant="outline" size="sm" onClick={() => addOption(qIndex)} className="mt-1">Add Option</Button>
-                 </div>
+                            <div className="flex items-center space-x-2">
+                                <Checkbox
+                                id={`isCorrect-${qIndex}-${oIndex}`}
+                                checked={opt.isCorrect}
+                                onCheckedChange={(checked) => handleOptionChange(qIndex, oIndex, 'isCorrect', !!checked)}
+                                />
+                                <Label htmlFor={`isCorrect-${qIndex}-${oIndex}`} className="text-sm">Correct</Label>
+                            </div>
+                            {(q.options?.length || 0) > 2 && (
+                                <Button variant="ghost" size="icon" onClick={() => removeOption(qIndex, oIndex)}><X className="h-4 w-4" /></Button>
+                            )}
+                            </div>
+                        ))}
+                        <Button variant="outline" size="sm" onClick={() => addOption(qIndex)} className="mt-1">Add Option</Button>
+                    </div>
+                 )}
                 <div>
                   <Label htmlFor={`explanation-${qIndex}`}>Explanation (optional)</Label>
                   <Textarea id={`explanation-${qIndex}`} value={q.explanation || ''} onChange={(e) => handleQuestionChange(qIndex, 'explanation', e.target.value)} placeholder="Explain the correct answer" className="mt-1" />
@@ -297,6 +344,7 @@ function BulkImportDialog({
     "id": "quiz-bulk-1",
     "title": "Bulk Imported Quiz 1",
     "description": "Description for bulk quiz 1.",
+    "category": "Greetings",
     "difficulty": "medium", 
     "status": "draft", 
     "questions": [
@@ -314,19 +362,18 @@ function BulkImportDialog({
       },
       {
         "id": "q-bulk-1-2",
-        "questionType": "translation-word-to-javanese",
-        "questionText": "Translate 'Huis' to Javanese.",
-        "options": [
-          { "text": "Omah", "isCorrect": true },
-          { "text": "Sekolah", "isCorrect": false }
+        "questionType": "fill-in-the-blank-text-input",
+        "questionText": "Sugeng _____, Bu Guru. (means: Good morning, teacher)",
+        "options": [ 
+          { "text": "enjing", "isCorrect": true }
         ],
-        "explanation": "'Huis' is 'Omah' in Javanese (Ngoko)."
+        "explanation": "'Enjing' means morning. 'Sugeng enjing' is 'Good morning'."
       }
     ]
   }
 ]
 // Paste an array of such quiz objects. IDs must be unique.
-// questionType can be: 'multiple-choice', 'translation-word-to-dutch', 'translation-sentence-to-dutch', 'translation-word-to-javanese', 'translation-sentence-to-javanese', 'fill-in-the-blank-mcq'
+// questionType can be: 'multiple-choice', 'translation-word-to-dutch', ..., 'fill-in-the-blank-text-input'
 `;
 
   const handleImportClick = () => {
@@ -342,13 +389,23 @@ function BulkImportDialog({
         }
         quiz.status = quiz.status || 'draft';
         quiz.difficulty = quiz.difficulty || 'easy';
+        quiz.category = quiz.category || '';
 
         quiz.questions.forEach((q, idx) => {
-          if(!q.id || !q.questionText || !Array.isArray(q.options) || q.options.length < 2 || !q.questionType) { // Added !q.questionType
-            throw new Error(`Question #${idx+1} in quiz "${quiz.title}" is missing id, questionType, questionText, or has insufficient options.`);
+          if(!q.id || !q.questionText || !Array.isArray(q.options) || !q.questionType) { 
+            throw new Error(`Question #${idx+1} in quiz "${quiz.title}" is missing id, questionType, questionText, or options array.`);
           }
-          if(!q.options.some(opt => opt.isCorrect)) {
-            throw new Error(`Question "${q.questionText.substring(0,30)}..." in quiz "${quiz.title}" must have at least one correct option.`);
+          if(q.questionType === 'fill-in-the-blank-text-input') {
+            if(q.options.length !== 1 || !q.options[0].text || q.options[0].isCorrect !== true) {
+                throw new Error(`Fill-in-the-blank-text-input question "${q.questionText.substring(0,30)}..." in quiz "${quiz.title}" must have exactly one option with 'isCorrect: true' and text.`);
+            }
+          } else { // For MCQ types
+            if(q.options.length < 2) {
+                throw new Error(`MCQ Question #${idx+1} in quiz "${quiz.title}" must have at least two options.`);
+            }
+            if(!q.options.some(opt => opt.isCorrect)) {
+                throw new Error(`MCQ Question "${q.questionText.substring(0,30)}..." in quiz "${quiz.title}" must have at least one correct option.`);
+            }
           }
         });
         return quiz;
@@ -419,6 +476,7 @@ export default function AdminQuizzesPage() {
 
   const columns = [
     { accessorKey: 'title', header: 'Title', cell: (item: Quiz) => <span className="truncate block max-w-xs font-medium">{item.title}</span> },
+    { accessorKey: 'category', header: 'Category', cell: (item: Quiz) => item.category || 'N/A' },
     { accessorKey: 'questions', header: 'Questions', cell: (item: Quiz) => item.questions.length },
     { accessorKey: 'difficulty', header: 'Difficulty', cell: (item: Quiz) => <Badge variant={item.difficulty === 'hard' ? 'destructive' : item.difficulty === 'medium' ? 'secondary' : 'outline'} className="capitalize">{item.difficulty || 'N/A'}</Badge> },
     { accessorKey: 'status', header: 'Status', cell: (item: Quiz) => <Badge variant={item.status === 'published' ? 'default' : item.status === 'draft' ? 'secondary' : 'outline'} className="capitalize">{item.status || 'N/A'}</Badge> },

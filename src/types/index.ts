@@ -26,7 +26,8 @@ export type QuestionType =
   | 'translation-sentence-to-dutch' // Given Javanese sentence, options are Dutch sentences
   | 'translation-word-to-javanese' // Given Dutch word, options are Javanese words
   | 'translation-sentence-to-javanese' // Given Dutch sentence, options are Javanese sentences
-  | 'fill-in-the-blank-mcq'; // Sentence with a blank, options are words to fill
+  | 'fill-in-the-blank-mcq' // Sentence with a blank, options are words to fill
+  | 'fill-in-the-blank-text-input'; // Sentence with a blank, user types answer
 
 export interface QuizQuestion {
   id: string;
@@ -41,6 +42,7 @@ export interface Quiz {
   id: string;
   title: string;
   description?: string;
+  category?: string; // Added category field
   difficulty?: 'easy' | 'medium' | 'hard';
   questions: QuizQuestion[];
   status?: 'published' | 'draft' | 'archived';
