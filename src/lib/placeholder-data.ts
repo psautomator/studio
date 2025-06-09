@@ -1,6 +1,6 @@
 
 import type { User as UserType } from '@/types'; // Renamed to avoid conflict
-import type { Word, Quiz, Badge, GrammarLesson, GrammarExample, EmbeddedExercise, SpeechLevel, QuizQuestion } from '@/types';
+import type { Word, Quiz, Badge, GrammarLesson, GrammarExample, EmbeddedExercise, SpeechLevel, QuizQuestion, LearningGoal } from '@/types';
 
 export const placeholderWords: Word[] = [
   {
@@ -249,23 +249,47 @@ export const placeholderQuizzes: Quiz[] = [
   },
 ];
 
-export const placeholderUser: UserType = { 
+const placeholderActiveGoals: LearningGoal[] = [
+  // { id: 'goal1', text: "Learn 5 new vocabulary words related to family.", isCompleted: false, createdAt: new Date(Date.now() - 86400000 * 2) },
+  // { id: 'goal2', text: "Practice forming simple sentences using 'kula' and 'sampeyan'.", isCompleted: true, createdAt: new Date(Date.now() - 86400000) },
+  // { id: 'goal3', text: "Listen to Javanese audio for 10 minutes.", isCompleted: false, createdAt: new Date() },
+];
+
+
+export const placeholderUser: UserType = {
   id: 'user123',
   name: 'Alex Doe',
   email: 'alex.doe@example.com',
-  roles: ['user', 'admin'], 
+  roles: ['user', 'admin'],
   xp: 1250,
   streak: 15,
   badges: ['newbie', 'wordmaster_lvl1'],
-  lastLogin: new Date(Date.now() - 86400000)
+  lastLogin: new Date(Date.now() - 86400000), // Logged in yesterday
+  // New fields for progress tracking
+  lastGrammarLessonId: 'gl1',
+  lastQuizId: 'quizSet1',
+  currentQuizProgress: {
+    quizId: 'quizSet2',
+    currentQuestionIndex: 1, // Started quizSet2, on the second question
+    answersSoFar: [ { questionId: 'q1s2', selectedOptionText: 'Banyu' } ],
+  },
+  lastFlashcardDeckId: 'Greetings', // Assuming flashcards are grouped by category
+  lastFlashcardIndex: 2, // Was on the 3rd card in "Greetings" deck
+  lastPronunciationWordId: 'word2', // Last practiced "Matur nuwun"
+  lastFillInTheBlanksExerciseId: placeholderWords[5]?.id, // Assuming the 6th word has an example for fill-in-the-blanks
+  activeLearningGoals: placeholderActiveGoals,
+  learningPreferences: {
+    preferredStyle: 'Visual',
+    dailyGoalMinutes: 30,
+  },
 };
 
-export const placeholderAdminUsers: UserType[] = [ 
+export const placeholderAdminUsers: UserType[] = [
     { id: 'user1', name: 'Jan Jansen', email: 'jan@example.com', roles: ['user'], xp: 1500, streak: 10, badges: ['newbie', 'wordmaster_lvl1'], lastLogin: new Date(Date.now() - 172800000) },
     { id: 'user2', name: 'Piet Pietersen', email: 'piet@example.com', roles: ['user', 'editor'], xp: 800, streak: 5, badges: ['newbie'], lastLogin: new Date(Date.now() - 86400000 * 3) },
-    { id: 'user3', name: 'Admin Account', email: 'admin@example.com', roles: ['user', 'admin'], xp: 0, streak: 0, badges: [], lastLogin: new Date() },
+    { id: 'user3', name: 'Admin Account', email: 'admin@example.com', roles: ['user', 'admin'], xp: 0, streak: 0, badges: [], lastLogin: new Date(), activeLearningGoals: [] },
     { id: 'user4', name: 'Publisher Paula', email: 'paula@example.com', roles: ['user', 'publisher'], xp: 200, streak: 2, badges: ['newbie'], lastLogin: new Date(Date.now() - 86400000 * 5) },
-    { id: 'user5', name: 'Editor Eddie', email: 'eddie@example.com', roles: ['user', 'editor', 'publisher'], xp: 1200, streak: 20, badges: ['newbie', 'wordmaster_lvl1', 'streak_7'], lastLogin: new Date(Date.now() - 86400000) },
+    { id: 'user5', name: 'Editor Eddie', email: 'eddie@example.com', roles: ['user', 'editor', 'publisher'], xp: 1200, streak: 20, badges: ['newbie', 'wordmaster_lvl1', 'streak_7'], lastLogin: new Date(Date.now() - 86400000), lastGrammarLessonId: 'gl2' },
 ];
 
 export const placeholderBadges: Badge[] = [
@@ -273,8 +297,8 @@ export const placeholderBadges: Badge[] = [
   { id: 'wordmaster_lvl1', name: 'Word Master Lv. 1', description: 'Learned 50 new words.', icon: 'BookOpenCheck', threshold: 50 },
   { id: 'streak_7', name: '7-Day Streak', description: 'Logged in for 7 days in a row!', icon: 'Flame', threshold: 7 },
   { id: 'quiz_champ_easy', name: 'Quiz Champion (Easy)', description: 'Completed 10 easy quizzes with 80%+ accuracy.', icon: 'StarIcon', threshold: 10 },
-  { id: 'grammar_initiate', name: 'Grammar Initiate', description: 'Completed your first grammar lesson.', icon: 'GraduationCap' }, 
-  { id: 'perfect_pronunciation_1', name: 'Clear Speaker', description: 'Achieved 90%+ on a pronunciation exercise.', icon: 'Trophy', threshold: 1 }, // Example threshold
+  { id: 'grammar_initiate', name: 'Grammar Initiate', description: 'Completed your first grammar lesson.', icon: 'GraduationCap' },
+  { id: 'perfect_pronunciation_1', name: 'Clear Speaker', description: 'Achieved 90%+ on a pronunciation exercise.', icon: 'Trophy', threshold: 1 },
 ];
 
 export const placeholderGrammarLessons: GrammarLesson[] = [
@@ -328,14 +352,16 @@ export const placeholderGrammarLessons: GrammarLesson[] = [
             type: 'fill-in-the-blank',
             javaneseSentenceWithPlaceholder: 'Aku arep ____ sega goreng.',
             correctAnswer: 'mangan',
-            hint: { en: 'I want to eat fried rice.', nl: 'Ik wil gebakken rijst eten.'}
+            hint: { en: 'I want to eat fried rice.', nl: 'Ik wil gebakken rijst eten.'},
+            originalJavaneseSentenceForDisplay: 'Aku arep mangan sega goreng.'
         },
         {
             id: 'gl2-ee2',
             type: 'fill-in-the-blank',
             javaneseSentenceWithPlaceholder: 'Omahku cedhak _____.',
             correctAnswer: 'pasar',
-            hint: { en: 'My house is near the market.', nl: 'Mijn huis is dichtbij de markt.'}
+            hint: { en: 'My house is near the market.', nl: 'Mijn huis is dichtbij de markt.'},
+            originalJavaneseSentenceForDisplay: 'Omahku cedhak pasar.'
         }
     ],
     status: 'published',
@@ -377,4 +403,3 @@ export const placeholderGrammarLessons: GrammarLesson[] = [
     status: 'published',
   },
 ];
-

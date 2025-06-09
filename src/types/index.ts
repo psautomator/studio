@@ -46,15 +46,40 @@ export interface Quiz {
   status?: 'published' | 'draft' | 'archived';
 }
 
+// For storing active AI-generated goals
+export interface LearningGoal {
+  id: string; // Could be timestamp or a unique ID
+  text: string;
+  isCompleted: boolean;
+  createdAt: Date;
+}
+
 export interface User {
   id: string;
   name: string;
   email: string;
-  roles: string[]; // Changed from role: 'user' | 'admin';
+  roles: string[];
   xp: number;
   streak: number;
   badges: string[];
   lastLogin?: Date;
+  // Fields for tracking progress and last activities
+  lastGrammarLessonId?: string;
+  lastQuizId?: string; // Could be last one attempted or started
+  currentQuizProgress?: { // For resuming an incomplete quiz
+    quizId: string;
+    currentQuestionIndex: number;
+    answersSoFar: { questionId: string; selectedOptionText: string }[]; // Example structure
+  };
+  lastFlashcardDeckId?: string; // If flashcards are in decks/categories
+  lastFlashcardIndex?: number; // Index within the last viewed deck
+  lastPronunciationWordId?: string;
+  lastFillInTheBlanksExerciseId?: string;
+  activeLearningGoals?: LearningGoal[];
+  learningPreferences?: {
+    preferredStyle?: string;
+    dailyGoalMinutes?: number;
+  };
 }
 
 export interface Badge {
@@ -74,7 +99,7 @@ export interface LocaleString {
 export type SpeechLevel = 'ngoko' | 'krama' | 'madya' | 'neutral' | 'other';
 
 export interface GrammarExample {
-  id: string; 
+  id: string;
   javanese: string;
   dutch: string;
   speechLevel: SpeechLevel;
@@ -84,26 +109,27 @@ export interface GrammarExample {
 export interface EmbeddedFillInTheBlankExercise {
   id: string;
   type: 'fill-in-the-blank';
-  javaneseSentenceWithPlaceholder: string; 
+  javaneseSentenceWithPlaceholder: string;
   correctAnswer: string;
-  hint?: LocaleString; 
+  hint?: LocaleString;
+  originalJavaneseSentenceForDisplay?: string; // Added to make reconstruction easier for display
 }
 
-export type EmbeddedExercise = EmbeddedFillInTheBlankExercise; 
+export type EmbeddedExercise = EmbeddedFillInTheBlankExercise;
 
 export interface GrammarLesson {
   id: string;
   title: LocaleString;
-  explanation: LocaleString; 
+  explanation: LocaleString;
   level: 'Beginner' | 'Intermediate' | 'Advanced';
   category: string;
   examples: GrammarExample[];
   relatedQuizIds: string[];
-  relatedWordIds: string[]; 
+  relatedWordIds: string[];
   embeddedExercises: EmbeddedExercise[];
   status: 'published' | 'draft' | 'archived';
-  imageUrl?: string; 
-  lessonAudioUrl?: string; 
+  imageUrl?: string;
+  lessonAudioUrl?: string;
 }
 
 export interface FillInTheBlankExercise {
