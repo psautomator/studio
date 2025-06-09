@@ -114,6 +114,7 @@ export function GrammarLessonForm({
   } = useForm<GrammarLessonFormValues>({
     resolver: zodResolver(grammarLessonFormSchema),
     defaultValues: {
+      id: undefined,
       title: { en: '', nl: '' },
       explanation: { en: '', nl: '' },
       level: 'Beginner',
@@ -207,13 +208,9 @@ export function GrammarLessonForm({
       return;
     }
 
-    const finalData = {
-      ...data,
-      id: lesson?.id || `gl-${Date.now()}`, 
-      examples: data.examples.map(ex => ({...ex, id: ex.id || `ex-${Date.now()}-${Math.random()}`})),
-      embeddedExercises: data.embeddedExercises.map(ex => ({...ex, id: ex.id || `ee-${Date.now()}-${Math.random()}`})),
-    };
-    onSave(finalData as GrammarLesson); 
+    // No need to generate ID here, the parent (AdminGrammarPage) will handle it
+    // if data.id is undefined when creating a new lesson.
+    onSave(data); 
     onOpenChange(false);
   };
 
@@ -568,3 +565,5 @@ export function GrammarLessonForm({
     </Dialog>
   );
 }
+
+    

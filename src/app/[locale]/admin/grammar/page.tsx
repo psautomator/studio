@@ -11,7 +11,7 @@ import { placeholderGrammarLessons, placeholderQuizzes, placeholderWords } from 
 import { useLanguage } from '@/hooks/use-language';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
-import { GrammarLessonForm } from '@/components/admin/grammar-lesson-form';
+import { GrammarLessonForm, type GrammarLessonFormValues } from '@/components/admin/grammar-lesson-form';
 
 export default function AdminGrammarPage() {
   const { translations, language } = useLanguage();
@@ -49,16 +49,31 @@ export default function AdminGrammarPage() {
     setIsFormOpen(true);
   };
 
-  const handleSaveLesson = (data: GrammarLesson) => {
-    const existingIndex = lessons.findIndex(l => l.id === data.id);
+  const handleSaveLesson = (formData: GrammarLessonFormValues) => {
+    const lessonToSave: GrammarLesson = {
+      id: formData.id || `gl-${Date.now()}`,
+      title: formData.title,
+      explanation: formData.explanation,
+      level: formData.level,
+      category: formData.category,
+      examples: formData.examples || [],
+      relatedQuizIds: formData.relatedQuizIds || [],
+      relatedWordIds: formData.relatedWordIds || [],
+      embeddedExercises: formData.embeddedExercises || [],
+      status: formData.status,
+      imageUrl: formData.imageUrl,
+      lessonAudioUrl: formData.lessonAudioUrl,
+    };
+
+    const existingIndex = lessons.findIndex(l => l.id === lessonToSave.id);
     if (existingIndex > -1) {
       const updatedLessons = [...lessons];
-      updatedLessons[existingIndex] = data;
+      updatedLessons[existingIndex] = lessonToSave;
       setLessons(updatedLessons);
-      toast({ title: translations.lessonSaved || "Lesson Saved", description: `"${data.title[language] || data.title.en}" has been updated.` });
+      toast({ title: translations.lessonSaved || "Lesson Saved", description: `"${lessonToSave.title[language] || lessonToSave.title.en}" has been updated.` });
     } else {
-      setLessons(prevLessons => [...prevLessons, { ...data, id: data.id || `gl-${Date.now()}` }]); // Ensure ID for new lessons
-      toast({ title: translations.lessonSaved || "Lesson Saved", description: `"${data.title[language] || data.title.en}" has been added.` });
+      setLessons(prevLessons => [...prevLessons, lessonToSave]);
+      toast({ title: translations.lessonSaved || "Lesson Saved", description: `"${lessonToSave.title[language] || lessonToSave.title.en}" has been added.` });
     }
     setIsFormOpen(false);
     setEditingLesson(null);
@@ -86,3 +101,5 @@ export default function AdminGrammarPage() {
     </>
   );
 }
+
+    

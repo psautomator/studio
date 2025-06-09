@@ -49,6 +49,18 @@ const translationsData = {
     grammarManagement: "Grammar Management",
     admin: "Admin",
     adminDashboard: "Admin Dashboard",
+    adminDashboardDesc: "Oversee and manage application content and users.",
+    manageVocabulary: "Manage vocabulary & translations.",
+    createEditQuizzes: "Create & edit quizzes.",
+    manageGrammarLessons: "Manage grammar lessons.",
+    manageBadges: "Create & manage badges.",
+    viewManageUsers: "View user data & manage roles.",
+    draftQuizzesCount: "Draft Quizzes",
+    reviewDraftQuizzes: "Quizzes needing review.",
+    draftGrammarLessonsCount: "Draft Grammar Lessons",
+    reviewDraftGrammar: "Lessons needing review.",
+    contentAnalytics: "Content Analytics", // Kept for potential future use
+    viewLearningStats: "View learning statistics.", // Kept for potential future use
     backToApp: "Back to App",
     toggleToDutch: "Switch to Dutch",
     toggleToEnglish: "Switch to English",
@@ -175,8 +187,8 @@ const translationsData = {
     selectQuizPrompt: "Select a quiz to begin.",
     quizCompleted: "Quiz Completed!",
     startQuiz: "Start Quiz",
-    fillInTheBlanks: "Fill in the Blanks",
-    fillintheblanks: "Fill in Blanks",
+    fillInTheBlanks: "Fill in the Blanks", // Retained for any direct text use
+    fillintheblanks: "Fill in Blanks", // Sidebar key
     fillInTheBlankInstruction: "Type the missing Javanese word.",
     nextExercise: "Next Exercise",
     typeYourAnswer: "Type your answer here...",
@@ -194,6 +206,12 @@ const translationsData = {
     advanced: "Advanced",
     allLevels: "All Levels",
     filterByLevel: "Filter by Level:",
+    filterByDifficulty: "Filter by Difficulty:",
+    filterByCategory: "Filter by Category:",
+    allDifficulties: "All Difficulties",
+    allCategories: "All Categories",
+    noQuizzesMatchFilters: "No quizzes match your current filters.",
+    resetFilters: "Reset Filters",
     draft: "Draft",
     published: "Published",
     archived: "Archived",
@@ -299,6 +317,18 @@ const translationsData = {
     grammarManagement: "Grammaticabeheer",
     admin: "Beheer",
     adminDashboard: "Beheerdersdashboard",
+    adminDashboardDesc: "Beheer en bestuur applicatie-inhoud en gebruikers.",
+    manageVocabulary: "Beheer woordenschat & vertalingen.",
+    createEditQuizzes: "Creëer & bewerk quizzen.",
+    manageGrammarLessons: "Beheer grammaticalessen.",
+    manageBadges: "Creëer & beheer badges.",
+    viewManageUsers: "Bekijk gebruikersdata & beheer rollen.",
+    draftQuizzesCount: "Conceptquizzen",
+    reviewDraftQuizzes: "Quizzen die nagekeken moeten worden.",
+    draftGrammarLessonsCount: "Concept Grammaticalessen",
+    reviewDraftGrammar: "Lessen die nagekeken moeten worden.",
+    contentAnalytics: "Inhoudsanalyse", // Kept for potential future use
+    viewLearningStats: "Bekijk leerstatistieken.", // Kept for potential future use
     backToApp: "Terug naar App",
     toggleToDutch: "Schakel naar Nederlands",
     toggleToEnglish: "Switch to English",
@@ -425,8 +455,8 @@ const translationsData = {
     selectQuizPrompt: "Selecteer een quiz om te beginnen.",
     quizCompleted: "Quiz Voltooid!",
     startQuiz: "Start Quiz",
-    fillInTheBlanks: "Vul de Leemtes In",
-    fillintheblanks: "Zoek het woord",
+    fillInTheBlanks: "Vul de Leemtes In", // Retained for any direct text use
+    fillintheblanks: "Zoek het woord", // Sidebar key
     fillInTheBlankInstruction: "Typ het ontbrekende Javaanse woord.",
     nextExercise: "Volgende Oefening",
     typeYourAnswer: "Typ hier je antwoord...",
@@ -444,6 +474,12 @@ const translationsData = {
     advanced: "Gevorderd",
     allLevels: "Alle Niveaus",
     filterByLevel: "Filter op Niveau:",
+    filterByDifficulty: "Filter op Moeilijkheidsgraad:",
+    filterByCategory: "Filter op Categorie:",
+    allDifficulties: "Alle Moeilijkheidsgraden",
+    allCategories: "Alle Categorieën",
+    noQuizzesMatchFilters: "Geen quizzen komen overeen met je huidige filters.",
+    resetFilters: "Filters Resetten",
     draft: "Concept",
     published: "Gepubliceerd",
     archived: "Gearchiveerd",
@@ -566,3 +602,4 @@ export function useLanguage() {
   return context;
 }
 
+    
