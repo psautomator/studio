@@ -8,8 +8,8 @@ import { placeholderGrammarLessons } from '@/lib/placeholder-data';
 import type { GrammarLesson } from '@/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link'; // Assuming you might want to link to individual lesson pages later
-import { GraduationCap } from 'lucide-react';
+import Link from 'next/link';
+import { GraduationCap, ArrowRight } from 'lucide-react';
 
 export default function GrammarPage() {
   const { translations } = useLanguage();
@@ -38,9 +38,10 @@ export default function GrammarPage() {
                 </p>
               </CardContent>
               <CardFooter>
-                {/* In the future, this button could link to a detailed lesson page */}
-                <Button variant="secondary" className="w-full" disabled> 
-                  View Lesson (Coming Soon)
+                <Button variant="secondary" className="w-full" asChild> 
+                  <Link href={`/grammar/${lesson.id}`}>
+                    View Lesson <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
                 </Button>
               </CardFooter>
             </Card>
