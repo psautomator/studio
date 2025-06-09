@@ -50,7 +50,7 @@ function QuizForm({
   const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('easy');
   const [status, setStatus] = useState<'published' | 'draft' | 'archived'>('draft');
   const [questions, setQuestions] = useState<Partial<QuizQuestion>[]>([
-    { question: '', options: [{ text: '', isCorrect: false }, { text: '', isCorrect: false }] },
+    { questionText: '', options: [{ text: '', isCorrect: false }, { text: '', isCorrect: false }] },
   ]);
 
   useEffect(() => {
@@ -59,14 +59,14 @@ function QuizForm({
       setDescription(quiz.description || '');
       setDifficulty(quiz.difficulty || 'easy');
       setStatus(quiz.status || 'draft');
-      setQuestions(quiz.questions?.length ? quiz.questions : [{ question: '', options: [{ text: '', isCorrect: false }, { text: '', isCorrect: false }] }]);
+      setQuestions(quiz.questions?.length ? quiz.questions.map(q => ({...q, questionText: q.questionText || q.question})) : [{ questionText: '', options: [{ text: '', isCorrect: false }, { text: '', isCorrect: false }] }]);
     } else {
       // Reset form for new quiz
       setTitle('');
       setDescription('');
       setDifficulty('easy');
       setStatus('draft');
-      setQuestions([{ question: '', options: [{ text: '', isCorrect: false }, { text: '', isCorrect: false }] }]);
+      setQuestions([{ questionText: '', options: [{ text: '', isCorrect: false }, { text: '', isCorrect: false }] }]);
     }
   }, [quiz, open]);
 
@@ -105,7 +105,7 @@ function QuizForm({
   };
   
   const addQuestion = () => {
-    setQuestions([...questions, { question: '', options: [{ text: '', isCorrect: false }, { text: '', isCorrect: false }] }]);
+    setQuestions([...questions, { questionText: '', options: [{ text: '', isCorrect: false }, { text: '', isCorrect: false }] }]);
   };
 
   const removeQuestion = (qIndex: number) => {
@@ -114,14 +114,15 @@ function QuizForm({
 
 
   const handleSubmit = () => {
-    if (!title || questions.some(q => !q.question || q.options?.some(opt => !opt.text) || !q.options?.some(opt => opt.isCorrect))) {
+    if (!title || questions.some(q => !q.questionText || q.options?.some(opt => !opt.text) || !q.options?.some(opt => opt.isCorrect))) {
       alert('Title, all question texts, all option texts, and at least one correct answer per question are required.');
       return;
     }
     
     const finalQuestions: QuizQuestion[] = questions.map((q, index) => ({
         id: q.id || `q-${Date.now()}-${index}`, // Generate ID if not present
-        question: q.question!,
+        questionType: q.questionType || 'multiple-choice', // Default question type
+        questionText: q.questionText!,
         options: q.options! as QuizOption[],
         explanation: q.explanation,
         audioUrl: q.audioUrl,
@@ -195,7 +196,8 @@ function QuizForm({
                         <Button variant="ghost" size="sm" onClick={() => removeQuestion(qIndex)}><X className="h-4 w-4 mr-1" /> Remove Question</Button>
                     )}
                 </div>
-                <Textarea id={`question-${qIndex}`} value={q.question || ''} onChange={(e) => handleQuestionChange(qIndex, 'question', e.target.value)} placeholder="Enter question text" />
+                <Textarea id={`question-${qIndex}`} value={q.questionText || ''} onChange={(e) => handleQuestionChange(qIndex, 'questionText', e.target.value)} placeholder="Enter question text" />
+                 {/* TODO: Add select for questionType here in future */}
                  <div className="space-y-2">
                     <Label>Options</Label>
                     {q.options?.map((opt, oIndex) => (
@@ -257,29 +259,41 @@ function BulkImportDialog({
   const { toast } = useToast();
   const [jsonInput, setJsonInput] = useState('');
 
-  const exampleFormat = `Example for a single quiz:
-{
-  "id": "unique-quiz-id",
-  "title": "Quiz Title",
-  "description": "Optional quiz description.",
-  "difficulty": "easy" | "medium" | "hard", 
-  "status": "published" | "draft" | "archived", 
-  "questions": [
-    {
-      "id": "unique-question-id-1",
-      "question": "Question text?",
-      "options": [
-        { "text": "Option A", "isCorrect": false },
-        { "text": "Option B", "isCorrect": true }
-      ],
-      "explanation": "Optional explanation for the answer.",
-      "audioUrl": "Optional audio URL for the question."
-    }
-  ]
-}
-
-Paste an array of such quiz objects: [ {quiz1}, {quiz2}, ... ]
-Make sure all IDs (quiz ID and question IDs) are unique.
+  const exampleFormat = `[
+  {
+    "id": "quiz-bulk-1",
+    "title": "Bulk Imported Quiz 1",
+    "description": "Description for bulk quiz 1.",
+    "difficulty": "medium", 
+    "status": "draft", 
+    "questions": [
+      {
+        "id": "q-bulk-1-1",
+        "questionType": "multiple-choice",
+        "questionText": "What is 'siji' in Dutch?",
+        "options": [
+          { "text": "Een", "isCorrect": true },
+          { "text": "Twee", "isCorrect": false },
+          { "text": "Drie", "isCorrect": false }
+        ],
+        "explanation": "'Siji' means 'Een' (One).",
+        "audioUrl": ""
+      },
+      {
+        "id": "q-bulk-1-2",
+        "questionType": "translation-word-to-javanese",
+        "questionText": "Translate 'Huis' to Javanese.",
+        "options": [
+          { "text": "Omah", "isCorrect": true },
+          { "text": "Sekolah", "isCorrect": false }
+        ],
+        "explanation": "'Huis' is 'Omah' in Javanese (Ngoko)."
+      }
+    ]
+  }
+]
+// Paste an array of such quiz objects. IDs must be unique.
+// questionType can be: 'multiple-choice', 'translation-word-to-dutch', 'translation-sentence-to-dutch', 'translation-word-to-javanese', 'translation-sentence-to-javanese', 'fill-in-the-blank-mcq'
 `;
 
   const handleImportClick = () => {
@@ -288,24 +302,28 @@ Make sure all IDs (quiz ID and question IDs) are unique.
       if (!Array.isArray(parsedQuizzes)) {
         throw new Error("Input must be an array of quizzes.");
       }
-      // Basic validation (can be more thorough)
-      parsedQuizzes.forEach(quiz => {
+      
+      const validatedQuizzes = parsedQuizzes.map(quiz => {
         if (!quiz.id || !quiz.title || !Array.isArray(quiz.questions)) {
-          throw new Error("Each quiz must have an id, title, and questions array.");
+          throw new Error(`Quiz missing id, title, or questions. Problem with: ${JSON.stringify(quiz).substring(0,100)}...`);
         }
-        quiz.questions.forEach(q => {
-          if(!q.id || !q.question || !Array.isArray(q.options) || q.options.length < 2) {
-            throw new Error(`Question "${q.question || q.id}" is missing id, text, or has insufficient options.`);
+        quiz.status = quiz.status || 'draft';
+        quiz.difficulty = quiz.difficulty || 'easy';
+
+        quiz.questions.forEach((q, idx) => {
+          if(!q.id || !q.questionText || !Array.isArray(q.options) || q.options.length < 2) {
+            throw new Error(`Question #${idx+1} in quiz "${quiz.title}" is missing id, questionText, or has insufficient options.`);
           }
           if(!q.options.some(opt => opt.isCorrect)) {
-            throw new Error(`Question "${q.question || q.id}" must have at least one correct option.`);
+            throw new Error(`Question "${q.questionText.substring(0,30)}..." in quiz "${quiz.title}" must have at least one correct option.`);
           }
+          q.questionType = q.questionType || 'multiple-choice';
         });
-        // Ensure default status if not provided
-        if (!quiz.status) quiz.status = 'draft';
+        return quiz;
       });
-      onImport(parsedQuizzes);
-      toast({ title: "Import Successful", description: `${parsedQuizzes.length} quizzes imported.` });
+
+      onImport(validatedQuizzes);
+      toast({ title: "Import Successful", description: `${validatedQuizzes.length} quizzes imported.` });
       setJsonInput('');
       onOpenChange(false);
     } catch (error: any) {
@@ -339,9 +357,11 @@ Make sure all IDs (quiz ID and question IDs) are unique.
           </div>
           <div>
             <Label>Expected JSON Format</Label>
-            <pre className="mt-1 p-3 bg-muted/50 rounded-md text-xs overflow-x-auto max-h-[200px]">
-              <code>{exampleFormat}</code>
-            </pre>
+            <ScrollArea className="max-h-[200px] mt-1">
+                <pre className="p-3 bg-muted/50 rounded-md text-xs overflow-x-auto">
+                <code>{exampleFormat}</code>
+                </pre>
+            </ScrollArea>
           </div>
         </div>
         <DialogFooter>
@@ -405,7 +425,6 @@ export default function AdminQuizzesPage() {
   };
 
   const handleBulkImport = (importedQuizzes: Quiz[]) => {
-    // Simple merge: add new, overwrite existing by ID
     const updatedQuizzesMap = new Map(quizzes.map(q => [q.id, q]));
     importedQuizzes.forEach(iq => updatedQuizzesMap.set(iq.id, iq));
     setQuizzes(Array.from(updatedQuizzesMap.values()));
@@ -439,3 +458,4 @@ export default function AdminQuizzesPage() {
     </>
   );
 }
+

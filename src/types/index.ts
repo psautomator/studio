@@ -24,15 +24,18 @@ export type QuestionType =
   | 'multiple-choice' // Standard text question with text options
   | 'translation-word-to-dutch' // Given Javanese word, options are Dutch words
   | 'translation-sentence-to-dutch' // Given Javanese sentence, options are Dutch sentences
+  | 'translation-word-to-javanese' // Given Dutch word, options are Javanese words
+  | 'translation-sentence-to-javanese' // Given Dutch sentence, options are Javanese sentences
   | 'fill-in-the-blank-mcq'; // Sentence with a blank, options are words to fill
 
 export interface QuizQuestion {
   id: string;
-  questionType: QuestionType;
+  questionType?: QuestionType; // Optional for backward compatibility, default to 'multiple-choice'
   questionText: string; // Main question text (e.g., "What is X?", "Translate Y", "Aku ____ Z.")
   options: QuizOption[];
   explanation?: string;
   audioUrl?: string;
+  question?: string; // Legacy, prefer questionText
 }
 
 export interface Quiz {
@@ -122,3 +125,4 @@ export interface FillInTheBlankExercise {
   correctAnswer: string;
   originalJavaneseSentence: string;
 }
+
