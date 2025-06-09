@@ -25,6 +25,7 @@ export interface Quiz {
   options: QuizOption[];
   explanation?: string;
   difficulty?: 'easy' | 'medium' | 'hard';
+  audioUrl?: string; // Added for quiz question audio
 }
 
 export interface User {
@@ -45,3 +46,4 @@ export interface Badge {
   icon: string; // Icon name from lucide-react or path to image
   threshold?: number; // e.g., XP needed or streak length
 }
+

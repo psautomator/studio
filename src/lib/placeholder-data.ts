@@ -100,6 +100,7 @@ export const placeholderQuizzes: Quiz[] = [
     ],
     explanation: "'Sugeng rawuh' is een formele Javaanse begroeting die 'Welkom' betekent.",
     difficulty: 'easy',
+    audioUrl: 'https://translate.google.com/translate_tts?ie=UTF-8&q=Sugeng%20rawuh&tl=jv&client=tw-ob',
   },
   {
     id: 'q2',
@@ -123,6 +124,7 @@ export const placeholderQuizzes: Quiz[] = [
       { text: 'Kula ngantuk', isCorrect: false },
     ],
     difficulty: 'medium',
+    audioUrl: 'https://translate.google.com/translate_tts?ie=UTF-8&q=Kula%20tresna%20sampeyan&tl=jv&client=tw-ob',
   }
 ];
 
@@ -149,3 +151,4 @@ export const placeholderAdminUsers: User[] = [
     { id: 'user2', name: 'Piet Pietersen', email: 'piet@example.com', role: 'user', xp: 800, streak: 5, badges: ['newbie'] },
     { id: 'user3', name: 'Admin Account', email: 'admin@example.com', role: 'admin', xp: 0, streak: 0, badges: [] },
 ];
+
