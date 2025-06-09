@@ -174,6 +174,8 @@ export function GrammarLessonForm({
         titleNl: currentData.title.nl,
         explanationEn: currentData.explanation.en,
         explanationNl: currentData.explanation.nl,
+        category: currentData.category,
+        level: currentData.level,
     };
 
     try {
@@ -207,9 +209,6 @@ export function GrammarLessonForm({
       toast({ title: "Validation Error", description: "Please provide an explanation in at least one language or use AI Assist.", variant: "destructive"});
       return;
     }
-
-    // No need to generate ID here, the parent (AdminGrammarPage) will handle it
-    // if data.id is undefined when creating a new lesson.
     onSave(data); 
     onOpenChange(false);
   };
@@ -565,5 +564,3 @@ export function GrammarLessonForm({
     </Dialog>
   );
 }
-
-    
