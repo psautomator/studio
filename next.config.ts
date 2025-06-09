@@ -2,14 +2,7 @@
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
-  // i18n configuration is for Pages Router and not supported/needed in App Router.
-  // Internationalization in App Router is handled via the [locale] directory
-  // and middleware. Removing this block to prevent build issues.
-  // i18n: {
-  //   locales: ['en', 'nl'],
-  //   defaultLocale: 'nl',
-  //   localeDetection: false,
-  // },
+  transpilePackages: ['handlebars'],
   typescript: {
     ignoreBuildErrors: true,
   },
