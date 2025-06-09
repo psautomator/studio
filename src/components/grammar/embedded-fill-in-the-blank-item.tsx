@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from 'react';
-import type { Word, FillInTheBlankExercise } from '@/types';
+import type { EmbeddedFillInTheBlankExercise } from '@/types'; // Changed import
 import { useLanguage } from '@/hooks/use-language';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
@@ -12,40 +12,24 @@ import { CheckCircle, XCircle, Lightbulb } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface EmbeddedFillInTheBlankItemProps {
-  word: Word;
+  // word: Word; // Previous prop
+  exerciseData: EmbeddedFillInTheBlankExercise & { originalJavaneseSentenceForDisplay?: string }; // New prop
 }
 
-function escapeRegExp(string: string): string {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
+// function escapeRegExp(string: string): string {
+//   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+// }
 
-export function EmbeddedFillInTheBlankItem({ word }: EmbeddedFillInTheBlankItemProps) {
-  const { translations } = useLanguage();
+export function EmbeddedFillInTheBlankItem({ exerciseData }: EmbeddedFillInTheBlankItemProps) {
+  const { translations, language } = useLanguage(); // Added language
   const { toast } = useToast();
 
   const [userAnswer, setUserAnswer] = useState('');
   const [feedback, setFeedback] = useState<{ type: 'correct' | 'incorrect'; message: string } | null>(null);
   const [isAnswered, setIsAnswered] = useState(false);
 
-  // Derive exercise from word prop
-  const exercise: FillInTheBlankExercise | null = (() => {
-    if (!word.exampleSentenceJavanese || !word.javanese) return null;
-    
-    const blankedSentence = word.exampleSentenceJavanese
-        .replace(new RegExp(escapeRegExp(word.javanese), 'i'), '_______');
-    
-    if (blankedSentence === word.exampleSentenceJavanese) {
-        console.warn(`Could not create blank for word "${word.javanese}" in sentence "${word.exampleSentenceJavanese}" for embedded item.`);
-        return null; 
-    }
-    return {
-      id: word.id,
-      questionSentence: blankedSentence,
-      hintSentence: word.exampleSentenceDutch || translations.noHintAvailable || "No hint available.",
-      correctAnswer: word.javanese,
-      originalJavaneseSentence: word.exampleSentenceJavanese!,
-    };
-  })();
+  // Use exerciseData directly
+  const exercise = exerciseData;
 
   const handleCheckAnswer = () => {
     if (!exercise || !userAnswer.trim()) {
@@ -76,17 +60,24 @@ export function EmbeddedFillInTheBlankItem({ word }: EmbeddedFillInTheBlankItemP
     return (
       <Card className="border-dashed border-muted-foreground/50 bg-muted/20">
         <CardContent className="p-4 text-center text-muted-foreground">
-          <p>Could not load this fill-in-the-blank exercise for "{word.javanese}". The example sentence might be missing or misconfigured.</p>
+          <p>Could not load this fill-in-the-blank exercise.</p>
         </CardContent>
       </Card>
     );
   }
 
+  const hintText = exercise.hint?.[language] || exercise.hint?.en;
+  // The sentence with placeholder should come directly from `exercise.javaneseSentenceWithPlaceholder`
+  const questionSentence = exercise.javaneseSentenceWithPlaceholder;
+  // The full original sentence for feedback, reconstruct if not directly provided or use the admin-provided structure
+  const originalSentenceForFeedback = exercise.originalJavaneseSentenceForDisplay || questionSentence.replace('_______', exercise.correctAnswer);
+
+
   return (
     <Card className="shadow-md bg-card/50">
       <CardHeader className="pb-3">
         <CardTitle className="font-normal text-xl md:text-2xl text-primary/90 leading-relaxed">
-          {exercise.questionSentence.split('_______').map((part, index, arr) => (
+          {questionSentence.split('_______').map((part, index, arr) => (
             <span key={index}>
               {part}
               {index < arr.length - 1 && (
@@ -97,10 +88,10 @@ export function EmbeddedFillInTheBlankItem({ word }: EmbeddedFillInTheBlankItemP
             </span>
           ))}
         </CardTitle>
-        {exercise.hintSentence && (
+        {hintText && (
           <CardDescription className="text-center pt-2 text-xs">
             <Lightbulb className="inline-block h-3 w-3 mr-1 text-accent" /> 
-            ({translations.dutch}): <em className="text-muted-foreground">{exercise.hintSentence}</em>
+            ({translations.dutch || 'Hint'}): <em className="text-muted-foreground">{hintText}</em>
           </CardDescription>
         )}
       </CardHeader>
@@ -124,7 +115,7 @@ export function EmbeddedFillInTheBlankItem({ word }: EmbeddedFillInTheBlankItemP
                 {feedback.type === 'incorrect' ? 
                     `${translations.missingWordWas} "${exercise.correctAnswer}". ` 
                     : ''}
-                 Original: <em>{exercise.originalJavaneseSentence}</em>
+                 Original: <em>{originalSentenceForFeedback}</em>
             </AlertDescription>
           </Alert>
         )}
@@ -151,3 +142,4 @@ export function EmbeddedFillInTheBlankItem({ word }: EmbeddedFillInTheBlankItemP
     </Card>
   );
 }
+
