@@ -1,11 +1,12 @@
+
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { PageHeader } from '@/components/shared/page-header';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, X } from 'lucide-react';
+import { PlusCircle, X, Upload } from 'lucide-react';
 import { DataTable } from '@/components/admin/data-table';
-import type { Quiz, QuizOption } from '@/types';
+import type { Quiz, QuizOption, QuizQuestion } from '@/types';
 import { placeholderQuizzes } from '@/lib/placeholder-data';
 import { useLanguage } from '@/hooks/use-language';
 import {
@@ -15,14 +16,23 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
+  DialogClose,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
+import { Badge } from '@/components/ui/badge';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-// Dummy QuizForm component
+// QuizForm component (modified)
 function QuizForm({
   open,
   onOpenChange,
@@ -35,78 +45,196 @@ function QuizForm({
   onSave: (data: Quiz) => void;
 }) {
   const { translations } = useLanguage();
-  const [question, setQuestion] = useState(quiz?.question || '');
-  const [options, setOptions] = useState<QuizOption[]>(quiz?.options || [{ text: '', isCorrect: false }, { text: '', isCorrect: false }]);
-  const [explanation, setExplanation] = useState(quiz?.explanation || '');
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('easy');
+  const [status, setStatus] = useState<'published' | 'draft' | 'archived'>('draft');
+  const [questions, setQuestions] = useState<Partial<QuizQuestion>[]>([
+    { question: '', options: [{ text: '', isCorrect: false }, { text: '', isCorrect: false }] },
+  ]);
 
-  const handleOptionChange = (index: number, field: keyof QuizOption, value: string | boolean) => {
-    const newOptions = [...options];
-    if (field === 'text' && typeof value === 'string') newOptions[index].text = value;
-    if (field === 'isCorrect' && typeof value === 'boolean') newOptions[index].isCorrect = value;
-    setOptions(newOptions);
+  useEffect(() => {
+    if (quiz) {
+      setTitle(quiz.title || '');
+      setDescription(quiz.description || '');
+      setDifficulty(quiz.difficulty || 'easy');
+      setStatus(quiz.status || 'draft');
+      setQuestions(quiz.questions?.length ? quiz.questions : [{ question: '', options: [{ text: '', isCorrect: false }, { text: '', isCorrect: false }] }]);
+    } else {
+      // Reset form for new quiz
+      setTitle('');
+      setDescription('');
+      setDifficulty('easy');
+      setStatus('draft');
+      setQuestions([{ question: '', options: [{ text: '', isCorrect: false }, { text: '', isCorrect: false }] }]);
+    }
+  }, [quiz, open]);
+
+
+  const handleQuestionChange = (qIndex: number, field: keyof QuizQuestion, value: string) => {
+    const newQuestions = [...questions];
+    newQuestions[qIndex] = { ...newQuestions[qIndex], [field]: value };
+    setQuestions(newQuestions);
   };
 
-  const addOption = () => setOptions([...options, { text: '', isCorrect: false }]);
-  const removeOption = (index: number) => setOptions(options.filter((_, i) => i !== index));
+  const handleOptionChange = (qIndex: number, oIndex: number, field: keyof QuizOption, value: string | boolean) => {
+    const newQuestions = [...questions];
+    const currentQuestion = { ...newQuestions[qIndex] };
+    const newOptions = [...(currentQuestion.options || [])];
+    if (field === 'text' && typeof value === 'string') newOptions[oIndex] = { ...newOptions[oIndex], text: value };
+    if (field === 'isCorrect' && typeof value === 'boolean') newOptions[oIndex] = { ...newOptions[oIndex], isCorrect: value };
+    currentQuestion.options = newOptions;
+    newQuestions[qIndex] = currentQuestion;
+    setQuestions(newQuestions);
+  };
+
+  const addOption = (qIndex: number) => {
+    const newQuestions = [...questions];
+    const currentQuestion = { ...newQuestions[qIndex] };
+    currentQuestion.options = [...(currentQuestion.options || []), { text: '', isCorrect: false }];
+    newQuestions[qIndex] = currentQuestion;
+    setQuestions(newQuestions);
+  };
+
+  const removeOption = (qIndex: number, oIndex: number) => {
+    const newQuestions = [...questions];
+    const currentQuestion = { ...newQuestions[qIndex] };
+    currentQuestion.options = currentQuestion.options?.filter((_, i) => i !== oIndex);
+    newQuestions[qIndex] = currentQuestion;
+    setQuestions(newQuestions);
+  };
+  
+  const addQuestion = () => {
+    setQuestions([...questions, { question: '', options: [{ text: '', isCorrect: false }, { text: '', isCorrect: false }] }]);
+  };
+
+  const removeQuestion = (qIndex: number) => {
+    setQuestions(questions.filter((_, i) => i !== qIndex));
+  };
+
 
   const handleSubmit = () => {
-    if (!question || options.some(opt => !opt.text) || !options.some(opt => opt.isCorrect)) {
-      alert('Question, all option texts, and at least one correct answer are required.');
+    if (!title || questions.some(q => !q.question || q.options?.some(opt => !opt.text) || !q.options?.some(opt => opt.isCorrect))) {
+      alert('Title, all question texts, all option texts, and at least one correct answer per question are required.');
       return;
     }
+    
+    const finalQuestions: QuizQuestion[] = questions.map((q, index) => ({
+        id: q.id || `q-${Date.now()}-${index}`, // Generate ID if not present
+        question: q.question!,
+        options: q.options! as QuizOption[],
+        explanation: q.explanation,
+        audioUrl: q.audioUrl,
+    }));
+
     onSave({
-      id: quiz?.id || String(Date.now()),
-      question,
-      options,
-      explanation,
+      id: quiz?.id || `quiz-${Date.now()}`,
+      title,
+      description,
+      difficulty,
+      status,
+      questions: finalQuestions,
     });
     onOpenChange(false);
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[625px]">
+      <DialogContent className="sm:max-w-[725px] max-h-[90vh]">
         <DialogHeader>
-          <DialogTitle>{quiz?.id ? 'Edit Quiz' : translations.addNewQuiz}</DialogTitle>
+          <DialogTitle>{quiz?.id ? 'Edit Quiz Set' : 'Add New Quiz Set'}</DialogTitle>
           <DialogDescription>
-            {quiz?.id ? 'Modify the details of the quiz.' : 'Enter the details for the new quiz.'}
+            {quiz?.id ? 'Modify the details of the quiz set.' : 'Enter the details for the new quiz set.'}
           </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 py-4 max-h-[70vh] overflow-y-auto pr-2">
+        <div className="grid gap-4 py-4 overflow-y-auto pr-2">
           <div>
-            <Label htmlFor="question">{translations.question}</Label>
-            <Textarea id="question" value={question} onChange={(e) => setQuestion(e.target.value)} className="mt-1" />
+            <Label htmlFor="title">Quiz Title</Label>
+            <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} className="mt-1" />
           </div>
           <div>
-            <Label>{translations.options}</Label>
-            {options.map((opt, index) => (
-              <div key={index} className="flex items-center gap-2 mt-2">
-                <Input
-                  type="text"
-                  placeholder={`Option ${index + 1}`}
-                  value={opt.text}
-                  onChange={(e) => handleOptionChange(index, 'text', e.target.value)}
-                  className="flex-grow"
-                />
-                <div className="flex items-center space-x-2">
-                   <Checkbox
-                    id={`isCorrect-${index}`}
-                    checked={opt.isCorrect}
-                    onCheckedChange={(checked) => handleOptionChange(index, 'isCorrect', !!checked)}
-                  />
-                  <Label htmlFor={`isCorrect-${index}`} className="text-sm">Correct</Label>
+            <Label htmlFor="description">Description (optional)</Label>
+            <Textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} className="mt-1" />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="difficulty">Difficulty</Label>
+              <Select value={difficulty} onValueChange={(value) => setDifficulty(value as 'easy' | 'medium' | 'hard')}>
+                <SelectTrigger id="difficulty" className="mt-1">
+                  <SelectValue placeholder="Select difficulty" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="easy">Easy</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="hard">Hard</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="status">Status</Label>
+              <Select value={status} onValueChange={(value) => setStatus(value as 'published' | 'draft' | 'archived')}>
+                <SelectTrigger id="status" className="mt-1">
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="published">Published</SelectItem>
+                  <SelectItem value="draft">Draft</SelectItem>
+                  <SelectItem value="archived">Archived</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="space-y-6 mt-4">
+            <Label className="text-lg font-semibold">Questions</Label>
+            {questions.map((q, qIndex) => (
+              <div key={qIndex} className="p-4 border rounded-md space-y-3 bg-muted/30">
+                <div className="flex justify-between items-center">
+                    <Label htmlFor={`question-${qIndex}`} className="font-medium">Question {qIndex + 1}</Label>
+                    {questions.length > 1 && (
+                        <Button variant="ghost" size="sm" onClick={() => removeQuestion(qIndex)}><X className="h-4 w-4 mr-1" /> Remove Question</Button>
+                    )}
                 </div>
-                {options.length > 2 && (
-                  <Button variant="ghost" size="icon" onClick={() => removeOption(index)}><X className="h-4 w-4" /></Button>
-                )}
+                <Textarea id={`question-${qIndex}`} value={q.question || ''} onChange={(e) => handleQuestionChange(qIndex, 'question', e.target.value)} placeholder="Enter question text" />
+                 <div className="space-y-2">
+                    <Label>Options</Label>
+                    {q.options?.map((opt, oIndex) => (
+                        <div key={oIndex} className="flex items-center gap-2">
+                        <Input
+                            type="text"
+                            placeholder={`Option ${oIndex + 1}`}
+                            value={opt.text}
+                            onChange={(e) => handleOptionChange(qIndex, oIndex, 'text', e.target.value)}
+                            className="flex-grow"
+                        />
+                        <div className="flex items-center space-x-2">
+                            <Checkbox
+                            id={`isCorrect-${qIndex}-${oIndex}`}
+                            checked={opt.isCorrect}
+                            onCheckedChange={(checked) => handleOptionChange(qIndex, oIndex, 'isCorrect', !!checked)}
+                            />
+                            <Label htmlFor={`isCorrect-${qIndex}-${oIndex}`} className="text-sm">Correct</Label>
+                        </div>
+                        {(q.options?.length || 0) > 2 && (
+                            <Button variant="ghost" size="icon" onClick={() => removeOption(qIndex, oIndex)}><X className="h-4 w-4" /></Button>
+                        )}
+                        </div>
+                    ))}
+                    <Button variant="outline" size="sm" onClick={() => addOption(qIndex)} className="mt-1">Add Option</Button>
+                 </div>
+                <div>
+                  <Label htmlFor={`explanation-${qIndex}`}>Explanation (optional)</Label>
+                  <Textarea id={`explanation-${qIndex}`} value={q.explanation || ''} onChange={(e) => handleQuestionChange(qIndex, 'explanation', e.target.value)} placeholder="Explain the correct answer" className="mt-1" />
+                </div>
+                 <div>
+                  <Label htmlFor={`audioUrl-${qIndex}`}>Audio URL (optional)</Label>
+                  <Input id={`audioUrl-${qIndex}`} value={q.audioUrl || ''} onChange={(e) => handleQuestionChange(qIndex, 'audioUrl', e.target.value)} placeholder="Enter audio URL for the question" className="mt-1" />
+                </div>
               </div>
             ))}
-            <Button variant="outline" size="sm" onClick={addOption} className="mt-2">Add Option</Button>
+            <Button variant="outline" onClick={addQuestion}>Add Question</Button>
           </div>
-           <div>
-            <Label htmlFor="explanation">Explanation (optional)</Label>
-            <Textarea id="explanation" value={explanation} onChange={(e) => setExplanation(e.target.value)} className="mt-1" />
-          </div>
+
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>{translations.cancel}</Button>
@@ -117,17 +245,131 @@ function QuizForm({
   );
 }
 
+function BulkImportDialog({
+  open,
+  onOpenChange,
+  onImport,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onImport: (quizzes: Quiz[]) => void;
+}) {
+  const { toast } = useToast();
+  const [jsonInput, setJsonInput] = useState('');
+
+  const exampleFormat = `Example for a single quiz:
+{
+  "id": "unique-quiz-id",
+  "title": "Quiz Title",
+  "description": "Optional quiz description.",
+  "difficulty": "easy" | "medium" | "hard", 
+  "status": "published" | "draft" | "archived", 
+  "questions": [
+    {
+      "id": "unique-question-id-1",
+      "question": "Question text?",
+      "options": [
+        { "text": "Option A", "isCorrect": false },
+        { "text": "Option B", "isCorrect": true }
+      ],
+      "explanation": "Optional explanation for the answer.",
+      "audioUrl": "Optional audio URL for the question."
+    }
+  ]
+}
+
+Paste an array of such quiz objects: [ {quiz1}, {quiz2}, ... ]
+Make sure all IDs (quiz ID and question IDs) are unique.
+`;
+
+  const handleImportClick = () => {
+    try {
+      const parsedQuizzes = JSON.parse(jsonInput) as Quiz[];
+      if (!Array.isArray(parsedQuizzes)) {
+        throw new Error("Input must be an array of quizzes.");
+      }
+      // Basic validation (can be more thorough)
+      parsedQuizzes.forEach(quiz => {
+        if (!quiz.id || !quiz.title || !Array.isArray(quiz.questions)) {
+          throw new Error("Each quiz must have an id, title, and questions array.");
+        }
+        quiz.questions.forEach(q => {
+          if(!q.id || !q.question || !Array.isArray(q.options) || q.options.length < 2) {
+            throw new Error(`Question "${q.question || q.id}" is missing id, text, or has insufficient options.`);
+          }
+          if(!q.options.some(opt => opt.isCorrect)) {
+            throw new Error(`Question "${q.question || q.id}" must have at least one correct option.`);
+          }
+        });
+        // Ensure default status if not provided
+        if (!quiz.status) quiz.status = 'draft';
+      });
+      onImport(parsedQuizzes);
+      toast({ title: "Import Successful", description: `${parsedQuizzes.length} quizzes imported.` });
+      setJsonInput('');
+      onOpenChange(false);
+    } catch (error: any) {
+      toast({
+        title: "Import Failed",
+        description: error.message || "Invalid JSON format or structure.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[725px] max-h-[90vh]">
+        <DialogHeader>
+          <DialogTitle>Bulk Import Quizzes</DialogTitle>
+          <DialogDescription>
+            Paste your quiz data in JSON format below. Refer to the expected format.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4 py-4 overflow-y-auto pr-2">
+          <div>
+            <Label htmlFor="jsonImport">JSON Data</Label>
+            <Textarea
+              id="jsonImport"
+              value={jsonInput}
+              onChange={(e) => setJsonInput(e.target.value)}
+              placeholder="Paste JSON array of quizzes here..."
+              className="mt-1 min-h-[200px] font-mono text-xs"
+            />
+          </div>
+          <div>
+            <Label>Expected JSON Format</Label>
+            <pre className="mt-1 p-3 bg-muted/50 rounded-md text-xs overflow-x-auto max-h-[200px]">
+              <code>{exampleFormat}</code>
+            </pre>
+          </div>
+        </div>
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button variant="outline">Cancel</Button>
+          </DialogClose>
+          <Button onClick={handleImportClick}>Import</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+
 export default function AdminQuizzesPage() {
   const { translations } = useLanguage();
   const { toast } = useToast();
   const [quizzes, setQuizzes] = useState<Quiz[]>(placeholderQuizzes);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingQuiz, setEditingQuiz] = useState<Partial<Quiz> | null>(null);
+  const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
+
 
   const columns = [
-    { accessorKey: 'question', header: translations.question, cell: (item: Quiz) => <span className="truncate block max-w-xs">{item.question}</span> },
-    { accessorKey: 'options', header: translations.options, cell: (item: Quiz) => item.options.length },
-    { accessorKey: 'difficulty', header: 'Difficulty' },
+    { accessorKey: 'title', header: 'Title', cell: (item: Quiz) => <span className="truncate block max-w-xs font-medium">{item.title}</span> },
+    { accessorKey: 'questions', header: 'Questions', cell: (item: Quiz) => item.questions.length },
+    { accessorKey: 'difficulty', header: 'Difficulty', cell: (item: Quiz) => <Badge variant={item.difficulty === 'hard' ? 'destructive' : item.difficulty === 'medium' ? 'secondary' : 'outline'} className="capitalize">{item.difficulty || 'N/A'}</Badge> },
+    { accessorKey: 'status', header: 'Status', cell: (item: Quiz) => <Badge variant={item.status === 'published' ? 'default' : item.status === 'draft' ? 'secondary' : 'outline'} className="capitalize">{item.status || 'N/A'}</Badge> },
   ];
 
   const handleEdit = (quiz: Quiz) => {
@@ -136,19 +378,22 @@ export default function AdminQuizzesPage() {
   };
 
   const handleDelete = (quizToDelete: Quiz) => {
-     if (window.confirm(`Are you sure you want to delete this quiz: "${quizToDelete.question.substring(0,30)}..."?`)) {
+     if (window.confirm(`Are you sure you want to delete this quiz: "${quizToDelete.title}"?`)) {
       setQuizzes(quizzes.filter(q => q.id !== quizToDelete.id));
       toast({ title: "Quiz Deleted", description: "The quiz has been removed." });
     }
   };
 
   const handleSaveQuiz = (quizData: Quiz) => {
-    if (editingQuiz?.id) {
-      setQuizzes(quizzes.map(q => q.id === editingQuiz.id ? { ...q, ...quizData } : q));
-      toast({ title: "Quiz Updated", description: "The quiz has been updated." });
+    const existingQuizIndex = quizzes.findIndex(q => q.id === quizData.id);
+    if (existingQuizIndex > -1) {
+      const updatedQuizzes = [...quizzes];
+      updatedQuizzes[existingQuizIndex] = quizData;
+      setQuizzes(updatedQuizzes);
+      toast({ title: "Quiz Updated", description: `"${quizData.title}" has been updated.` });
     } else {
-      setQuizzes([...quizzes, { ...quizData, id: String(Date.now()) }]);
-      toast({ title: "Quiz Added", description: "The new quiz has been added." });
+      setQuizzes([...quizzes, quizData]);
+      toast({ title: "Quiz Added", description: `"${quizData.title}" has been added.` });
     }
     setEditingQuiz(null);
     setIsFormOpen(false);
@@ -159,10 +404,21 @@ export default function AdminQuizzesPage() {
     setIsFormOpen(true);
   };
 
+  const handleBulkImport = (importedQuizzes: Quiz[]) => {
+    // Simple merge: add new, overwrite existing by ID
+    const updatedQuizzesMap = new Map(quizzes.map(q => [q.id, q]));
+    importedQuizzes.forEach(iq => updatedQuizzesMap.set(iq.id, iq));
+    setQuizzes(Array.from(updatedQuizzesMap.values()));
+  };
+
 
   return (
     <>
-      <PageHeader title={translations.quizzesManagement} description="Create and manage quizzes.">
+      <PageHeader title={translations.quizzesManagement} description="Create, manage, and import quiz sets.">
+        <Button onClick={() => setIsImportDialogOpen(true)} variant="outline" className="mr-2">
+          <Upload className="mr-2 h-4 w-4" />
+          Bulk Import Quizzes
+        </Button>
         <Button onClick={handleAddNew}>
           <PlusCircle className="mr-2 h-4 w-4" />
           {translations.addNewQuiz}
@@ -174,6 +430,11 @@ export default function AdminQuizzesPage() {
         onOpenChange={setIsFormOpen}
         quiz={editingQuiz}
         onSave={handleSaveQuiz}
+      />
+      <BulkImportDialog
+        open={isImportDialogOpen}
+        onOpenChange={setIsImportDialogOpen}
+        onImport={handleBulkImport}
       />
     </>
   );

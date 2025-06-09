@@ -35,7 +35,7 @@ export interface Quiz {
   description?: string;
   difficulty?: 'easy' | 'medium' | 'hard';
   questions: QuizQuestion[];
-  // status?: 'published' | 'draft'; // For later, if needed
+  status?: 'published' | 'draft' | 'archived'; // Added status
 }
 
 export interface User {

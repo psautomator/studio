@@ -8,7 +8,7 @@ import { QuizItem } from '@/components/quizzes/quiz-item';
 import { placeholderQuizzes } from '@/lib/placeholder-data';
 import { useLanguage } from '@/hooks/use-language';
 import { Progress } from '@/components/ui/progress';
-import type { Quiz as QuizSetType } from '@/types'; // Renamed import
+import type { Quiz as QuizSetType } from '@/types'; 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -17,7 +17,8 @@ export default function QuizzesPage() {
   const { translations } = useLanguage();
   const { toast } = useToast();
   
-  const allQuizSets: QuizSetType[] = placeholderQuizzes;
+  // Filter for published quizzes only
+  const allQuizSets: QuizSetType[] = placeholderQuizzes.filter(quiz => quiz.status === 'published');
 
   const [activeQuizSet, setActiveQuizSet] = useState<QuizSetType | null>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -41,13 +42,11 @@ export default function QuizzesPage() {
       if (currentQuestionIndex < activeQuizSet.questions.length - 1) {
         setCurrentQuestionIndex(prevIndex => prevIndex + 1);
       } else {
-        // This was the last question
         handleFinishQuiz();
       }
     }
   };
   
-  // Quiz Overview UI
   if (!activeQuizSet) {
     return (
       <MainAppLayout>
@@ -79,13 +78,12 @@ export default function QuizzesPage() {
             ))}
           </div>
         ) : (
-          <p>No quizzes available at the moment. Please check back later!</p>
+          <p>No published quizzes available at the moment. Please check back later!</p>
         )}
       </MainAppLayout>
     );
   }
 
-  // Active Quiz Playing UI
   const currentQuestion = activeQuizSet.questions[currentQuestionIndex];
   const progressPercentage = activeQuizSet.questions.length > 0 
     ? ((currentQuestionIndex + 1) / activeQuizSet.questions.length) * 100 
@@ -94,7 +92,7 @@ export default function QuizzesPage() {
 
   return (
     <MainAppLayout>
-      <PageHeader title={activeQuizSet.title} description="Test your Javanese knowledge." />
+      <PageHeader title={activeQuizSet.title || "Quiz"} description="Test your Javanese knowledge." />
       <div className="flex flex-col items-center">
         <div className="w-full max-w-2xl mb-4">
           <Progress value={progressPercentage} className="h-2" />

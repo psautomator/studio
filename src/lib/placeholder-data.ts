@@ -95,6 +95,7 @@ export const placeholderQuizzes: Quiz[] = [
     title: 'Javanese Greetings',
     description: 'Test your knowledge of common Javanese greetings and politeness.',
     difficulty: 'easy',
+    status: 'published',
     questions: [
       {
         id: 'q1s1', // Unique ID for this question within the set
@@ -126,6 +127,7 @@ export const placeholderQuizzes: Quiz[] = [
     title: 'Basic Javanese Vocabulary',
     description: 'A quiz on fundamental Javanese words like colors and nouns.',
     difficulty: 'medium',
+    status: 'published',
     questions: [
       {
         id: 'q1s2',
@@ -162,6 +164,24 @@ export const placeholderQuizzes: Quiz[] = [
       },
     ],
   },
+   {
+    id: 'quizSet3',
+    title: 'Javanese Numbers (Draft)',
+    description: 'A quiz about numbers in Javanese, currently in draft.',
+    difficulty: 'easy',
+    status: 'draft',
+    questions: [
+      {
+        id: 'q1s3',
+        question: "What is 'siji' in Javanese?",
+        options: [
+          { text: 'One', isCorrect: true },
+          { text: 'Two', isCorrect: false },
+          { text: 'Three', isCorrect: false },
+        ],
+      },
+    ],
+  },
 ];
 
 
@@ -169,7 +189,7 @@ export const placeholderUser: User = {
   id: 'user123',
   name: 'Alex Doe',
   email: 'alex.doe@example.com',
-  role: 'user',
+  role: 'admin', // Changed to admin for testing admin features
   xp: 1250,
   streak: 15,
   badges: ['newbie', 'wordmaster_lvl1'],
@@ -180,7 +200,7 @@ export const placeholderBadges: Badge[] = [
   { id: 'newbie', name: 'Newbie Linguist', description: 'Started your Javanese journey!', icon: 'Award' },
   { id: 'wordmaster_lvl1', name: 'Word Master Lv. 1', description: 'Learned 50 new words.', icon: 'BookOpenCheck', threshold: 50 },
   { id: 'streak_7', name: '7-Day Streak', description: 'Logged in for 7 days in a row!', icon: 'Flame', threshold: 7 },
-  { id: 'quiz_champ_easy', name: 'Quiz Champion (Easy)', description: 'Completed 10 easy quizzes with 80%+ accuracy.', icon: 'Star', threshold: 10 }, // Corrected icon name
+  { id: 'quiz_champ_easy', name: 'Quiz Champion (Easy)', description: 'Completed 10 easy quizzes with 80%+ accuracy.', icon: 'StarIcon', threshold: 10 },
 ];
 
 export const placeholderAdminUsers: User[] = [
