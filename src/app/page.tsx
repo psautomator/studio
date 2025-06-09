@@ -74,8 +74,8 @@ export default function HomePage() {
                <Image 
                 src="https://placehold.co/1200x525.png" 
                 alt="Javanese Scenery" 
-                layout="fill" 
-                objectFit="cover"
+                fill={true}
+                style={{ objectFit: 'cover' }}
                 data-ai-hint="Indonesia landscape"
                 priority
               />
