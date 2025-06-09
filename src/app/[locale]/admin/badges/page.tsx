@@ -10,7 +10,7 @@ import type { Badge } from '@/types';
 import { placeholderBadges } from '@/lib/placeholder-data';
 import { useLanguage } from '@/hooks/use-language';
 import { useToast } from '@/hooks/use-toast';
-import { BadgeForm } from '@/components/admin/badge-form'; // We'll create this next
+import { BadgeForm, type BadgeFormValues } from '@/components/admin/badge-form'; // Import BadgeFormValues
 
 export default function AdminBadgesPage() {
   const { translations } = useLanguage();
@@ -43,15 +43,27 @@ export default function AdminBadgesPage() {
     setIsFormOpen(true);
   };
 
-  const handleSaveBadge = (data: Badge) => {
+  // Update the type of 'data' to BadgeFormValues
+  const handleSaveBadge = (data: BadgeFormValues) => {
     const existingIndex = badges.findIndex(b => b.id === data.id);
-    if (existingIndex > -1) {
+    if (existingIndex > -1 && data.id) { // Ensure data.id exists for updates
       const updatedBadges = [...badges];
-      updatedBadges[existingIndex] = data;
+      // Ensure the object being saved conforms to Badge type, especially 'id'
+      updatedBadges[existingIndex] = {
+        ...data,
+        id: data.id, // data.id is now definitely a string here
+        threshold: data.threshold, // Already number | undefined
+      } as Badge; // Asserting that at this point, it's a full Badge
       setBadges(updatedBadges);
       toast({ title: translations.badgeSaved || "Badge Saved", description: `"${data.name}" ${translations.hasBeenUpdated || "has been updated."}` });
     } else {
-      setBadges(prevBadges => [...prevBadges, { ...data, id: data.id || `badge-${Date.now()}` }]);
+      // For new badges, generate an ID. The object will conform to Badge type.
+      const newBadge: Badge = {
+        ...data,
+        id: `badge-${Date.now()}`, // Generate ID for new badge
+        threshold: data.threshold,
+      };
+      setBadges(prevBadges => [...prevBadges, newBadge]);
       toast({ title: translations.badgeSaved || "Badge Saved", description: `"${data.name}" ${translations.hasBeenAdded || "has been added."}` });
     }
     setIsFormOpen(false);

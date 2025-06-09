@@ -15,6 +15,7 @@ import { Textarea } from '@/components/ui/textarea';
 import type { Badge } from '@/types';
 import { useLanguage } from '@/hooks/use-language';
 
+// Exporting the schema or the inferred type for use in AdminBadgesPage
 const badgeFormSchema = z.object({
   id: z.string().optional(),
   name: z.string().min(1, "Badge name is required."),
@@ -26,13 +27,13 @@ const badgeFormSchema = z.object({
   ),
 });
 
-type BadgeFormValues = z.infer<typeof badgeFormSchema>;
+export type BadgeFormValues = z.infer<typeof badgeFormSchema>;
 
 interface BadgeFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  badge: Badge | null;
-  onSave: (data: BadgeFormValues) => void;
+  badge: Badge | null; // Badge type is fine here, as we might receive a full Badge for editing
+  onSave: (data: BadgeFormValues) => void; // This expects BadgeFormValues
 }
 
 export function BadgeForm({ open, onOpenChange, badge, onSave }: BadgeFormProps) {
@@ -45,6 +46,7 @@ export function BadgeForm({ open, onOpenChange, badge, onSave }: BadgeFormProps)
   } = useForm<BadgeFormValues>({
     resolver: zodResolver(badgeFormSchema),
     defaultValues: {
+      id: undefined, // Ensure id is explicitly set as optional type
       name: '',
       description: '',
       icon: 'Award', // Default icon
@@ -73,7 +75,7 @@ export function BadgeForm({ open, onOpenChange, badge, onSave }: BadgeFormProps)
   }, [badge, reset, open]);
 
   const onSubmit: SubmitHandler<BadgeFormValues> = (data) => {
-    onSave(data);
+    onSave(data); // data here is BadgeFormValues
     onOpenChange(false);
   };
 
