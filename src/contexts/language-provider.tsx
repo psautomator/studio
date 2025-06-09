@@ -90,7 +90,8 @@ const translationsData = {
     selectQuizPrompt: "Select a quiz to begin.",
     quizCompleted: "Quiz Completed!",
     startQuiz: "Start Quiz",
-    fillInTheBlanks: "Fill in the Blanks",
+    fillInTheBlanks: "Fill in the Blanks", // Page title
+    fillintheblanks: "Fill in Blanks", // Sidebar label
     fillInTheBlankInstruction: "Type the missing Javanese word.",
     nextExercise: "Next Exercise",
     typeYourAnswer: "Type your answer here...",
@@ -173,7 +174,8 @@ const translationsData = {
     selectQuizPrompt: "Selecteer een quiz om te beginnen.",
     quizCompleted: "Quiz Voltooid!",
     startQuiz: "Start Quiz",
-    fillInTheBlanks: "Vul de Leemtes In",
+    fillInTheBlanks: "Vul de Leemtes In", // Page title
+    fillintheblanks: "Zoek het woord", // Sidebar label
     fillInTheBlankInstruction: "Typ het ontbrekende Javaanse woord.",
     nextExercise: "Volgende Oefening",
     typeYourAnswer: "Typ hier je antwoord...",

@@ -25,6 +25,7 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   useSidebar,
+  SheetTitle, // Added SheetTitle
 } from '@/components/ui/sidebar';
 import {
   DropdownMenu,
@@ -45,7 +46,7 @@ const mainNavItems = [
   { href: '/quizzes', labelKey: 'quizzes', icon: HelpCircle },
   { href: '/pronunciation', labelKey: 'pronunciation', icon: Volume2 },
   { href: '/grammar', labelKey: 'grammar', icon: GraduationCap },
-  { href: '/fill-in-the-blanks', labelKey: 'fillInTheBlanks', icon: FileSignature },
+  { href: '/fill-in-the-blanks', labelKey: 'fillintheblanks', icon: FileSignature }, // Changed labelKey
   { href: '/progress', labelKey: 'progress', icon: BarChart3 },
   { href: '/goals', labelKey: 'goals', icon: Target },
 ];
@@ -77,6 +78,8 @@ export function AppSidebar() {
             </span>
           </Link>
         )}
+         {!open && isMobile && <SheetTitle className="sr-only">Navigation Menu</SheetTitle> /* Add this for accessibility when mobile sidebar is just an icon initially - though this case might not happen if open controls header visibility */}
+         {open && isMobile && <SheetTitle className="sr-only">Navigation Menu</SheetTitle>}
       </SidebarHeader>
       <SidebarContent className="flex-grow p-2">
         <SidebarMenu>
