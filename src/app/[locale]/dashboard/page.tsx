@@ -14,31 +14,32 @@ import { placeholderUser, placeholderBadges, placeholderGrammarLessons, placehol
 import type { Badge as BadgeType } from '@/types';
 
 export default function DashboardPage() {
-  const { translations } = useLanguage();
+  const { translations, language } = useLanguage(); // Added language
   const user = placeholderUser;
-  const earnedBadges = placeholderBadges.filter(b => user.badges.includes(b.id)).slice(0, 3); // Show up to 3 earned badges
+  const earnedBadges = placeholderBadges.filter(b => user.badges.includes(b.id)).slice(0, 3); 
 
-  // Placeholder daily goals - in a real app, this would be from the AI or user settings
-  const dailyGoals = [
+  const dailyGoals: string[] = [
     // "Learn 5 new vocabulary words related to family.",
     // "Practice forming simple sentences using 'kula' and 'sampeyan'.",
     // "Listen to Javanese audio for 10 minutes.",
   ];
 
-  // Simulated "continue learning" items
+  const firstGrammarLesson = placeholderGrammarLessons[0];
+  const firstQuiz = placeholderQuizzes.filter(q => q.status === 'published')[0];
+
   const continueLearningItems = [
     { 
       id: 'gl1', 
       titleKey: 'resumeGrammar', 
-      itemTitle: placeholderGrammarLessons[0]?.title.en || "Intro to Speech Levels", 
-      href: `/grammar/${placeholderGrammarLessons[0]?.id || 'gl1'}`, 
+      itemTitle: firstGrammarLesson?.title[language] || firstGrammarLesson?.title.en || "Intro to Speech Levels", 
+      href: `/grammar/${firstGrammarLesson?.id || 'gl1'}`, 
       icon: GraduationCap 
     },
     { 
       id: 'qz1', 
       titleKey: 'tryNewQuiz', 
-      itemTitle: placeholderQuizzes[0]?.title || "Javanese Greetings", 
-      href: `/quizzes?quizId=${placeholderQuizzes[0]?.id || 'quizSet1'}`, 
+      itemTitle: firstQuiz?.title || "Javanese Greetings", 
+      href: `/quizzes?quizId=${firstQuiz?.id || 'quizSet1'}`, 
       icon: HelpCircle 
     },
     { 
@@ -64,7 +65,6 @@ export default function DashboardPage() {
       />
       
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {/* Today's Focus / Generate Goals */}
         <Card className="lg:col-span-2 shadow-lg border-primary/30">
           <CardHeader>
             <CardTitle className="font-headline text-2xl text-primary flex items-center">
@@ -96,7 +96,6 @@ export default function DashboardPage() {
           </CardFooter>
         </Card>
 
-        {/* Your Achievements */}
         <Card className="shadow-lg">
           <CardHeader>
             <CardTitle className="font-headline text-xl text-primary flex items-center">
@@ -110,7 +109,7 @@ export default function DashboardPage() {
               <div className="flex flex-wrap gap-2">
                 {earnedBadges.map(badge => (
                   <div key={badge.id} className="flex items-center gap-1 text-xs bg-accent/20 text-accent-foreground p-2 rounded-md shadow-sm">
-                     <Star className="h-4 w-4 text-accent" /> {/* Or use dynamic badge.icon later */}
+                     <Star className="h-4 w-4 text-accent" />
                     <span>{badge.name}</span>
                   </div>
                 ))}
@@ -125,7 +124,6 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      {/* Continue Learning */}
       <Card className="mt-6 shadow-lg">
         <CardHeader>
           <CardTitle className="font-headline text-xl text-primary flex items-center">
@@ -140,7 +138,7 @@ export default function DashboardPage() {
               <Link href={item.href}>
                 <item.icon className="mr-3 h-5 w-5 text-primary/80" />
                 <div>
-                  <span className="font-medium text-primary">{translations[item.titleKey.toLowerCase()] || item.titleKey}</span>
+                  <span className="font-medium text-primary">{translations[item.titleKey.toLowerCase() as keyof typeof translations] || item.titleKey}</span>
                   <p className="text-sm text-muted-foreground">{item.itemTitle}</p>
                 </div>
               </Link>
@@ -149,7 +147,6 @@ export default function DashboardPage() {
         </CardContent>
       </Card>
       
-      {/* Discover More */}
       <Card className="mt-6 shadow-lg">
         <CardHeader>
           <CardTitle className="font-headline text-xl text-primary flex items-center">
@@ -163,7 +160,7 @@ export default function DashboardPage() {
             <Link href={item.href} key={item.href} className="block p-4 rounded-lg border bg-card hover:shadow-md transition-shadow hover:bg-muted/30">
                 <div className="flex items-center mb-2">
                     <item.icon className="mr-3 h-6 w-6 text-accent" />
-                    <h3 className="text-md font-semibold text-foreground">{translations[item.labelKey.toLowerCase()] || item.labelKey}</h3>
+                    <h3 className="text-md font-semibold text-foreground">{translations[item.labelKey.toLowerCase() as keyof typeof translations] || item.labelKey}</h3>
                 </div>
                 <p className="text-xs text-muted-foreground">{item.description}</p>
             </Link>
