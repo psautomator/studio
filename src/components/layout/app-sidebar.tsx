@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from 'next/link';
@@ -9,8 +10,9 @@ import {
   BarChart3,
   Target,
   LayoutDashboard,
-  Settings,
-  LifeBuoy,
+  UserCircle,
+  Shield,
+  User,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -20,12 +22,20 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-  SidebarTrigger,
   useSidebar,
 } from '@/components/ui/sidebar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { APP_NAME } from '@/lib/constants';
-import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/hooks/use-language';
+import { placeholderUser } from '@/lib/placeholder-data'; // For admin role simulation
+import type { User as UserType } from '@/types';
+
 
 const mainNavItems = [
   { href: '/dashboard', labelKey: 'dashboard', icon: LayoutDashboard },
@@ -36,11 +46,8 @@ const mainNavItems = [
   { href: '/goals', labelKey: 'goals', icon: Target },
 ];
 
-const secondaryNavItems = [
-  { href: '/settings', labelKey: 'Settings', icon: Settings }, // Assuming 'Settings' will be in translations
-  { href: '/support', labelKey: 'Support', icon: LifeBuoy }, // Assuming 'Support' will be in translations
-];
-
+// User for simulation, in a real app this would come from context or API
+const currentUser: UserType = placeholderUser;
 
 export function AppSidebar() {
   const pathname = usePathname();
@@ -81,22 +88,45 @@ export function AppSidebar() {
         </SidebarMenu>
       </SidebarContent>
       <SidebarFooter className="p-2">
-        {/* Example of secondary nav items or user profile quick access */}
         <SidebarMenu>
-           {secondaryNavItems.map((item) => (
-            <SidebarMenuItem key={item.href}>
-              <SidebarMenuButton
-                asChild
-                isActive={pathname === item.href}
-                tooltip={{ children: item.labelKey }}
-              >
-                <Link href={item.href}>
-                  <item.icon />
-                  <span>{item.labelKey}</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
+          <SidebarMenuItem>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuButton
+                  className="w-full"
+                  tooltip={{ children: getLabel('profile', 'Profile') }}
+                >
+                  <UserCircle />
+                  <span>{getLabel('profile', 'Profile')}</span>
+                </SidebarMenuButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent side="right" align="start" className="w-56 mb-2 ml-1">
+                <DropdownMenuItem asChild>
+                  <Link href="/profile" className="flex items-center w-full">
+                    <User className="mr-2 h-4 w-4" />
+                    <span>{getLabel('profile', 'Profile')}</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/progress" className="flex items-center w-full">
+                    <BarChart3 className="mr-2 h-4 w-4" />
+                    <span>{getLabel('progress', 'Progress')}</span>
+                  </Link>
+                </DropdownMenuItem>
+                {currentUser.role === 'admin' && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link href="/admin" className="flex items-center w-full">
+                        <Shield className="mr-2 h-4 w-4" />
+                        <span>{getLabel('admin', 'Admin Panel')}</span>
+                      </Link>
+                    </DropdownMenuItem>
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
     </Sidebar>

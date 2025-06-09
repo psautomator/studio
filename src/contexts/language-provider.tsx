@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { Language } from '@/types';
@@ -71,6 +72,7 @@ const translationsData = {
     featurePronunciationDesc: "Perfect your accent with native audio.",
     featureAdaptiveGoals: "AI-Powered Goals",
     featureAdaptiveGoalsDesc: "Get daily learning goals tailored to you.",
+    profile: "Profile",
   },
   nl: {
     appName: "Javaanse Reis",
@@ -128,6 +130,7 @@ const translationsData = {
     featurePronunciationDesc: "Perfectioneer je accent met authentieke audio.",
     featureAdaptiveGoals: "AI-gestuurde Doelen",
     featureAdaptiveGoalsDesc: "Ontvang dagelijkse leerdoelen op maat.",
+    profile: "Profiel",
   },
 };
 
