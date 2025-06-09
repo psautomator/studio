@@ -1,16 +1,91 @@
+
 import type { Word, Quiz, User, Badge } from '@/types';
 
 export const placeholderWords: Word[] = [
-  { id: '1', javanese: 'Sugeng enjing', dutch: 'Goedemorgen', category: 'Greetings' },
-  { id: '2', javanese: 'Matur nuwun', dutch: 'Dank u wel', category: 'Politeness' },
-  { id: '3', javanese: 'Kula', dutch: 'Ik', category: 'Pronouns' },
-  { id: '4', javanese: 'Sampeyan', dutch: 'U (formeel)', category: 'Pronouns' },
-  { id: '5', javanese: 'Sinten asmanipun sampeyan?', dutch: 'Hoe heet u?', category: 'Phrases' },
-  { id: '6', javanese: 'Omah', dutch: 'Huis', category: 'Nouns' },
-  { id: '7', javanese: 'Sekolah', dutch: 'School', category: 'Nouns' },
-  { id: '8', javanese: 'Mangan', dutch: 'Eten', category: 'Verbs' },
-  { id: '9', javanese: 'Sinau', dutch: 'Leren/Studeren', category: 'Verbs' },
-  { id: '10', javanese: 'Abang', dutch: 'Rood', category: 'Colors' },
+  {
+    id: '1',
+    javanese: 'Sugeng enjing',
+    dutch: 'Goedemorgen',
+    category: 'Greetings',
+    level: 'Beginner',
+    audioUrl: 'https://translate.google.com/translate_tts?ie=UTF-8&q=Sugeng%20enjing&tl=jv&client=tw-ob',
+    exampleSentenceJavanese: 'Sugeng enjing, Bu Guru.',
+    exampleSentenceDutch: 'Goedemorgen, mevrouw de lerares.'
+  },
+  {
+    id: '2',
+    javanese: 'Matur nuwun',
+    dutch: 'Dank u wel',
+    category: 'Politeness',
+    level: 'Beginner',
+    audioUrl: 'https://translate.google.com/translate_tts?ie=UTF-8&q=Matur%20nuwun&tl=jv&client=tw-ob',
+    exampleSentenceJavanese: 'Matur nuwun kagem bantuanipun.',
+    exampleSentenceDutch: 'Dank u wel voor uw hulp.'
+  },
+  {
+    id: '3',
+    javanese: 'Kula',
+    dutch: 'Ik',
+    category: 'Pronouns',
+    level: 'Beginner',
+    audioUrl: 'https://translate.google.com/translate_tts?ie=UTF-8&q=Kula&tl=jv&client=tw-ob',
+  },
+  {
+    id: '4',
+    javanese: 'Sampeyan',
+    dutch: 'U (formeel)',
+    category: 'Pronouns',
+    level: 'Beginner',
+    audioUrl: 'https://translate.google.com/translate_tts?ie=UTF-8&q=Sampeyan&tl=jv&client=tw-ob',
+  },
+  {
+    id: '5',
+    javanese: 'Sinten asmanipun sampeyan?',
+    dutch: 'Hoe heet u?',
+    category: 'Phrases',
+    level: 'Intermediate',
+    audioUrl: 'https://translate.google.com/translate_tts?ie=UTF-8&q=Sinten%20asmanipun%20sampeyan&tl=jv&client=tw-ob',
+  },
+  {
+    id: '6',
+    javanese: 'Omah',
+    dutch: 'Huis',
+    category: 'Nouns',
+    level: 'Beginner',
+    exampleSentenceJavanese: 'Omahku cedhak pasar.',
+    exampleSentenceDutch: 'Mijn huis is dichtbij de markt.'
+  },
+  {
+    id: '7',
+    javanese: 'Sekolah',
+    dutch: 'School',
+    category: 'Nouns',
+    level: 'Beginner',
+  },
+  {
+    id: '8',
+    javanese: 'Mangan',
+    dutch: 'Eten',
+    category: 'Verbs',
+    level: 'Beginner',
+    audioUrl: 'https://translate.google.com/translate_tts?ie=UTF-8&q=Mangan&tl=jv&client=tw-ob',
+    exampleSentenceJavanese: 'Aku arep mangan sega goreng.',
+    exampleSentenceDutch: 'Ik wil gebakken rijst eten.'
+  },
+  {
+    id: '9',
+    javanese: 'Sinau',
+    dutch: 'Leren/Studeren',
+    category: 'Verbs',
+    level: 'Intermediate',
+  },
+  {
+    id: '10',
+    javanese: 'Abang',
+    dutch: 'Rood',
+    category: 'Colors',
+    level: 'Beginner',
+  },
 ];
 
 export const placeholderQuizzes: Quiz[] = [
@@ -66,7 +141,7 @@ export const placeholderBadges: Badge[] = [
   { id: 'newbie', name: 'Newbie Linguist', description: 'Started your Javanese journey!', icon: 'Award' },
   { id: 'wordmaster_lvl1', name: 'Word Master Lv. 1', description: 'Learned 50 new words.', icon: 'BookOpenCheck', threshold: 50 },
   { id: 'streak_7', name: '7-Day Streak', description: 'Logged in for 7 days in a row!', icon: 'Flame', threshold: 7 },
-  { id: 'quiz_champ_easy', name: 'Quiz Champion (Easy)', description: 'Completed 10 easy quizzes with 80%+ accuracy.', icon: 'Star', threshold: 10 },
+  { id: 'quiz_champ_easy', name: 'Quiz Champion (Easy)', description: 'Completed 10 easy quizzes with 80%+ accuracy.', icon: 'Star', threshold: 10 }, // Corrected icon name
 ];
 
 export const placeholderAdminUsers: User[] = [

@@ -1,3 +1,4 @@
+
 export type Language = 'en' | 'nl';
 
 export interface Word {
@@ -8,6 +9,9 @@ export interface Word {
   imageUrl?: string;
   category?: string;
   tags?: string[];
+  exampleSentenceJavanese?: string;
+  exampleSentenceDutch?: string;
+  level?: 'Beginner' | 'Intermediate' | 'Advanced';
 }
 
 export interface QuizOption {
