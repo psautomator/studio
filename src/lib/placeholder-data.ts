@@ -259,12 +259,12 @@ export const placeholderGrammarLessons: GrammarLesson[] = [
   {
     id: 'gl1',
     title: 'Introduction to Javanese Speech Levels',
-    explanation: "Javanese is unique for its distinct speech levels, which are crucial for polite and appropriate conversation. The main levels are:\n\n- **Ngoko:** This is the informal or 'low' level. It's used when speaking to close friends, family members of similar age or younger, or in very casual situations. Using Ngoko with someone deserving higher respect can be considered rude.\n\n- **Krama:** This is the formal or 'high' level. It's used when addressing elders, strangers, superiors, or in formal settings (like speeches or official occasions). Krama shows respect and politeness. Many common Ngoko words have different Krama equivalents.\n\n- **Madya:** This is an intermediate level, sometimes considered 'middle' Javanese. It mixes elements of Ngoko and Krama and is often used with acquaintances or people you know but are not extremely close to, or when trying to be polite but not overly formal. It can be a bit more nuanced to master.\n\n**Key Differences to Note:**\n*   **Vocabulary:** The most significant difference lies in vocabulary. For example, 'to eat' is 'mangan' (Ngoko) but 'dahar' (Krama).\n*   **Pronouns:** Personal pronouns change dramatically, e.g., 'I' is 'aku' (Ngoko) and 'kula' (Krama).\n*   **Affixes:** Some grammatical affixes can also change between levels.\n\nUnderstanding when to use each level is a key part of learning Javanese effectively.",
+    explanation: "Javanese is unique for its distinct speech levels (undha-usuk basa), which are crucial for polite and appropriate conversation. The main levels are:\n\n- **Ngoko:** This is the informal or 'low' level. It's used when speaking to close friends, family members of similar age or younger, or in very casual situations. Using Ngoko with someone deserving higher respect can be considered rude.\n\n- **Madya:** This is an intermediate level, sometimes considered 'middle' Javanese. It mixes elements of Ngoko and Krama and is often used with acquaintances, people you know but are not extremely close to, or when trying to be polite but not overly formal. It can be a bit more nuanced to master and is very common in daily interactions.\n\n- **Krama:** This is the formal or 'high' level. It's used when addressing elders, strangers, superiors, or in formal settings (like speeches or official occasions). Krama shows respect and politeness. Many common Ngoko words have different Krama equivalents.\n\n**Key Differences to Note:**\n*   **Vocabulary:** The most significant difference lies in vocabulary. For example, 'to eat' is 'mangan' (Ngoko) but 'dahar' (Krama).\n*   **Pronouns:** Personal pronouns change dramatically, e.g., 'I' is 'aku' (Ngoko) and 'kula' (Krama).\n*   **Affixes:** Some grammatical affixes can also change between levels.\n\nUnderstanding when to use each level is a key part of learning Javanese effectively.",
     level: 'Beginner',
     category: 'Formality & Speech Levels',
     examples: [
       { javanese: 'Aku mangan sega.', dutch: 'Ik eet rijst. (Ngoko)' },
-      { javanese: 'Kula nedha sekul.', dutch: 'Ik eet rijst. (Krama)' },
+      { javanese: 'Kula nedha sekul.', dutch: 'Ik eet rijst. (Krama - more refined than dhahar for some contexts)' },
       { javanese: 'Kowe arep lunga?', dutch: 'Ga jij weg? (Ngoko)' },
       { javanese: 'Sampeyan badhe tindak?', dutch: 'Gaat u weg? (Krama)' },
       { javanese: 'Jenengku Budi.', dutch: 'Mijn naam is Budi. (Ngoko)' },
@@ -274,7 +274,7 @@ export const placeholderGrammarLessons: GrammarLesson[] = [
   {
     id: 'gl2',
     title: 'Basic Sentence Structure (S-P-O)',
-    explanation: "The basic sentence structure in Javanese is often Subject-Predicate-Object (S-P-O), similar to English and Dutch.\n\n- **Subject (Subjek):** Who or what is doing the action.\n- **Predicate (Predikat):** The verb or action.\n- **Object (Objek):** Who or what receives the action.",
+    explanation: "The basic sentence structure in Javanese is often Subject-Predicate-Object (S-P-O), similar to English and Dutch.\n\n- **Subject (Jejer):** Who or what is doing the action.\n- **Predicate (Wasesa):** The verb or action.\n- **Object (Lesan):** Who or what receives the action.",
     level: 'Beginner',
     category: 'Sentence Structure',
     examples: [
@@ -286,7 +286,7 @@ export const placeholderGrammarLessons: GrammarLesson[] = [
   {
     id: 'gl3',
     title: 'Possessive Pronouns',
-    explanation: "Possessive pronouns indicate ownership. In Javanese Ngoko, you often append '-ku' (my), '-mu' (your - informal), or '-e' (his/her/its).\n\nFor Krama, it's often different words or structures, e.g., 'gadhahan kula' (mine).",
+    explanation: "Possessive pronouns indicate ownership. In Javanese Ngoko, you often append '-ku' (my), '-mu' (your - informal), or '-e' (his/her/its).\n\nFor Krama, it's often different words or structures, e.g., 'kagungan kula' (mine - for objects), or using the noun form like 'griya kula' (my house).",
     level: 'Intermediate',
     category: 'Pronouns',
     examples: [
@@ -294,6 +294,25 @@ export const placeholderGrammarLessons: GrammarLesson[] = [
       { javanese: 'Jenengmu sapa?', dutch: 'Wat is jouw naam? (Ngoko)' },
       { javanese: 'Kucingé lucu.', dutch: 'Zijn/haar kat is schattig. (Ngoko)' },
       { javanese: 'Punika buku kagunganipun Bapak.', dutch: 'Dit is het boek van vader. (Krama-like possessive)' },
+    ],
+  },
+  {
+    id: 'gl4',
+    title: 'Javanese Pronunciation Guide: Letters and Sounds',
+    explanation: "Understanding Javanese pronunciation is key to speaking and understanding the language. Here are some basics:\n\n**Vowels:**\nJavanese has several vowel sounds that can differ from Dutch or English.\n- **a:** Often like the 'a' in 'father' (e.g., 'apa' - what). However, in closed syllables or word-final position, it can sound more like the 'o' in 'lot' or 'cot' (e.g., 'mangan' - eat, 'sega' - rice).\n- **i:** Like the 'ee' in 'see' (e.g., 'iki' - this).\n- **u:** Like the 'oo' in 'moon' (e.g., 'iku' - that).\n- **e:** This vowel has two main sounds:\n    - **e (pepet):** Like the 'e' in 'the' or 'sofa' (schwa sound). (e.g., 'sega' - rice, 'kesel' - tired).\n    - **é (taling):** Like the 'e' in 'bed' or the 'ai' in 'rain'. (e.g., 'énjing' - morning, 'méja' - table).\n    - **è (taling tarung - less common in modern spelling but distinct sound):** Like a more open 'e' sound, similar to the 'e' in 'bet' but sometimes a bit lower. Often found in words borrowed from other languages or older texts.\n- **o:** Like the 'o' in 'go' (e.g., 'oma' - house, 'loro' - two).\n\n**Consonants:**\nMany consonants are similar to Dutch/English, but some are noteworthy:\n- **c:** Always like 'ch' in 'church' (e.g., 'cacing' - worm).\n- **dh:** A retroflex 'd' sound, made with the tongue curled back slightly. Different from the 'd' in Dutch. (e.g., 'dahar' - eat (Krama)).\n- **th:** A retroflex 't' sound, also made with the tongue curled back. Different from English 'th'. (e.g., 'kathok' - pants).\n- **j:** Like the 'j' in 'jungle' (e.g., 'jeneng' - name).\n- **y:** Like the 'y' in 'yes' (e.g., 'ya' - yes).\n- **ng:** Like the 'ng' in 'sing' (e.g., 'mangan' - eat).\n- **ny:** Like the 'ni' in 'onion' or 'ñ' in Spanish (e.g., 'nyanyi' - sing).\n- **r:** Often a rolled or trilled 'r'.\n\n**Consonant Clusters (examples):**\n- **mb:** (e.g., 'mBanyu')\n- **nd:** (e.g., 'saNDal')\n- **ngg:** (e.g., 'tuNGGal')\n- **nj:** (e.g., 'aNJing')\n\n**Sound Changes (Sandhi):**\nJavanese has rules (sandhi) where sounds can change at word boundaries or when affixes are added. For instance, a vowel at the end of one word might merge or alter the beginning of the next. This is a more advanced topic. Adding affixes can also sometimes change the base word's pronunciation slightly.\n\n*This guide provides a basic overview. Listening to native speakers is the best way to master pronunciation!*",
+    level: 'Beginner',
+    category: 'Pronunciation & Phonetics',
+    examples: [
+      { javanese: 'apa', dutch: 'wat (a as in father)' },
+      { javanese: 'sega', dutch: 'rijst (a as short o, e as schwa)' },
+      { javanese: 'iki', dutch: 'dit (i as ee)' },
+      { javanese: 'iku', dutch: 'dat (u as oo)' },
+      { javanese: 'énjing', dutch: 'ochtend (é as in bed)' },
+      { javanese: 'loro', dutch: 'twee (o as in go)' },
+      { javanese: 'dahar', dutch: 'eten (Krama - note the dh sound)' },
+      { javanese: 'kathok', dutch: 'broek (note the th sound)' },
+      { javanese: 'mangan', dutch: 'eten (ng sound)' },
+      { javanese: 'nyanyi', dutch: 'zingen (ny sound)' },
     ],
   },
 ];
