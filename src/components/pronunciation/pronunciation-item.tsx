@@ -47,8 +47,11 @@ export function PronunciationItem({
   return (
     <div className="flex flex-col items-start justify-between p-6 gap-4">
       <div className="w-full">
-        <div className="flex items-center mb-1">
+        <div className="flex items-baseline mb-1">
           <p className="font-headline text-3xl md:text-4xl font-semibold text-primary">{word.javanese}</p>
+          {word.phoneticJavanese && (
+            <p className="ml-2 text-lg text-muted-foreground">{word.phoneticJavanese}</p>
+          )}
           {word.audioUrl ? (
              <Button variant="ghost" size="icon" onClick={handlePlayAudio} aria-label={`Play audio for ${word.javanese}`} className="ml-3">
               <Volume2 className="h-6 w-6 text-accent" />

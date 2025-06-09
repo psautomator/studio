@@ -45,6 +45,7 @@ function WordForm({
 }) {
   const [javanese, setJavanese] = useState('');
   const [dutch, setDutch] = useState('');
+  const [phoneticJavanese, setPhoneticJavanese] = useState('');
   const [category, setCategory] = useState('');
   const [level, setLevel] = useState<'Beginner' | 'Intermediate' | 'Advanced'>('Beginner');
   const [formality, setFormality] = useState<'ngoko' | 'krama' | 'madya'>('ngoko');
@@ -58,6 +59,7 @@ function WordForm({
     if (word) {
       setJavanese(word.javanese || '');
       setDutch(word.dutch || '');
+      setPhoneticJavanese(word.phoneticJavanese || '');
       setCategory(word.category || '');
       setLevel(word.level || 'Beginner');
       setFormality(word.formality || 'ngoko');
@@ -68,6 +70,7 @@ function WordForm({
       // Reset for new word
       setJavanese('');
       setDutch('');
+      setPhoneticJavanese('');
       setCategory('');
       setLevel('Beginner');
       setFormality('ngoko');
@@ -86,6 +89,7 @@ function WordForm({
       id: word?.id || String(Date.now()),
       javanese,
       dutch,
+      phoneticJavanese,
       category,
       level,
       formality,
@@ -117,6 +121,12 @@ function WordForm({
               {translations.dutch}
             </Label>
             <Input id="dutch" value={dutch} onChange={(e) => setDutch(e.target.value)} className="col-span-3" />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="phoneticJavanese" className="text-right">
+              Phonetic (Javanese)
+            </Label>
+            <Input id="phoneticJavanese" value={phoneticJavanese} onChange={(e) => setPhoneticJavanese(e.target.value)} className="col-span-3" placeholder="e.g., [su-geng en-jing]"/>
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="category" className="text-right">
@@ -199,6 +209,7 @@ function BulkImportWordsDialog({
   "id": "unique-word-id",
   "javanese": "Word in Javanese",
   "dutch": "Word in Dutch",
+  "phoneticJavanese": "[Optional phonetic spelling]", 
   "category": "Optional category",
   "level": "Beginner" | "Intermediate" | "Advanced", (optional)
   "formality": "ngoko" | "krama" | "madya", (optional, defaults to 'ngoko')
@@ -296,6 +307,7 @@ export default function AdminWordsPage() {
   const columns = [
     { accessorKey: 'javanese', header: translations.javanese },
     { accessorKey: 'dutch', header: translations.dutch },
+    { accessorKey: 'phoneticJavanese', header: 'Phonetic' },
     { accessorKey: 'category', header: 'Category' },
     { accessorKey: 'level', header: 'Level', cell: (item: Word) => item.level || 'N/A' },
     { accessorKey: 'formality', header: 'Formality', cell: (item: Word) => item.formality ? <Badge variant={item.formality === 'krama' ? 'secondary' : 'outline'} className="capitalize">{item.formality}</Badge> : 'N/A' },

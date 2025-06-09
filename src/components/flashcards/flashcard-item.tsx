@@ -23,6 +23,8 @@ export function FlashcardItem({ word, onPlayAudio, showJavaneseFirst }: Flashcar
   // Determine front and back content based on preference
   const frontText = showJavaneseFirst ? word.javanese : word.dutch;
   const backText = showJavaneseFirst ? word.dutch : word.javanese;
+  const frontPhonetic = showJavaneseFirst ? word.phoneticJavanese : null;
+  const backPhonetic = !showJavaneseFirst ? word.phoneticJavanese : null;
   const backLanguageLabel = showJavaneseFirst ? translations.dutch : translations.javanese;
   
   const javaneseIsOnFront = showJavaneseFirst;
@@ -80,6 +82,9 @@ export function FlashcardItem({ word, onPlayAudio, showJavaneseFirst }: Flashcar
             <h2 className="font-headline text-3xl md:text-4xl font-semibold text-primary text-center">
               {frontText}
             </h2>
+            {frontPhonetic && (
+              <p className="mt-1 text-muted-foreground text-sm">{frontPhonetic}</p>
+            )}
             {javaneseIsOnFront && word.audioUrl && (
               <Button variant="ghost" size="icon" onClick={handleAudioPlay} className="mt-3 text-accent hover:text-accent/80" aria-label={`Play audio for ${word.javanese}`}>
                 <Volume2 className="h-6 w-6" />
@@ -90,9 +95,12 @@ export function FlashcardItem({ word, onPlayAudio, showJavaneseFirst }: Flashcar
           {/* Back of the card */}
           <div className="absolute inset-0 w-full h-full [backface-visibility:hidden] [transform:rotateY(180deg)] flex flex-col items-center justify-center p-6 bg-card">
             <p className="text-sm text-muted-foreground mb-1">({backLanguageLabel})</p>
-            <h2 className="font-headline text-3xl md:text-4xl font-semibold text-primary text-center mb-3">
+            <h2 className="font-headline text-3xl md:text-4xl font-semibold text-primary text-center mb-1">
               {backText}
             </h2>
+            {backPhonetic && (
+              <p className="mb-2 text-muted-foreground text-sm">{backPhonetic}</p>
+            )}
             
             {javaneseIsOnBack && word.audioUrl && (
                <Button variant="ghost" size="icon" onClick={handleAudioPlay} className="mb-2 text-accent hover:text-accent/80" aria-label={`Play audio for ${word.javanese}`}>

@@ -5,6 +5,7 @@ export interface Word {
   id: string;
   javanese: string;
   dutch: string;
+  phoneticJavanese?: string; // New field for phonetic transcription
   audioUrl?: string;
   imageUrl?: string;
   category?: string;
@@ -42,7 +43,7 @@ export interface Quiz {
   id: string;
   title: string;
   description?: string;
-  category?: string; // Added category field
+  category?: string;
   difficulty?: 'easy' | 'medium' | 'hard';
   questions: QuizQuestion[];
   status?: 'published' | 'draft' | 'archived';
