@@ -97,6 +97,7 @@ const translationsData = {
     showAnswer: "Show Answer",
     missingWordWas: "The missing word was:",
     noFillExercises: "No fill-in-the-blank exercises available at the moment.",
+    showJavaneseFirst: "Show Javanese First",
   },
   nl: {
     appName: "Javaanse Reis",
@@ -179,6 +180,7 @@ const translationsData = {
     showAnswer: "Toon Antwoord",
     missingWordWas: "Het ontbrekende woord was:",
     noFillExercises: "Momenteel geen invuloefeningen beschikbaar.",
+    showJavaneseFirst: "Toon Javaans Eerst",
   },
 };
 

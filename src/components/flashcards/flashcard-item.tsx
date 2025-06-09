@@ -12,19 +12,28 @@ import { useToast } from '@/hooks/use-toast';
 interface FlashcardItemProps {
   word: Word;
   onPlayAudio: (audioUrl: string) => void;
+  showJavaneseFirst: boolean;
 }
 
-export function FlashcardItem({ word, onPlayAudio }: FlashcardItemProps) {
+export function FlashcardItem({ word, onPlayAudio, showJavaneseFirst }: FlashcardItemProps) {
   const [isFlipped, setIsFlipped] = useState(false);
   const { translations } = useLanguage();
   const { toast } = useToast();
+
+  // Determine front and back content based on preference
+  const frontText = showJavaneseFirst ? word.javanese : word.dutch;
+  const backText = showJavaneseFirst ? word.dutch : word.javanese;
+  const backLanguageLabel = showJavaneseFirst ? translations.dutch : translations.javanese;
+  
+  const javaneseIsOnFront = showJavaneseFirst;
+  const javaneseIsOnBack = !showJavaneseFirst;
 
   const handleFlip = () => {
     setIsFlipped(!isFlipped);
   };
 
   const handleAudioPlay = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent card flip when clicking audio button
+    e.stopPropagation(); 
     if (word.audioUrl) {
       onPlayAudio(word.audioUrl);
     } else {
@@ -44,6 +53,10 @@ export function FlashcardItem({ word, onPlayAudio }: FlashcardItemProps) {
     // Add logic for review
   };
 
+  const frontAriaLabel = showJavaneseFirst ? translations.javanese : translations.dutch;
+  const backAriaLabel = showJavaneseFirst ? translations.dutch : translations.javanese;
+
+
   return (
     <>
       <Card 
@@ -53,20 +66,22 @@ export function FlashcardItem({ word, onPlayAudio }: FlashcardItemProps) {
         tabIndex={0}
         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleFlip(); }}
         aria-pressed={isFlipped}
-        aria-label={isFlipped ? `Showing ${translations.dutch} side. Click to show ${translations.javanese} side.` : `Showing ${translations.javanese} side. Click to show ${translations.dutch} side.`}
+        aria-label={isFlipped ? `Showing ${backAriaLabel} side. Click to show ${frontAriaLabel} side.` : `Showing ${frontAriaLabel} side. Click to show ${backAriaLabel} side.`}
+
       >
         <div
           className={`absolute inset-0 w-full h-full transition-transform ease-in-out duration-700 [transform-style:preserve-3d] ${
             isFlipped ? '[transform:rotateY(180deg)]' : '[transform:rotateY(0deg)]'
           }`}
+          style={{ transformStyle: 'preserve-3d' }}
         >
           {/* Front of the card */}
           <div className="absolute inset-0 w-full h-full [backface-visibility:hidden] flex flex-col items-center justify-center p-6 bg-card">
             <h2 className="font-headline text-3xl md:text-4xl font-semibold text-primary text-center">
-              {word.javanese}
+              {frontText}
             </h2>
-            {word.audioUrl && (
-              <Button variant="ghost" size="icon" onClick={handleAudioPlay} className="mt-3 text-accent hover:text-accent/80" aria-label="Play audio">
+            {javaneseIsOnFront && word.audioUrl && (
+              <Button variant="ghost" size="icon" onClick={handleAudioPlay} className="mt-3 text-accent hover:text-accent/80" aria-label={`Play audio for ${word.javanese}`}>
                 <Volume2 className="h-6 w-6" />
               </Button>
             )}
@@ -74,11 +89,17 @@ export function FlashcardItem({ word, onPlayAudio }: FlashcardItemProps) {
 
           {/* Back of the card */}
           <div className="absolute inset-0 w-full h-full [backface-visibility:hidden] [transform:rotateY(180deg)] flex flex-col items-center justify-center p-6 bg-card">
-            <p className="text-sm text-muted-foreground mb-1">({translations.dutch})</p>
+            <p className="text-sm text-muted-foreground mb-1">({backLanguageLabel})</p>
             <h2 className="font-headline text-3xl md:text-4xl font-semibold text-primary text-center mb-3">
-              {word.dutch}
+              {backText}
             </h2>
             
+            {javaneseIsOnBack && word.audioUrl && (
+               <Button variant="ghost" size="icon" onClick={handleAudioPlay} className="mb-2 text-accent hover:text-accent/80" aria-label={`Play audio for ${word.javanese}`}>
+                <Volume2 className="h-6 w-6" />
+              </Button>
+            )}
+
             {(word.category || word.level || word.formality) && (
               <div className="text-xs text-muted-foreground mb-3 text-center capitalize space-x-1">
                 {word.category && <span>{word.category}</span>}
@@ -92,8 +113,10 @@ export function FlashcardItem({ word, onPlayAudio }: FlashcardItemProps) {
             {(word.exampleSentenceJavanese || word.exampleSentenceDutch) && (
               <div className="mt-2 text-sm text-center w-full mb-3">
                 <p className="font-medium text-muted-foreground">Example:</p>
-                {word.exampleSentenceJavanese && <p className="italic text-primary">{word.exampleSentenceJavanese}</p>}
-                {word.exampleSentenceDutch && <p className="text-muted-foreground">{word.exampleSentenceDutch}</p>}
+                {javaneseIsOnBack && word.exampleSentenceJavanese && <p className="italic text-primary">{word.exampleSentenceJavanese}</p>}
+                {javaneseIsOnBack && word.exampleSentenceDutch && <p className="text-muted-foreground">{word.exampleSentenceDutch}</p>}
+                {!javaneseIsOnBack && word.exampleSentenceDutch && <p className="italic text-primary">{word.exampleSentenceDutch}</p> }
+                {!javaneseIsOnBack && word.exampleSentenceJavanese && <p className="text-muted-foreground">{word.exampleSentenceJavanese}</p>}
               </div>
             )}
           </div>

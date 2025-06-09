@@ -8,6 +8,8 @@ import { FlashcardItem } from '@/components/flashcards/flashcard-item';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { ChevronLeft, ChevronRight, Volume2 } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import { placeholderWords } from '@/lib/placeholder-data';
 import { useLanguage } from '@/hooks/use-language';
 import { useToast } from '@/hooks/use-toast';
@@ -17,6 +19,7 @@ export default function FlashcardsPage() {
   const { translations } = useLanguage();
   const { toast } = useToast();
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [showJavaneseFirst, setShowJavaneseFirst] = useState(true);
   const words: Word[] = placeholderWords; // In a real app, fetch or manage this list
 
   const handleNext = useCallback(() => {
@@ -54,9 +57,7 @@ export default function FlashcardsPage() {
         handlePrevious();
       } else if (event.key === ' ') {
         event.preventDefault(); // Prevent page scroll
-        // To flip the card, the FlashcardItem itself handles its flip state.
-        // We can simulate a click on the card if we give it an ID.
-        const cardElement = document.querySelector('[role="button"][aria-label*="Showing"]'); // A bit fragile selector
+        const cardElement = document.querySelector('[role="button"][aria-label*="Showing"]');
         if (cardElement instanceof HTMLElement) {
           cardElement.click();
         }
@@ -89,9 +90,21 @@ export default function FlashcardsPage() {
     <MainAppLayout>
       <PageHeader title={translations.flashcards} description="Master new vocabulary." />
       <div className="flex flex-col items-center gap-6">
-        <FlashcardItem word={currentWord} onPlayAudio={handlePlayAudio} />
+        <div className="flex items-center space-x-2 mb-4">
+          <Switch
+            id="language-toggle-switch"
+            checked={showJavaneseFirst}
+            onCheckedChange={setShowJavaneseFirst}
+            aria-label={translations.showJavaneseFirst || "Show Javanese First"}
+          />
+          <Label htmlFor="language-toggle-switch" className="text-sm">
+            {translations.showJavaneseFirst || "Show Javanese First"}
+          </Label>
+        </div>
+
+        <FlashcardItem word={currentWord} onPlayAudio={handlePlayAudio} showJavaneseFirst={showJavaneseFirst} />
         
-        <div className="w-full max-w-md">
+        <div className="w-full max-w-md mt-4"> {/* Added mt-4 for spacing from "Knew it/Review" buttons */}
            <Progress value={progressPercentage} className="h-2 mb-2" />
            <div className="flex items-center justify-between">
             <Button onClick={handlePrevious} variant="outline" size="lg" aria-label="Previous card" className="px-6">
