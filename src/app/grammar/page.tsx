@@ -12,7 +12,7 @@ import Link from 'next/link';
 import { GraduationCap, ArrowRight } from 'lucide-react';
 
 export default function GrammarPage() {
-  const { translations } = useLanguage();
+  const { translations, language } = useLanguage(); // Ensure language is available
   const lessons: GrammarLesson[] = placeholderGrammarLessons.filter(lesson => lesson.status === 'published');
 
   return (
@@ -26,7 +26,7 @@ export default function GrammarPage() {
               <CardHeader>
                 <div className="flex items-center mb-2">
                     <GraduationCap className="h-6 w-6 mr-2 text-primary" />
-                    <CardTitle className="font-headline text-xl text-primary">{lesson.title}</CardTitle>
+                    <CardTitle className="font-headline text-xl text-primary">{lesson.title[language] || lesson.title.en}</CardTitle>
                 </div>
                 <CardDescription>
                   <span className="capitalize">{lesson.level}</span> - {lesson.category}
@@ -34,7 +34,7 @@ export default function GrammarPage() {
               </CardHeader>
               <CardContent className="flex-grow">
                 <p className="text-sm text-muted-foreground line-clamp-3">
-                  {lesson.explanation.substring(0, 150)}...
+                  {(lesson.explanation[language] || lesson.explanation.en || "").substring(0, 150)}...
                 </p>
               </CardContent>
               <CardFooter>
