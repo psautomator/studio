@@ -14,7 +14,7 @@ import {
   Shield,
   User,
   GraduationCap,
-  FileSignature, // Added for Fill in the Blanks
+  FileSignature, 
 } from 'lucide-react';
 import {
   Sidebar,
@@ -26,7 +26,7 @@ import {
   SidebarMenuButton,
   useSidebar,
 } from '@/components/ui/sidebar';
-import { SheetTitle } from '@/components/ui/sheet'; // Corrected import path
+import { SheetTitle } from '@/components/ui/sheet';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -46,12 +46,15 @@ const mainNavItems = [
   { href: '/quizzes', labelKey: 'quizzes', icon: HelpCircle },
   { href: '/pronunciation', labelKey: 'pronunciation', icon: Volume2 },
   { href: '/grammar', labelKey: 'grammar', icon: GraduationCap },
-  { href: '/fill-in-the-blanks', labelKey: 'fillintheblanks', icon: FileSignature }, // Changed labelKey
+  { href: '/fill-in-the-blanks', labelKey: 'fillintheblanks', icon: FileSignature },
   { href: '/progress', labelKey: 'progress', icon: BarChart3 },
   { href: '/goals', labelKey: 'goals', icon: Target },
 ];
 
-const currentUser: UserType = placeholderUser;
+// For now, using placeholderUser. In a real app, this would come from auth context.
+const currentUser: UserType = placeholderUser; 
+
+const adminAccessRoles = ['admin', 'editor', 'publisher']; // Roles that can access any part of admin panel
 
 export function AppSidebar() {
   const pathname = usePathname();
@@ -67,6 +70,8 @@ export function AppSidebar() {
       setOpenMobile(false);
     }
   };
+
+  const canAccessAdminPanel = currentUser.roles.some(role => adminAccessRoles.includes(role));
 
   return (
     <Sidebar collapsible="icon" side="left" variant="sidebar">
@@ -125,7 +130,7 @@ export function AppSidebar() {
                     <span>{getLabel('progress', 'Progress')}</span>
                   </Link>
                 </DropdownMenuItem>
-                {currentUser.role === 'admin' && (
+                {canAccessAdminPanel && (
                   <>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild className="bg-primary text-primary-foreground hover:bg-primary/90 focus:bg-primary/90 focus:text-primary-foreground">

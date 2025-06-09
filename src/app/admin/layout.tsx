@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { MainAppLayout } from '@/components/layout/main-app-layout'; // Can re-use or make a specific admin layout
+import { MainAppLayout } from '@/components/layout/main-app-layout'; 
 import {
   Sidebar,
   SidebarHeader,
@@ -14,18 +14,34 @@ import {
   SidebarInset,
   SidebarProvider,
 } from '@/components/ui/sidebar';
-import { Navbar } from '@/components/layout/navbar'; // Could have an AdminNavbar
-import { Package, Users, FileText, LayoutDashboard, Home, ListChecks, Award } from 'lucide-react'; // Added Home, ListChecks, Award icon
+import { Navbar } from '@/components/layout/navbar'; 
+import { Package, Users, FileText, LayoutDashboard, Home, ListChecks, Award } from 'lucide-react';
 import { APP_NAME } from '@/lib/constants';
 import { useLanguage } from '@/hooks/use-language';
+import { placeholderUser } from '@/lib/placeholder-data'; // For current user roles
+import type { User as UserType } from '@/types'; // Import UserType
 
-const adminNavItems = [
-  { href: '/admin', labelKey: 'adminDashboard', icon: LayoutDashboard, defaultLabel: 'Admin Dashboard' },
-  { href: '/admin/words', labelKey: 'wordsManagement', icon: FileText, defaultLabel: 'Words Management' },
-  { href: '/admin/quizzes', labelKey: 'quizzesManagement', icon: Package, defaultLabel: 'Quizzes Management' },
-  { href: '/admin/grammar', labelKey: 'grammarManagement', icon: ListChecks, defaultLabel: 'Grammar Management' },
-  { href: '/admin/badges', labelKey: 'badgesManagement', icon: Award, defaultLabel: 'Badges Management' }, // New Badge Link
-  { href: '/admin/users', labelKey: 'usersManagement', icon: Users, defaultLabel: 'Users Management' },
+// Assume placeholderUser is our current user for now
+const currentUser: UserType = placeholderUser; 
+
+// Helper function to check roles
+const userHasAnyRequiredRole = (userRoles: string[], requiredRoles?: string[]): boolean => {
+  if (!requiredRoles || requiredRoles.length === 0) {
+    return true; // No specific roles required, accessible to all who can see admin panel
+  }
+  if (!userRoles || userRoles.length === 0) {
+    return false; // User has no roles, cannot access role-protected item
+  }
+  return requiredRoles.some(role => userRoles.includes(role));
+};
+
+const allAdminNavItems = [
+  { href: '/admin', labelKey: 'adminDashboard', icon: LayoutDashboard, defaultLabel: 'Admin Dashboard', requiredRoles: ['admin', 'editor', 'publisher'] },
+  { href: '/admin/words', labelKey: 'wordsManagement', icon: FileText, defaultLabel: 'Words Management', requiredRoles: ['admin', 'editor'] },
+  { href: '/admin/quizzes', labelKey: 'quizzesManagement', icon: Package, defaultLabel: 'Quizzes Management', requiredRoles: ['admin', 'editor'] },
+  { href: '/admin/grammar', labelKey: 'grammarManagement', icon: ListChecks, defaultLabel: 'Grammar Management', requiredRoles: ['admin', 'editor', 'publisher'] },
+  { href: '/admin/badges', labelKey: 'badgesManagement', icon: Award, defaultLabel: 'Badges Management', requiredRoles: ['admin'] },
+  { href: '/admin/users', labelKey: 'usersManagement', icon: Users, defaultLabel: 'Users Management', requiredRoles: ['admin'] },
 ];
 
 const appLink = { href: '/dashboard', labelKey: 'backToApp', icon: Home, defaultLabel: 'Back to App' };
@@ -34,9 +50,13 @@ function AdminSidebar() {
   const pathname = usePathname();
   const { translations } = useLanguage();
 
-  const getLabel = (item: (typeof adminNavItems)[number] | typeof appLink) => {
+  const getLabel = (item: { labelKey: string, defaultLabel: string }) => {
     return translations[item.labelKey] || item.defaultLabel;
   };
+
+  const visibleAdminNavItems = allAdminNavItems.filter(item => 
+    userHasAnyRequiredRole(currentUser.roles, item.requiredRoles)
+  );
 
   return (
      <Sidebar collapsible="icon" side="left" variant="sidebar">
@@ -49,7 +69,7 @@ function AdminSidebar() {
       </SidebarHeader>
       <SidebarContent className="flex-grow p-2">
         <SidebarMenu>
-          {adminNavItems.map((item) => (
+          {visibleAdminNavItems.map((item) => (
             <SidebarMenuItem key={item.href}>
               <SidebarMenuButton
                 asChild
@@ -89,6 +109,18 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
+  // This check ideally would be more robust, e.g., redirecting if user doesn't have any admin-level roles
+  // For now, if no admin links are visible, it implies limited access, but actual page protection is needed.
+  const canAccessAdmin = allAdminNavItems.some(item => userHasAnyRequiredRole(currentUser.roles, item.requiredRoles));
+
+  if (!canAccessAdmin && typeof window !== 'undefined') {
+    // Basic redirect if no admin rights at all based on current roles
+    // In a real app with auth, this would be handled by a proper auth provider / middleware
+    // window.location.href = '/dashboard'; 
+    // return <p>Access Denied. Redirecting...</p>; // Or a proper "Access Denied" component
+  }
+
+
   return (
     <SidebarProvider defaultOpen={true}>
       <div className="flex min-h-screen">

@@ -30,7 +30,7 @@ export type QuestionType =
 
 export interface QuizQuestion {
   id: string;
-  questionType: QuestionType; // Made mandatory
+  questionType: QuestionType;
   questionText: string; // Main question text (e.g., "What is X?", "Translate Y", "Aku ____ Z.")
   options: QuizOption[];
   explanation?: string;
@@ -50,7 +50,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  role: 'user' | 'admin';
+  roles: string[]; // Changed from role: 'user' | 'admin';
   xp: number;
   streak: number;
   badges: string[];
@@ -98,7 +98,7 @@ export interface GrammarLesson {
   level: 'Beginner' | 'Intermediate' | 'Advanced';
   category: string;
   examples: GrammarExample[];
-  relatedQuizIds: string[]; // Changed from relatedQuizId?: string
+  relatedQuizIds: string[];
   relatedWordIds: string[]; 
   embeddedExercises: EmbeddedExercise[];
   status: 'published' | 'draft' | 'archived';

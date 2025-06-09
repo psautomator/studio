@@ -1,5 +1,6 @@
 
-import type { Word, Quiz, User, Badge, GrammarLesson, GrammarExample, EmbeddedExercise, SpeechLevel, QuizQuestion } from '@/types';
+import type { User as UserType } from '@/types'; // Renamed to avoid conflict
+import type { Word, Quiz, Badge, GrammarLesson, GrammarExample, EmbeddedExercise, SpeechLevel, QuizQuestion } from '@/types';
 
 export const placeholderWords: Word[] = [
   {
@@ -248,16 +249,22 @@ export const placeholderQuizzes: Quiz[] = [
   },
 ];
 
-export const placeholderUser: User = {
+export const placeholderUser: UserType = { // Renamed to UserType
   id: 'user123',
   name: 'Alex Doe',
   email: 'alex.doe@example.com',
-  role: 'admin',
+  roles: ['user', 'admin'], // Updated to roles array
   xp: 1250,
   streak: 15,
   badges: ['newbie', 'wordmaster_lvl1'],
   lastLogin: new Date(Date.now() - 86400000)
 };
+
+export const placeholderAdminUsers: UserType[] = [ // Renamed to UserType
+    { id: 'user1', name: 'Jan Jansen', email: 'jan@example.com', roles: ['user'], xp: 1500, streak: 10, badges: ['newbie', 'wordmaster_lvl1'] },
+    { id: 'user2', name: 'Piet Pietersen', email: 'piet@example.com', roles: ['user', 'editor'], xp: 800, streak: 5, badges: ['newbie'] },
+    { id: 'user3', name: 'Admin Account', email: 'admin@example.com', roles: ['admin', 'user'], xp: 0, streak: 0, badges: [] },
+];
 
 export const placeholderBadges: Badge[] = [
   { id: 'newbie', name: 'Newbie Linguist', description: 'Started your Javanese journey!', icon: 'Award' },
@@ -266,12 +273,6 @@ export const placeholderBadges: Badge[] = [
   { id: 'quiz_champ_easy', name: 'Quiz Champion (Easy)', description: 'Completed 10 easy quizzes with 80%+ accuracy.', icon: 'StarIcon', threshold: 10 },
   { id: 'grammar_initiate', name: 'Grammar Initiate', description: 'Completed your first grammar lesson.', icon: 'GraduationCap' }, 
   { id: 'perfect_pronunciation_1', name: 'Clear Speaker', description: 'Achieved 90%+ on a pronunciation exercise.', icon: 'Trophy' },
-];
-
-export const placeholderAdminUsers: User[] = [
-    { id: 'user1', name: 'Jan Jansen', email: 'jan@example.com', role: 'user', xp: 1500, streak: 10, badges: ['newbie', 'wordmaster_lvl1'] },
-    { id: 'user2', name: 'Piet Pietersen', email: 'piet@example.com', role: 'user', xp: 800, streak: 5, badges: ['newbie'] },
-    { id: 'user3', name: 'Admin Account', email: 'admin@example.com', role: 'admin', xp: 0, streak: 0, badges: [] },
 ];
 
 export const placeholderGrammarLessons: GrammarLesson[] = [

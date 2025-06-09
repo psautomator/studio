@@ -8,14 +8,18 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator'; // Added import
+import { Separator } from '@/components/ui/separator';
 import { useLanguage } from '@/hooks/use-language';
 import { placeholderUser } from '@/lib/placeholder-data';
-import { UserCircle, Shield, BookOpen, Settings, Trash2, Save } from 'lucide-react'; // Added Save icon, removed Edit3, KeyRound
+import { UserCircle, Shield, BookOpen, Settings, Trash2, Save } from 'lucide-react'; 
+import type { User as UserType } from '@/types'; // Import UserType
+
+const currentUser: UserType = placeholderUser; // Use UserType
 
 export default function ProfilePage() {
   const { translations } = useLanguage();
-  const user = placeholderUser; // In a real app, this would come from user context/API (Google Auth)
+  // In a real app, this would come from user context/API (Google Auth)
+  const user = currentUser; 
 
   // Mock handler for saving settings
   const handleSaveSettings = (section: string) => {
@@ -23,6 +27,8 @@ export default function ProfilePage() {
     console.log(`Saving ${section} settings...`);
     // Example: toast({ title: `${section} settings saved!` });
   };
+
+  const userDisplayRoles = user.roles.filter(r => r !== 'user').map(r => r.charAt(0).toUpperCase() + r.slice(1)).join(', ');
 
   return (
     <MainAppLayout>
@@ -41,9 +47,12 @@ export default function ProfilePage() {
             </Avatar>
             <CardTitle className="font-headline text-2xl">{user.name}</CardTitle>
             <CardDescription>{user.email}</CardDescription>
-            <CardDescription className="capitalize text-sm text-muted-foreground mt-1">
-              {translations.role || 'Role'}: {user.role} {user.role === 'admin' && <Shield className="inline-block ml-1 h-4 w-4 text-primary" />}
-            </CardDescription>
+            {userDisplayRoles && (
+              <CardDescription className="capitalize text-sm text-muted-foreground mt-1">
+                {translations.role || 'Role'}: {userDisplayRoles} 
+                {user.roles.includes('admin') && <Shield className="inline-block ml-1 h-4 w-4 text-primary" />}
+              </CardDescription>
+            )}
           </CardHeader>
           <CardContent className="text-center p-6 pt-2">
             {/* Removed "Update Profile" button from here */}
