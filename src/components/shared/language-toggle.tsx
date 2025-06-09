@@ -1,8 +1,9 @@
+
 "use client";
 
 import { Languages } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useLanguage } from '@/hooks/use-language';
+import { useLanguage } from '@/hooks/use-language'; // This will now provide the URL-driven language
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,11 +12,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export function LanguageToggle() {
-  const { language, setLanguage, translations } = useLanguage();
+  const { language, toggleLanguage, translations } = useLanguage();
 
-  const handleSetLanguage = (lang: 'en' | 'nl') => {
-    setLanguage(lang);
-    localStorage.setItem('javaneseJourneyLanguage', lang);
+  // toggleLanguage in the provider now handles navigation
+  const handleSetLanguage = (langToSet: 'en' | 'nl') => {
+    if (language !== langToSet) {
+      toggleLanguage(); // This will navigate to the other language's path
+    }
   };
 
   return (
@@ -29,12 +32,18 @@ export function LanguageToggle() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem onClick={() => handleSetLanguage('en')} disabled={language === 'en'}>
-          English
+          {translationsData.en.english || "English"}
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => handleSetLanguage('nl')} disabled={language === 'nl'}>
-          Nederlands
+          {translationsData.nl.dutch || "Nederlands"}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
 }
+
+// Minimal copy of translationsData for fallback in toggle items if translations are not yet loaded
+const translationsData = {
+  en: { english: "English", dutch: "Dutch" },
+  nl: { english: "English", dutch: "Nederlands" },
+};

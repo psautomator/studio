@@ -2,13 +2,14 @@
 "use client";
 
 import type { Language } from '@/types';
-import type { Dispatch, ReactNode, SetStateAction } from 'react';
+import type { ReactNode } from 'react';
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 
 interface LanguageContextType {
   language: Language;
-  setLanguage: Dispatch<SetStateAction<Language>>;
-  toggleLanguage: () => void;
+  // setLanguage is removed as language is now driven by URL path
+  toggleLanguage: () => void; // Will navigate to new locale path
   translations: Record<string, string>;
 }
 
@@ -27,7 +28,7 @@ const translationsData = {
     grammar: "Grammar",
     grammarLessons: "Grammar Lessons",
     grammarManagement: "Grammar Management",
-    admin: "Admin", // Changed from "Admin Panel" for brevity in some contexts
+    admin: "Admin",
     adminDashboard: "Admin Dashboard",
     backToApp: "Back to App",
     toggleToDutch: "Switch to Dutch",
@@ -126,8 +127,8 @@ const translationsData = {
     dailyStudyGoal: "Daily Study Goal (minutes)",
     accountManagement: "Account Management",
     deleteAccount: "Delete Account",
-    role: "Role", // Generic role
-    roles: "Roles", // Plural
+    role: "Role",
+    roles: "Roles",
     editor: "Editor",
     publisher: "Publisher",
     name: "Name",
@@ -198,7 +199,7 @@ const translationsData = {
     grammar: "Grammatica",
     grammarLessons: "Grammaticalessen",
     grammarManagement: "Grammaticabeheer",
-    admin: "Beheer", // Changed from "Beheerderspaneel"
+    admin: "Beheer",
     adminDashboard: "Beheerdersdashboard",
     backToApp: "Terug naar App",
     toggleToDutch: "Schakel naar Nederlands",
@@ -297,8 +298,8 @@ const translationsData = {
     dailyStudyGoal: "Dagelijks Studiedoel (minuten)",
     accountManagement: "Accountbeheer",
     deleteAccount: "Account Verwijderen",
-    role: "Rol", // Generic role
-    roles: "Rollen", // Plural
+    role: "Rol",
+    roles: "Rollen",
     editor: "Redacteur",
     publisher: "Uitgever",
     name: "Naam",
@@ -349,7 +350,7 @@ const translationsData = {
     fillInTheBlankMCQ: "Maak de zin compleet:",
     aiAssistContent: "AI Assistentie Inhoud",
     aiAssistComplete: "AI Assistentie Voltooid",
-    aiAssistError: "Fout bij AI Assistentie",
+    aiAssistError: "AI Assist Error",
     manageUserRoles: "Gebruikersrollen Beheren",
     selectRolesForUser: "Selecteer de rollen voor deze gebruiker.",
     assignableRoles: "Toewijsbare Rollen",
@@ -360,26 +361,44 @@ const translationsData = {
   },
 };
 
-export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguage] = useState<Language>('en');
+interface LanguageProviderProps {
+  children: ReactNode;
+  passedLocale: Language; // Locale from URL params
+}
 
+export function LanguageProvider({ children, passedLocale }: LanguageProviderProps) {
+  const router = useRouter();
+  const pathname = usePathname(); // Gives the full path including current locale prefix
+
+  // The language is now directly determined by the passedLocale from the URL.
+  // No need for useState for language itself, as it's derived.
+  const language = passedLocale;
+
+  // Persist language preference to localStorage for users who visit the site root directly
+  // or for future enhancements where we might redirect based on this preference.
   useEffect(() => {
-    const storedLang = localStorage.getItem('javaneseJourneyLanguage') as Language | null;
-    if (storedLang) {
-      setLanguage(storedLang);
-    }
-  }, []);
+    localStorage.setItem('javaneseJourneyLanguagePref', language);
+  }, [language]);
+
 
   const toggleLanguage = () => {
     const newLanguage = language === 'en' ? 'nl' : 'en';
-    setLanguage(newLanguage);
-    localStorage.setItem('javaneseJourneyLanguage', newLanguage);
+    
+    // Current pathname includes the locale prefix, e.g., /en/dashboard or /nl/profile
+    // We need to remove the current locale prefix and add the new one.
+    let newPath = pathname;
+    if (pathname.startsWith(`/${language}`)) {
+      newPath = pathname.substring(`/${language}`.length);
+      if (newPath === "") newPath = "/"; // Handle case like /en -> /
+    }
+    
+    router.push(`/${newLanguage}${newPath}`);
   };
 
-  const currentTranslations = translationsData[language];
+  const currentTranslations = translationsData[language] || translationsData.nl; // Fallback to default (nl)
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, toggleLanguage, translations: currentTranslations }}>
+    <LanguageContext.Provider value={{ language, toggleLanguage, translations: currentTranslations }}>
       {children}
     </LanguageContext.Provider>
   );
@@ -392,4 +411,3 @@ export function useLanguage() {
   }
   return context;
 }
-
