@@ -15,30 +15,35 @@ import {
   SidebarProvider,
 } from '@/components/ui/sidebar';
 import { Navbar } from '@/components/layout/navbar'; // Could have an AdminNavbar
-import { Package, Users, FileText, LayoutDashboard, Home, ListChecks } from 'lucide-react'; // Added Home, ListChecks icon
+import { Package, Users, FileText, LayoutDashboard, Home, ListChecks, Award } from 'lucide-react'; // Added Home, ListChecks, Award icon
 import { APP_NAME } from '@/lib/constants';
 import { useLanguage } from '@/hooks/use-language';
 
 const adminNavItems = [
-  { href: '/admin', label: 'Admin Dashboard', icon: LayoutDashboard },
-  { href: '/admin/words', label: 'Words Management', icon: FileText },
-  { href: '/admin/quizzes', label: 'Quizzes Management', icon: Package },
-  { href: '/admin/grammar', label: 'Grammar Management', icon: ListChecks },
-  { href: '/admin/users', label: 'Users Management', icon: Users },
+  { href: '/admin', labelKey: 'adminDashboard', icon: LayoutDashboard, defaultLabel: 'Admin Dashboard' },
+  { href: '/admin/words', labelKey: 'wordsManagement', icon: FileText, defaultLabel: 'Words Management' },
+  { href: '/admin/quizzes', labelKey: 'quizzesManagement', icon: Package, defaultLabel: 'Quizzes Management' },
+  { href: '/admin/grammar', labelKey: 'grammarManagement', icon: ListChecks, defaultLabel: 'Grammar Management' },
+  { href: '/admin/badges', labelKey: 'badgesManagement', icon: Award, defaultLabel: 'Badges Management' }, // New Badge Link
+  { href: '/admin/users', labelKey: 'usersManagement', icon: Users, defaultLabel: 'Users Management' },
 ];
 
-const appLink = { href: '/dashboard', label: 'Back to App', icon: Home };
+const appLink = { href: '/dashboard', labelKey: 'backToApp', icon: Home, defaultLabel: 'Back to App' };
 
 function AdminSidebar() {
   const pathname = usePathname();
   const { translations } = useLanguage();
+
+  const getLabel = (item: (typeof adminNavItems)[number] | typeof appLink) => {
+    return translations[item.labelKey] || item.defaultLabel;
+  };
 
   return (
      <Sidebar collapsible="icon" side="left" variant="sidebar">
       <SidebarHeader className="p-4">
          <Link href="/admin" className="flex items-center">
           <span className="font-headline text-lg font-semibold text-sidebar-foreground">
-            {translations.admin}
+            {translations.admin || "Admin"}
           </span>
         </Link>
       </SidebarHeader>
@@ -49,11 +54,11 @@ function AdminSidebar() {
               <SidebarMenuButton
                 asChild
                 isActive={pathname === item.href || (item.href !== "/admin" && pathname.startsWith(item.href))}
-                tooltip={{ children: item.label }}
+                tooltip={{ children: getLabel(item) }}
               >
                 <Link href={item.href}>
                   <item.icon />
-                  <span>{item.label}</span>
+                  <span>{getLabel(item)}</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -64,11 +69,11 @@ function AdminSidebar() {
               <SidebarMenuButton
                 asChild
                 isActive={pathname === appLink.href}
-                tooltip={{ children: appLink.label }}
+                tooltip={{ children: getLabel(appLink) }}
               >
                 <Link href={appLink.href}>
                   <appLink.icon />
-                  <span>{appLink.label}</span>
+                  <span>{getLabel(appLink)}</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
