@@ -12,11 +12,9 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarInset,
-  SidebarProvider,
 } from '@/components/ui/sidebar';
 import { Navbar } from '@/components/layout/navbar';
 import { Package, Users, FileText, LayoutDashboard, Home, ListChecks, Award } from 'lucide-react';
-// APP_NAME is not used directly in AdminSidebar titles
 import { useLanguage } from '@/hooks/use-language';
 import { placeholderUser } from '@/lib/placeholder-data';
 import type { User as UserType } from '@/types';
@@ -50,11 +48,7 @@ function AdminSidebar() {
     userHasAnyRequiredRole(currentUser.roles, item.requiredRoles)
   );
 
-  // Admin area specific "Back to App" link
   const appLink = { baseHref: '/dashboard', labelKey: 'backToApp', icon: Home, defaultLabel: 'Back to App' };
-  // Link component will handle locale prefixing based on current context
-  // So, hrefs within admin can be relative to the admin root or app root if Link handles it.
-  // For explicit control:
   const localizedAdminBase = `/${language}/admin`;
 
 
@@ -70,8 +64,8 @@ function AdminSidebar() {
       <SidebarContent className="flex-grow p-2">
         <SidebarMenu>
           {visibleAdminNavItems.map((item) => {
-            // Construct localized hrefs for admin section links
             const localizedItemHref = `/${language}${item.href}`;
+            const IconComponent = item.icon; // Assign to a capitalized variable
             return (
               <SidebarMenuItem key={item.href}>
                 <SidebarMenuButton
@@ -80,7 +74,7 @@ function AdminSidebar() {
                   tooltip={{ children: getLabel(item) }}
                 >
                   <Link href={localizedItemHref}>
-                    <item.icon />
+                    <IconComponent /> {/* Use the capitalized variable */}
                     <span>{getLabel(item)}</span>
                   </Link>
                 </SidebarMenuButton>
@@ -96,7 +90,8 @@ function AdminSidebar() {
                 tooltip={{ children: getLabel(appLink) }}
               >
                 <Link href={`/${language}${appLink.baseHref}`}>
-                  <appLink.icon />
+                  {/* Assign appLink.icon to a capitalized variable before rendering */}
+                  {React.createElement(appLink.icon)}
                   <span>{getLabel(appLink)}</span>
                 </Link>
               </SidebarMenuButton>
@@ -114,8 +109,6 @@ export default function AdminLayout({
   children: React.ReactNode;
   params: { locale: string };
 }) {
-  // useLanguage() will work here because this layout is now under [locale] context
-  // and LanguageProvider from the parent [locale]/layout.tsx is active.
 
   const canAccessAdmin = allAdminNavItems.some(item => userHasAnyRequiredRole(currentUser.roles, item.requiredRoles));
 
@@ -126,12 +119,9 @@ export default function AdminLayout({
   }
 
   return (
-    // No need to reinstantiate SidebarProvider if it's in the parent [locale]/layout.tsx
-    // However, if admin has its own independent sidebar behavior, keep it.
-    // Assuming SidebarProvider is already in the parent [locale]/layout.tsx
       <div className="flex min-h-screen">
         <AdminSidebar />
-        <div className="flex flex-1 flex-col">
+        <div className="flex flex-1 flex-col w-0">
           <Navbar /> {/* Navbar now uses useLanguage to get locale from context */}
           <SidebarInset>
             <main className="flex-1 p-4 md:p-6 lg:p-8">
