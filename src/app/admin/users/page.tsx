@@ -1,94 +1,61 @@
-
 "use client";
 
-import { useState } from 'react';
-import { PageHeader } from '@/components/shared/page-header';
-import { DataTable } from '@/components/admin/data-table';
-import type { User } from '@/types';
-import { placeholderAdminUsers } from '@/lib/placeholder-data'; // Using specific admin user data
+import Link from 'next/link';
+import { Shield, UserCircle, Menu, Home } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { APP_NAME } from '@/lib/constants';
+import { LanguageToggle } from '@/components/shared/language-toggle';
 import { useLanguage } from '@/hooks/use-language';
-import { useToast } from '@/hooks/use-toast';
-import { Badge } from '@/components/ui/badge';
-import { UserRoleForm } from '@/components/admin/user-role-form'; // Import the new form
-import { FormattedDate } from '@/components/shared/formatted-date';
+import { SidebarTrigger, useSidebar } from '@/components/ui/sidebar';
+import { usePathname } from 'next/navigation';
 
-const ALL_ASSIGNABLE_ROLES = ['admin', 'editor', 'publisher']; // Define assignable roles
+export function Navbar() {
+  const { translations, language } = useLanguage(); // language is the current locale (en/nl)
+  const { isMobile } = useSidebar();
+  const pathname = usePathname();
 
-export default function AdminUsersPage() {
-  const { translations } = useLanguage();
-  const { toast } = useToast();
-  const [users, setUsers] = useState<User[]>(placeholderAdminUsers);
-  const [isRoleFormOpen, setIsRoleFormOpen] = useState(false);
-  const [editingUserForRoles, setEditingUserForRoles] = useState<User | null>(null);
-
-  const columns = [
-    { accessorKey: 'name', header: 'Name' },
-    { accessorKey: 'email', header: 'Email' },
-    { 
-      accessorKey: 'roles', 
-      header: 'Roles', 
-      cell: (item: User) => (
-        <div className="flex flex-wrap gap-1">
-          {item.roles.map(role => (
-            <Badge key={role} variant={role === 'admin' ? 'default' : role === 'editor' ? 'secondary' : 'outline'} className="capitalize">
-              {translations[role.toLowerCase()] || role}
-            </Badge>
-          ))}
-        </div>
-      )
-    },
-    { accessorKey: 'xp', header: 'XP' },
-    { accessorKey: 'streak', header: 'Streak (days)' },
-    { accessorKey: 'badges', header: 'Badges', cell: (item: User) => item.badges.length },
-    { accessorKey: 'lastLogin', header: 'Last Login', cell: (item: User) => <FormattedDate date={item.lastLogin} /> },
-  ];
-
-  const handleEditUserRoles = (user: User) => {
-    setEditingUserForRoles(user);
-    setIsRoleFormOpen(true);
-  };
-
-  const handleSaveUserRoles = (userId: string, newRoles: string[]) => {
-    setUsers(prevUsers =>
-      prevUsers.map(user =>
-        user.id === userId ? { ...user, roles: newRoles } : user
-      )
-    );
-    const updatedUser = users.find(u => u.id === userId);
-    toast({
-      title: translations.userRolesUpdated || "User Roles Updated",
-      description: `${translations.rolesFor || "Roles for"} ${updatedUser?.name || userId} ${translations.haveBeenSaved || "have been saved."}`,
-    });
-    setIsRoleFormOpen(false);
-    setEditingUserForRoles(null);
-  };
-  
-  const handleViewUser = (user: User) => {
-    toast({
-      title: `Viewing ${user.name}`,
-      description: "Detailed user view is not yet implemented. Role management is via Edit icon.",
-    });
-  };
+  const isAdminArea = pathname.startsWith(`/${language}/admin`); // Check if current path is admin, considering locale
+  const dashboardLink = `/${language}/dashboard`;
+  const profileLink = `/${language}/profile`;
+  const adminLink = `/${language}/admin`; // Admin area link is now also locale-prefixed
 
   return (
-    <>
-      <PageHeader title={translations.usersManagement} description={translations.usersManagementDesc || "View user data and manage roles."} />
-      <DataTable 
-        columns={columns} 
-        data={users} 
-        onView={handleViewUser} 
-        onEdit={handleEditUserRoles} // Use onEdit to trigger role management
-      />
-      
-      {editingUserForRoles && (
-        <UserRoleForm
-          open={isRoleFormOpen}
-          onOpenChange={setIsRoleFormOpen}
-          user={editingUserForRoles}
-          onSaveRoles={handleSaveUserRoles}
-          allAssignableRoles={ALL_ASSIGNABLE_ROLES}
-        />
-      )}
-    </>
+    <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="flex h-16 w-full items-center justify-between px-4 md:px-6 lg:px-8">
+        <div className="flex items-center gap-4">
+          {isMobile && <SidebarTrigger />}
+          <Link href={isAdminArea ? adminLink : dashboardLink} className="flex items-center space-x-2">
+            <span className="font-headline text-xl font-bold text-primary">{APP_NAME}</span>
+          </Link>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <nav className="hidden md:flex items-center gap-2">
+            {isAdminArea ? (
+              <Button variant="default" asChild>
+                <Link href={dashboardLink}> 
+                  <Home className="mr-2 h-4 w-4" />
+                  {translations.backToApp || "App"}
+                </Link>
+              </Button>
+            ) : (
+              <Button variant="default" asChild>
+                <Link href={adminLink}> 
+                  <Shield className="mr-2 h-4 w-4" />
+                  {translations.admin}
+                </Link>
+              </Button>
+            )}
+          </nav>
+          <LanguageToggle />
+          <Button variant="ghost" size="icon" asChild>
+            <Link href={profileLink}> 
+              <UserCircle className="h-5 w-5" />
+              <span className="sr-only">User Profile</span>
+            </Link>
+          </Button>
+        </div>
+      </div>
+    </header>
   );
 }

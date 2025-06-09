@@ -15,18 +15,16 @@ export function Navbar() {
   const { isMobile } = useSidebar();
   const pathname = usePathname();
 
-  const isAdminArea = pathname.startsWith('/admin');
+  const isAdminArea = pathname.startsWith(`/${language}/admin`); // Check if current path is admin, considering locale
   const dashboardLink = `/${language}/dashboard`;
   const profileLink = `/${language}/profile`;
-  const adminLink = "/admin"; // Admin area is not locale-prefixed
+  const adminLink = `/${language}/admin`; // Admin area link is now also locale-prefixed
 
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      {/* Changed from 'container' to 'w-full px-4 md:px-6 lg:px-8' for full-width behavior with padding */}
       <div className="flex h-16 w-full items-center justify-between px-4 md:px-6 lg:px-8">
         <div className="flex items-center gap-4">
           {isMobile && <SidebarTrigger />}
-          {/* Link to admin root or localized dashboard */}
           <Link href={isAdminArea ? adminLink : dashboardLink} className="flex items-center space-x-2">
             <span className="font-headline text-xl font-bold text-primary">{APP_NAME}</span>
           </Link>
@@ -36,14 +34,14 @@ export function Navbar() {
           <nav className="hidden md:flex items-center gap-2">
             {isAdminArea ? (
               <Button variant="default" asChild>
-                <Link href={dashboardLink}> {/* Localized dashboard link */}
+                <Link href={dashboardLink}> 
                   <Home className="mr-2 h-4 w-4" />
                   {translations.backToApp || "App"}
                 </Link>
               </Button>
             ) : (
               <Button variant="default" asChild>
-                <Link href={adminLink}> {/* Admin link is not localized */}
+                <Link href={adminLink}> 
                   <Shield className="mr-2 h-4 w-4" />
                   {translations.admin}
                 </Link>
@@ -52,7 +50,7 @@ export function Navbar() {
           </nav>
           <LanguageToggle />
           <Button variant="ghost" size="icon" asChild>
-            <Link href={profileLink}> {/* Localized profile link */}
+            <Link href={profileLink}> 
               <UserCircle className="h-5 w-5" />
               <span className="sr-only">User Profile</span>
             </Link>

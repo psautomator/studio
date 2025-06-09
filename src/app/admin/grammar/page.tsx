@@ -1,88 +1,61 @@
-
 "use client";
 
-import { useState, useEffect } from 'react';
-import { PageHeader } from '@/components/shared/page-header';
+import Link from 'next/link';
+import { Shield, UserCircle, Menu, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { PlusCircle } from 'lucide-react';
-import { DataTable } from '@/components/admin/data-table';
-import type { GrammarLesson } from '@/types';
-import { placeholderGrammarLessons, placeholderQuizzes, placeholderWords } from '@/lib/placeholder-data';
+import { APP_NAME } from '@/lib/constants';
+import { LanguageToggle } from '@/components/shared/language-toggle';
 import { useLanguage } from '@/hooks/use-language';
-import { useToast } from '@/hooks/use-toast';
-import { Badge } from '@/components/ui/badge';
-import { GrammarLessonForm } from '@/components/admin/grammar-lesson-form';
+import { SidebarTrigger, useSidebar } from '@/components/ui/sidebar';
+import { usePathname } from 'next/navigation';
 
-export default function AdminGrammarPage() {
-  const { translations, language } = useLanguage();
-  const { toast } = useToast();
-  const [lessons, setLessons] = useState<GrammarLesson[]>(placeholderGrammarLessons);
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingLesson, setEditingLesson] = useState<GrammarLesson | null>(null);
+export function Navbar() {
+  const { translations, language } = useLanguage(); // language is the current locale (en/nl)
+  const { isMobile } = useSidebar();
+  const pathname = usePathname();
 
-  const columns = [
-    { 
-      accessorKey: 'title', 
-      header: translations.lessonTitle || 'Title', 
-      cell: (item: GrammarLesson) => <span className="font-medium">{item.title[language] || item.title.en}</span> 
-    },
-    { accessorKey: 'category', header: translations.lessonCategory || 'Category', cell: (item: GrammarLesson) => item.category },
-    { accessorKey: 'level', header: translations.lessonLevel || 'Level', cell: (item: GrammarLesson) => <Badge variant="secondary" className="capitalize">{item.level}</Badge> },
-    { accessorKey: 'examples', header: translations.lessonExamples || 'Examples', cell: (item: GrammarLesson) => item.examples.length },
-    { accessorKey: 'status', header: translations.lessonStatus || 'Status', cell: (item: GrammarLesson) => <Badge variant={item.status === 'published' ? 'default' : item.status === 'draft' ? 'secondary' : 'outline'} className="capitalize">{item.status || 'N/A'}</Badge> },
-  ];
-
-  const handleEdit = (lesson: GrammarLesson) => {
-    setEditingLesson(lesson);
-    setIsFormOpen(true);
-  };
-
-  const handleDelete = (lessonToDelete: GrammarLesson) => {
-     if (window.confirm(`${translations.confirmRemove || "Are you sure you want to delete this?"} "${lessonToDelete.title[language] || lessonToDelete.title.en}"?`)) {
-      setLessons(lessons.filter(l => l.id !== lessonToDelete.id));
-      toast({ title: "Lesson Deleted (Simulated)", description: `"${lessonToDelete.title[language] || lessonToDelete.title.en}" would be removed.` });
-    }
-  };
-  
-  const handleAddNew = () => {
-    setEditingLesson(null);
-    setIsFormOpen(true);
-  };
-
-  const handleSaveLesson = (data: GrammarLesson) => {
-    const existingIndex = lessons.findIndex(l => l.id === data.id);
-    if (existingIndex > -1) {
-      const updatedLessons = [...lessons];
-      updatedLessons[existingIndex] = data;
-      setLessons(updatedLessons);
-      toast({ title: translations.lessonSaved || "Lesson Saved", description: `"${data.title[language] || data.title.en}" has been updated.` });
-    } else {
-      setLessons(prevLessons => [...prevLessons, { ...data, id: data.id || `gl-${Date.now()}` }]); // Ensure ID for new lessons
-      toast({ title: translations.lessonSaved || "Lesson Saved", description: `"${data.title[language] || data.title.en}" has been added.` });
-    }
-    setIsFormOpen(false);
-    setEditingLesson(null);
-  };
-
+  const isAdminArea = pathname.startsWith(`/${language}/admin`); // Check if current path is admin, considering locale
+  const dashboardLink = `/${language}/dashboard`;
+  const profileLink = `/${language}/profile`;
+  const adminLink = `/${language}/admin`; // Admin area link is now also locale-prefixed
 
   return (
-    <>
-      <PageHeader title={translations.grammarManagement || "Grammar Management"} description="Manage grammar lessons and explanations.">
-        <Button onClick={handleAddNew}>
-          <PlusCircle className="mr-2 h-4 w-4" />
-          {translations.addNewLesson || "Add New Lesson"}
-        </Button>
-      </PageHeader>
-      <DataTable columns={columns} data={lessons} onEdit={handleEdit} onDelete={handleDelete} />
-      
-      <GrammarLessonForm
-        open={isFormOpen}
-        onOpenChange={setIsFormOpen}
-        lesson={editingLesson}
-        onSave={handleSaveLesson}
-        allQuizzes={placeholderQuizzes}
-        allWords={placeholderWords}
-      />
-    </>
+    <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="flex h-16 w-full items-center justify-between px-4 md:px-6 lg:px-8">
+        <div className="flex items-center gap-4">
+          {isMobile && <SidebarTrigger />}
+          <Link href={isAdminArea ? adminLink : dashboardLink} className="flex items-center space-x-2">
+            <span className="font-headline text-xl font-bold text-primary">{APP_NAME}</span>
+          </Link>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <nav className="hidden md:flex items-center gap-2">
+            {isAdminArea ? (
+              <Button variant="default" asChild>
+                <Link href={dashboardLink}> 
+                  <Home className="mr-2 h-4 w-4" />
+                  {translations.backToApp || "App"}
+                </Link>
+              </Button>
+            ) : (
+              <Button variant="default" asChild>
+                <Link href={adminLink}> 
+                  <Shield className="mr-2 h-4 w-4" />
+                  {translations.admin}
+                </Link>
+              </Button>
+            )}
+          </nav>
+          <LanguageToggle />
+          <Button variant="ghost" size="icon" asChild>
+            <Link href={profileLink}> 
+              <UserCircle className="h-5 w-5" />
+              <span className="sr-only">User Profile</span>
+            </Link>
+          </Button>
+        </div>
+      </div>
+    </header>
   );
 }

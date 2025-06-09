@@ -72,6 +72,7 @@ export function AppSidebar() {
   const canAccessAdminPanel = currentUser.roles.some(role => adminAccessRoles.includes(role));
   const localizedProfileBaseHref = `/${language}/profile`;
   const localizedProgressBaseHref = `/${language}/progress`;
+  const localizedAdminHref = `/${language}/admin`;
 
 
   return (
@@ -138,8 +139,7 @@ export function AppSidebar() {
                   <>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild className="bg-primary text-primary-foreground hover:bg-primary/90 focus:bg-primary/90 focus:text-primary-foreground">
-                      {/* Admin link is not locale-prefixed */}
-                      <Link href="/admin" className="flex items-center w-full" onClick={handleMobileLinkClick}>
+                      <Link href={localizedAdminHref} className="flex items-center w-full" onClick={handleMobileLinkClick}>
                         <Shield className="mr-2 h-4 w-4" />
                         <span>{getLabel('admin', 'Admin Panel')}</span>
                       </Link>

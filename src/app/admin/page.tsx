@@ -1,44 +1,61 @@
 "use client";
 
-import AdminLayout from './layout'; // This is the default export from layout.tsx
-import { PageHeader } from '@/components/shared/page-header';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { FileText, Package, Users, BarChartHorizontalBig } from 'lucide-react';
-import { useLanguage } from '@/hooks/use-language';
 import Link from 'next/link';
+import { Shield, UserCircle, Menu, Home } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { APP_NAME } from '@/lib/constants';
+import { LanguageToggle } from '@/components/shared/language-toggle';
+import { useLanguage } from '@/hooks/use-language';
+import { SidebarTrigger, useSidebar } from '@/components/ui/sidebar';
+import { usePathname } from 'next/navigation';
 
-export default function AdminDashboardPage() {
-  const { translations } = useLanguage();
+export function Navbar() {
+  const { translations, language } = useLanguage(); // language is the current locale (en/nl)
+  const { isMobile } = useSidebar();
+  const pathname = usePathname();
 
-  const summaryCards = [
-    { title: translations.wordsManagement, count: 120, icon: FileText, href: "/admin/words", description: "Manage vocabulary" },
-    { title: translations.quizzesManagement, count: 35, icon: Package, href: "/admin/quizzes", description: "Create and edit quizzes" },
-    { title: translations.usersManagement, count: 250, icon: Users, href: "/admin/users", description: "View user data" },
-    { title: "Content Analytics", count: "N/A", icon: BarChartHorizontalBig, href: "/admin/analytics", description: "View learning statistics (placeholder)" },
-  ];
+  const isAdminArea = pathname.startsWith(`/${language}/admin`); // Check if current path is admin, considering locale
+  const dashboardLink = `/${language}/dashboard`;
+  const profileLink = `/${language}/profile`;
+  const adminLink = `/${language}/admin`; // Admin area link is now also locale-prefixed
 
   return (
-    // AdminLayout is applied by Next.js for this route. No need to wrap it here.
-    // If you had a specific AdminLayout component, you would use it in the layout.tsx file.
-    <>
-      <PageHeader title={translations.admin} description="Manage application content and users." />
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        {summaryCards.map(card => (
-          <Link href={card.href} key={card.title} className="block hover:shadow-lg transition-shadow duration-200">
-              <Card className="h-full">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">{card.title}</CardTitle>
-                  <card.icon className="h-5 w-5 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-primary">{card.count}</div>
-                  <p className="text-xs text-muted-foreground">{card.description}</p>
-                </CardContent>
-              </Card>
+    <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="flex h-16 w-full items-center justify-between px-4 md:px-6 lg:px-8">
+        <div className="flex items-center gap-4">
+          {isMobile && <SidebarTrigger />}
+          <Link href={isAdminArea ? adminLink : dashboardLink} className="flex items-center space-x-2">
+            <span className="font-headline text-xl font-bold text-primary">{APP_NAME}</span>
           </Link>
-        ))}
+        </div>
+
+        <div className="flex items-center gap-3">
+          <nav className="hidden md:flex items-center gap-2">
+            {isAdminArea ? (
+              <Button variant="default" asChild>
+                <Link href={dashboardLink}> 
+                  <Home className="mr-2 h-4 w-4" />
+                  {translations.backToApp || "App"}
+                </Link>
+              </Button>
+            ) : (
+              <Button variant="default" asChild>
+                <Link href={adminLink}> 
+                  <Shield className="mr-2 h-4 w-4" />
+                  {translations.admin}
+                </Link>
+              </Button>
+            )}
+          </nav>
+          <LanguageToggle />
+          <Button variant="ghost" size="icon" asChild>
+            <Link href={profileLink}> 
+              <UserCircle className="h-5 w-5" />
+              <span className="sr-only">User Profile</span>
+            </Link>
+          </Button>
+        </div>
       </div>
-      {/* Further admin dashboard content can go here, e.g., recent activity, quick actions */}
-    </>
+    </header>
   );
 }
