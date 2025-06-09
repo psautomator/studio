@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { PageHeader } from '@/components/shared/page-header';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, Upload } from 'lucide-react';
@@ -53,7 +53,7 @@ function WordForm({
 
   const { translations } = useLanguage();
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (word) {
       setJavanese(word.javanese || '');
       setDutch(word.dutch || '');
