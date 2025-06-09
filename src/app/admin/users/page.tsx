@@ -10,6 +10,7 @@ import { useLanguage } from '@/hooks/use-language';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { UserRoleForm } from '@/components/admin/user-role-form'; // Import the new form
+import { FormattedDate } from '@/components/shared/formatted-date';
 
 const ALL_ASSIGNABLE_ROLES = ['admin', 'editor', 'publisher']; // Define assignable roles
 
@@ -39,7 +40,7 @@ export default function AdminUsersPage() {
     { accessorKey: 'xp', header: 'XP' },
     { accessorKey: 'streak', header: 'Streak (days)' },
     { accessorKey: 'badges', header: 'Badges', cell: (item: User) => item.badges.length },
-    { accessorKey: 'lastLogin', header: 'Last Login', cell: (item: User) => item.lastLogin ? new Date(item.lastLogin).toLocaleDateString() : 'N/A' },
+    { accessorKey: 'lastLogin', header: 'Last Login', cell: (item: User) => <FormattedDate date={item.lastLogin} /> },
   ];
 
   const handleEditUserRoles = (user: User) => {
@@ -91,4 +92,3 @@ export default function AdminUsersPage() {
     </>
   );
 }
-
