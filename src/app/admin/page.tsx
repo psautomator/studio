@@ -24,8 +24,7 @@ export default function AdminDashboardPage() {
       <PageHeader title={translations.admin} description="Manage application content and users." />
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         {summaryCards.map(card => (
-          <Link href={card.href} key={card.title} legacyBehavior>
-            <a className="block hover:shadow-lg transition-shadow duration-200">
+          <Link href={card.href} key={card.title} className="block hover:shadow-lg transition-shadow duration-200">
               <Card className="h-full">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">{card.title}</CardTitle>
@@ -36,7 +35,6 @@ export default function AdminDashboardPage() {
                   <p className="text-xs text-muted-foreground">{card.description}</p>
                 </CardContent>
               </Card>
-            </a>
           </Link>
         ))}
       </div>
