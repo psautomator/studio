@@ -3,6 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import React, { use } from 'react'; // Import React and 'use' hook
 // MainAppLayout is not used for AdminLayout structure
 import {
   Sidebar,
@@ -65,7 +66,7 @@ function AdminSidebar() {
         <SidebarMenu>
           {visibleAdminNavItems.map((item) => {
             const localizedItemHref = `/${language}${item.href}`;
-            const IconComponent = item.icon; // Assign to a capitalized variable
+            const IconComponent = item.icon; 
             return (
               <SidebarMenuItem key={item.href}>
                 <SidebarMenuButton
@@ -74,7 +75,7 @@ function AdminSidebar() {
                   tooltip={{ children: getLabel(item) }}
                 >
                   <Link href={localizedItemHref}>
-                    <IconComponent /> {/* Use the capitalized variable */}
+                    <IconComponent /> 
                     <span>{getLabel(item)}</span>
                   </Link>
                 </SidebarMenuButton>
@@ -90,7 +91,6 @@ function AdminSidebar() {
                 tooltip={{ children: getLabel(appLink) }}
               >
                 <Link href={`/${language}${appLink.baseHref}`}>
-                  {/* Assign appLink.icon to a capitalized variable before rendering */}
                   {React.createElement(appLink.icon)}
                   <span>{getLabel(appLink)}</span>
                 </Link>
@@ -104,17 +104,19 @@ function AdminSidebar() {
 
 export default function AdminLayout({
   children,
-  params, // AdminLayout will now receive locale from URL parameters
+  params: paramsPromise, // Rename to indicate it's a promise
 }: {
   children: React.ReactNode;
-  params: { locale: string };
+  params: Promise<{ locale: string }>; // Correctly type params as a Promise
 }) {
+  const params = use(paramsPromise); // Resolve the promise using React.use()
+  const locale = params.locale;
 
   const canAccessAdmin = allAdminNavItems.some(item => userHasAnyRequiredRole(currentUser.roles, item.requiredRoles));
 
   if (!canAccessAdmin && typeof window !== 'undefined') {
     // Basic redirect - in a real app, this would be handled by middleware or auth provider
-    // window.location.href = `/${params.locale}/dashboard`;
+    // window.location.href = `/${locale}/dashboard`;
     // return <p>Access Denied or redirecting...</p>;
   }
 
