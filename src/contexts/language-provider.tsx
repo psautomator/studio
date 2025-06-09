@@ -8,14 +8,12 @@ import { usePathname, useRouter } from 'next/navigation';
 
 interface LanguageContextType {
   language: Language;
-  // setLanguage is removed as language is now driven by URL path
-  toggleLanguage: () => void; // Will navigate to new locale path
+  toggleLanguage: () => void; 
   translations: Record<string, string>;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
-// Simple translations - extend this as needed
 const translationsData = {
   en: {
     appName: "Javanese Journey",
@@ -27,6 +25,7 @@ const translationsData = {
     goals: "Goals",
     grammar: "Grammar",
     grammarLessons: "Grammar Lessons",
+    grammarLessonsOverview: "Grammar Lessons Overview",
     grammarManagement: "Grammar Management",
     admin: "Admin",
     adminDashboard: "Admin Dashboard",
@@ -34,6 +33,8 @@ const translationsData = {
     toggleToDutch: "Switch to Dutch",
     toggleToEnglish: "Switch to English",
     welcome: "Welcome to Javanese Journey!",
+    welcomeBack: "Welcome back,",
+    days: "days",
     startLearning: "Start Learning",
     javanese: "Javanese",
     dutch: "Dutch",
@@ -47,10 +48,13 @@ const translationsData = {
     userXP: "User XP",
     learningStreak: "Learning Streak",
     badges: "Badges",
+    noBadgesEarned: "No badges earned yet. Keep learning!",
     learningProgress: "Learning Progress",
     preferredLearningStyle: "Preferred Learning Style (optional)",
     timeAvailable: "Time Available Today (optional)",
     generateGoals: "Generate Goals",
+    generateYourGoals: "Generate Your Goals",
+    viewYourGoals: "View Your Goals",
     dailyGoals: "Daily Goals",
     explanation: "Explanation",
     wordsManagement: "Words Management",
@@ -106,6 +110,7 @@ const translationsData = {
     question: "Question",
     options: "Options",
     noGoalsGenerated: "Enter your progress and generate your daily goals!",
+    noGoalsYet: "No goals generated yet. Let's create some!",
     loadingGoals: "Generating your personalized goals...",
     errorGeneratingGoals: "Could not generate goals. Please try again.",
     logout: "Logout",
@@ -146,6 +151,7 @@ const translationsData = {
     showAnswer: "Show Answer",
     missingWordWas: "The missing word was:",
     noFillExercises: "No fill-in-the-blank exercises available at the moment.",
+    noHintAvailable: "No hint available.",
     showJavaneseFirst: "Show Javanese First",
     selectLevel: "Select Level",
     selectStatus: "Select Status",
@@ -187,6 +193,15 @@ const translationsData = {
     userRolesUpdated: "User Roles Updated",
     rolesFor: "Roles for",
     haveBeenSaved: "have been saved.",
+    todaysFocus: "Today's Focus",
+    yourLearningJourney: "Your Learning Journey",
+    continueLearning: "Continue Learning",
+    resumeGrammar: "Resume Grammar:",
+    tryNewQuiz: "Try a New Quiz:",
+    practicePronunciation: "Practice Pronunciation:",
+    discoverMore: "Discover More",
+    yourAchievements: "Your Achievements",
+    viewAllProgress: "View All Progress & Badges",
   },
   nl: {
     appName: "Javaanse Reis",
@@ -198,6 +213,7 @@ const translationsData = {
     goals: "Doelen",
     grammar: "Grammatica",
     grammarLessons: "Grammaticalessen",
+    grammarLessonsOverview: "Overzicht Grammaticalessen",
     grammarManagement: "Grammaticabeheer",
     admin: "Beheer",
     adminDashboard: "Beheerdersdashboard",
@@ -205,6 +221,8 @@ const translationsData = {
     toggleToDutch: "Schakel naar Nederlands",
     toggleToEnglish: "Switch to English",
     welcome: "Welkom bij Javaanse Reis!",
+    welcomeBack: "Welkom terug,",
+    days: "dagen",
     startLearning: "Begin met Leren",
     javanese: "Javaans",
     dutch: "Nederlands",
@@ -218,10 +236,13 @@ const translationsData = {
     userXP: "Gebruikers XP",
     learningStreak: "Leerreeks",
     badges: "Badges",
+    noBadgesEarned: "Nog geen badges verdiend. Blijf leren!",
     learningProgress: "Leervoortgang",
     preferredLearningStyle: "Voorkeur Leerstijl (optioneel)",
     timeAvailable: "Beschikbare Tijd Vandaag (optioneel)",
     generateGoals: "Genereer Doelen",
+    generateYourGoals: "Genereer Je Doelen",
+    viewYourGoals: "Bekijk Je Doelen",
     dailyGoals: "Dagelijkse Doelen",
     explanation: "Uitleg",
     wordsManagement: "Woordenbeheer",
@@ -277,6 +298,7 @@ const translationsData = {
     question: "Vraag",
     options: "Opties",
     noGoalsGenerated: "Voer je voortgang in en genereer je dagelijkse doelen!",
+    noGoalsYet: "Nog geen doelen gegenereerd. Laten we er een paar maken!",
     loadingGoals: "Je gepersonaliseerde doelen worden gegenereerd...",
     errorGeneratingGoals: "Kon doelen niet genereren. Probeer het opnieuw.",
     logout: "Uitloggen",
@@ -317,6 +339,7 @@ const translationsData = {
     showAnswer: "Toon Antwoord",
     missingWordWas: "Het ontbrekende woord was:",
     noFillExercises: "Momenteel geen invuloefeningen beschikbaar.",
+    noHintAvailable: "Geen hint beschikbaar.",
     showJavaneseFirst: "Toon Javaans Eerst",
     selectLevel: "Selecteer Niveau",
     selectStatus: "Selecteer Status",
@@ -358,24 +381,29 @@ const translationsData = {
     userRolesUpdated: "Gebruikersrollen Bijgewerkt",
     rolesFor: "Rollen voor",
     haveBeenSaved: "zijn opgeslagen.",
+    todaysFocus: "Focus van Vandaag",
+    yourLearningJourney: "Jouw Leerreis",
+    continueLearning: "Ga Verder Met Leren",
+    resumeGrammar: "Hervat Grammatica:",
+    tryNewQuiz: "Probeer een Nieuwe Quiz:",
+    practicePronunciation: "Oefen Uitspraak:",
+    discoverMore: "Ontdek Meer",
+    yourAchievements: "Jouw Prestaties",
+    viewAllProgress: "Bekijk Alle Voortgang & Badges",
   },
 };
 
 interface LanguageProviderProps {
   children: ReactNode;
-  passedLocale: Language; // Locale from URL params
+  passedLocale: Language; 
 }
 
 export function LanguageProvider({ children, passedLocale }: LanguageProviderProps) {
   const router = useRouter();
-  const pathname = usePathname(); // Gives the full path including current locale prefix
+  const pathname = usePathname(); 
 
-  // The language is now directly determined by the passedLocale from the URL.
-  // No need for useState for language itself, as it's derived.
   const language = passedLocale;
 
-  // Persist language preference to localStorage for users who visit the site root directly
-  // or for future enhancements where we might redirect based on this preference.
   useEffect(() => {
     localStorage.setItem('javaneseJourneyLanguagePref', language);
   }, [language]);
@@ -384,18 +412,16 @@ export function LanguageProvider({ children, passedLocale }: LanguageProviderPro
   const toggleLanguage = () => {
     const newLanguage = language === 'en' ? 'nl' : 'en';
     
-    // Current pathname includes the locale prefix, e.g., /en/dashboard or /nl/profile
-    // We need to remove the current locale prefix and add the new one.
     let newPath = pathname;
     if (pathname.startsWith(`/${language}`)) {
       newPath = pathname.substring(`/${language}`.length);
-      if (newPath === "") newPath = "/"; // Handle case like /en -> /
+      if (newPath === "") newPath = "/"; 
     }
     
     router.push(`/${newLanguage}${newPath}`);
   };
 
-  const currentTranslations = translationsData[language] || translationsData.nl; // Fallback to default (nl)
+  const currentTranslations = translationsData[language] || translationsData.nl; 
 
   return (
     <LanguageContext.Provider value={{ language, toggleLanguage, translations: currentTranslations }}>
