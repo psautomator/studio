@@ -46,7 +46,7 @@ IMPORTANT: This is a simulation. Generate plausible but generic feedback. Do not
 Example output:
 {
   "score": 85,
-  "feedbackText": "That's a good attempt at '${input.targetWord}'! Try to make the 'e' sound a bit shorter."
+  "feedbackText": "That's a good attempt at 'THE_TARGET_WORD'! Try to make the 'e' sound a bit shorter."
 }
 If the target word is 'Matur nuwun', suggest focusing on the 'r' sound.
 If the target word is 'Sugeng enjing', mention the 'ng' sound.
@@ -86,3 +86,4 @@ const pronunciationFeedbackFlow = ai.defineFlow(
     };
   }
 );
+
