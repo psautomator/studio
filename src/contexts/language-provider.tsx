@@ -98,9 +98,21 @@ const translationsData = {
     addExercise: "Add Exercise",
     removeExercise: "Remove Exercise",
     fillInTheBlankExercise: "Fill-in-the-Blank",
+    errorSpottingExercise: "Error Spotting",
     sentenceWithPlaceholder: "Sentence with ____ placeholder",
     correctAnswerForBlank: "Correct Answer for Blank",
     hintForBlank: "Hint (optional)",
+    incorrectSentenceLabel: "Incorrect Sentence",
+    correctSentenceLabel: "Correct Sentence",
+    hintOptional: "Hint (optional)",
+    spotTheErrorInstruction: "The following sentence has an error. Correct it:",
+    hintForError: "Hint",
+    typeCorrectedSentence: "Type the corrected sentence here...",
+    checkCorrection: "Check Correction",
+    incorrectCorrection: "That's not quite right. The correct sentence is:",
+    submittedAnswer: "You submitted:",
+    correctSentenceIs: "The correct sentence is:",
+    wellDoneCorrectSentence: "Well done! The correct sentence is indeed:",
     viewUsers: "View Users",
     save: "Save",
     saveDraft: "Save Draft",
@@ -316,9 +328,21 @@ const translationsData = {
     addExercise: "Oefening Toevoegen",
     removeExercise: "Oefening Verwijderen",
     fillInTheBlankExercise: "Invuloefening",
+    errorSpottingExercise: "Foutendetectie",
     sentenceWithPlaceholder: "Zin met ____ plaatshouder",
     correctAnswerForBlank: "Correct Antwoord voor Leegte",
     hintForBlank: "Hint (optioneel)",
+    incorrectSentenceLabel: "Foutieve Zin",
+    correctSentenceLabel: "Correcte Zin",
+    hintOptional: "Hint (optioneel)",
+    spotTheErrorInstruction: "De volgende zin bevat een fout. Corrigeer deze:",
+    hintForError: "Hint",
+    typeCorrectedSentence: "Typ hier de gecorrigeerde zin...",
+    checkCorrection: "Controleer Correctie",
+    incorrectCorrection: "Dat is niet helemaal juist. De correcte zin is:",
+    submittedAnswer: "Je hebt ingevoerd:",
+    correctSentenceIs: "De correcte zin is:",
+    wellDoneCorrectSentence: "Goed gedaan! De correcte zin is inderdaad:",
     viewUsers: "Bekijk Gebruikers",
     save: "Opslaan",
     saveDraft: "Concept Opslaan",
@@ -475,8 +499,12 @@ export function LanguageProvider({ children, passedLocale }: LanguageProviderPro
     let newPath = pathname;
     if (pathname.startsWith(`/${language}`)) {
       newPath = pathname.substring(`/${language}`.length);
-      if (newPath === "") newPath = "/";
+      if (newPath === "") newPath = "/"; // Ensure base path is handled
     }
+     // Ensure newPath starts with a slash if it's not empty, or is just a slash
+    if (newPath && !newPath.startsWith('/')) newPath = `/${newPath}`;
+    else if (!newPath) newPath = '/';
+
 
     router.push(`/${newLanguage}${newPath}`);
   };
@@ -497,5 +525,3 @@ export function useLanguage() {
   }
   return context;
 }
-
-    

@@ -16,6 +16,7 @@ import ReactMarkdown from 'react-markdown';
 import { useToast } from '@/hooks/use-toast';
 import { useEffect, useState } from 'react';
 import { EmbeddedFillInTheBlankItem } from '@/components/grammar/embedded-fill-in-the-blank-item';
+import { EmbeddedErrorSpottingItem } from '@/components/grammar/embedded-error-spotting-item'; // Import new component
 
 export default function GrammarLessonPage() {
   const params = useParams();
@@ -31,7 +32,7 @@ export default function GrammarLessonPage() {
   useEffect(() => {
     const foundLesson = placeholderGrammarLessons.find(l => l.id === lessonId);
     setLesson(foundLesson);
-    setFirstAttemptResults({}); // Reset attempt results when lesson changes
+    setFirstAttemptResults({});
 
     if (foundLesson) {
       const viewedKey = `viewed_lesson_${foundLesson.id}`;
@@ -49,7 +50,7 @@ export default function GrammarLessonPage() {
       } else {
         setRelatedQuizzes([]);
       }
-      
+
       if (foundLesson.relatedWordIds && foundLesson.relatedWordIds.length > 0) {
         const words = placeholderWords.filter(w => foundLesson.relatedWordIds.includes(w.id));
         setLinkedWords(words);
@@ -58,7 +59,7 @@ export default function GrammarLessonPage() {
       }
 
     }
-  }, [lessonId, toast, language, translations.viewedLesson]);
+  }, [lessonId, toast, language, translations.viewedLesson, translations]);
 
   const handlePlayAudio = (url: string, itemName: string) => {
     if (url) {
@@ -66,7 +67,6 @@ export default function GrammarLessonPage() {
         title: `${translations.playingAudio || "Playing audio for"}: ${itemName}`,
         description: `${translations.simulatingPlayback || "Simulating playback"}. URL: ${url}`,
       });
-      // new Audio(url).play().catch(err => console.error("Audio playback error:", err));
     } else {
       toast({
         title: translations.audioNotAvailable || "Audio Not Available",
@@ -81,7 +81,7 @@ export default function GrammarLessonPage() {
   };
 
   const handleMasteryCheck = () => {
-    if (!lesson || lesson.embeddedExercises.length === 0) return;
+    if (!lesson || !lesson.embeddedExercises || lesson.embeddedExercises.length === 0) return;
 
     const allAttempted = lesson.embeddedExercises.every(ex => ex.id in firstAttemptResults);
     if (!allAttempted) {
@@ -100,10 +100,7 @@ export default function GrammarLessonPage() {
         title: translations.lessonMastered || "Lesson Mastered!",
         description: `${translations.congratsPerfectEmbedded || "Congratulations! You completed all embedded exercises perfectly on the first try."} (+20 XP - simulated)`,
       });
-      // Here you would update user data, e.g., add lesson.id to user.completedLessonIds
-      // For now, we can log it and perhaps disable the button.
       console.log(`Lesson ${lesson.id} mastered and would be added to completed list.`);
-      // Potentially disable the button or change its text
     } else {
       toast({
         title: translations.masteryNotAchieved || "Mastery Not Achieved",
@@ -113,9 +110,12 @@ export default function GrammarLessonPage() {
       });
     }
   };
-  
-  const allExercisesAttempted = lesson && lesson.embeddedExercises.length > 0 && 
+
+  const allExercisesAttempted = lesson && lesson.embeddedExercises && lesson.embeddedExercises.length > 0 &&
                                lesson.embeddedExercises.every(ex => ex.id in firstAttemptResults);
+
+  const backToLessonsLink = `/${language}/grammar`;
+  const flashcardsLink = `/${language}/flashcards`;
 
 
   if (!lesson) {
@@ -124,7 +124,7 @@ export default function GrammarLessonPage() {
         <PageHeader title={translations.lessonNotFound || "Lesson Not Found"} />
         <p>{translations.lessonNotFoundDesc || "The grammar lesson you are looking for does not exist or could not be loaded."}</p>
         <Button asChild variant="outline" className="mt-4">
-          <Link href="/grammar"><ArrowLeft className="mr-2 h-4 w-4" /> {translations.backToLessons || "Back to Grammar Lessons"}</Link>
+          <Link href={backToLessonsLink}><ArrowLeft className="mr-2 h-4 w-4" /> {translations.backToLessons || "Back to Grammar Lessons"}</Link>
         </Button>
       </MainAppLayout>
     );
@@ -137,7 +137,7 @@ export default function GrammarLessonPage() {
     <MainAppLayout>
       <PageHeader title={lessonTitle} description={`${lesson.level} - ${lesson.category}`}>
         <Button asChild variant="outline">
-          <Link href="/grammar"><ArrowLeft className="mr-2 h-4 w-4" /> {translations.backToLessons || "Back to Lessons"}</Link>
+          <Link href={backToLessonsLink}><ArrowLeft className="mr-2 h-4 w-4" /> {translations.backToLessons || "Back to Lessons"}</Link>
         </Button>
       </PageHeader>
 
@@ -215,13 +215,21 @@ export default function GrammarLessonPage() {
                         onFirstAttempt={handleFirstExerciseAttempt}
                     />
                 );
+              } else if (exercise.type === 'error-spotting') {
+                return (
+                  <EmbeddedErrorSpottingItem
+                    key={exercise.id}
+                    exerciseData={exercise}
+                    onFirstAttempt={handleFirstExerciseAttempt}
+                  />
+                );
               }
               return null;
             })}
           </CardContent>
           <CardFooter className="flex-col items-center gap-2 pt-4">
-            <Button 
-              onClick={handleMasteryCheck} 
+            <Button
+              onClick={handleMasteryCheck}
               disabled={!allExercisesAttempted}
               className="w-full max-w-xs bg-green-600 hover:bg-green-700 text-white"
             >
@@ -253,7 +261,7 @@ export default function GrammarLessonPage() {
               ))}
             </ul>
              <Button asChild variant="link" className="mt-2 px-0">
-              <Link href="/flashcards">
+              <Link href={flashcardsLink}>
                 {translations.practiceInFlashcards || "Practice these words in Flashcards"} <ArrowLeft className="ml-1 h-3 w-3 -rotate-180"/>
               </Link>
             </Button>
@@ -277,7 +285,7 @@ export default function GrammarLessonPage() {
                     {translations.lessonRelatesToQuiz || "This lesson relates to the quiz:"} <strong className="text-primary">{quiz.title}</strong>.
                     </p>
                     <Button asChild>
-                    <Link href={`/quizzes?quizId=${quiz.id}`}>
+                    <Link href={`/${language}/quizzes?quizId=${quiz.id}`}>
                         {translations.startQuiz || "Start Quiz"}: {quiz.title}
                     </Link>
                     </Button>

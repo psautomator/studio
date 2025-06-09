@@ -20,10 +20,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useLanguage } from '@/hooks/use-language';
 import { useToast } from '@/hooks/use-toast';
-import type { GrammarLesson, LocaleString, GrammarExample, EmbeddedFillInTheBlankExercise, SpeechLevel, Quiz, Word, EmbeddedExercise } from '@/types';
+import type { GrammarLesson, LocaleString, GrammarExample, EmbeddedFillInTheBlankExercise, EmbeddedErrorSpottingExercise, SpeechLevel, Quiz, Word, EmbeddedExercise } from '@/types';
 import { PlusCircle, Trash2, Eye, Sparkles, Loader2 } from 'lucide-react';
 import { runFlow } from '@genkit-ai/next/client';
-import { assistGrammarContent, type GrammarContentAssistInput, type GrammarContentAssistOutput } from '@/ai/flows/grammar-content-assist-flow';
+import { assistGrammarContent, type GrammarContentAssistInput } from '@/ai/flows/grammar-content-assist-flow';
 
 
 const localeStringSchema = z.object({
@@ -31,7 +31,7 @@ const localeStringSchema = z.object({
   nl: z.string().min(1, { message: "Dutch content is required." }).or(z.literal('')), // Allow empty if AI will fill
 }).refine(data => data.en || data.nl, {
     message: "At least one language (English or Dutch) must be provided for title and explanation, or use AI Assist.",
-    path: ["en"], // Arbitrary path for the error message to appear under one field
+    path: ["en"], 
 });
 
 
@@ -51,8 +51,19 @@ const embeddedFillInTheBlankExerciseSchema = z.object({
   hint: localeStringSchema.optional(),
 });
 
+const embeddedErrorSpottingExerciseSchema = z.object({
+  id: z.string().optional(),
+  type: z.literal('error-spotting'),
+  incorrectSentence: localeStringSchema.refine(data => data.en || data.nl, { message: "Incorrect sentence in EN or NL is required."}),
+  correctSentence: localeStringSchema.refine(data => data.en || data.nl, { message: "Correct sentence in EN or NL is required."}),
+  hint: localeStringSchema.optional(),
+});
 
-const embeddedExerciseSchema = embeddedFillInTheBlankExerciseSchema;
+
+const embeddedExerciseSchema = z.discriminatedUnion("type", [
+  embeddedFillInTheBlankExerciseSchema,
+  embeddedErrorSpottingExerciseSchema,
+]);
 
 
 const grammarLessonFormSchema = z.object({
@@ -89,6 +100,7 @@ export function GrammarLessonForm({
   const [isAiProcessing, setIsAiProcessing] = useState(false);
 
   const speechLevels: SpeechLevel[] = ['ngoko', 'krama', 'madya', 'neutral', 'other'];
+  const exerciseTypes: EmbeddedExercise['type'][] = ['fill-in-the-blank', 'error-spotting'];
 
   const {
     control,
@@ -186,7 +198,6 @@ export function GrammarLessonForm({
   };
 
   const processSubmit: SubmitHandler<GrammarLessonFormValues> = (data) => {
-    // Ensure at least one title and one explanation is filled, or AI has been used.
     if (!data.title.en && !data.title.nl) {
       toast({ title: "Validation Error", description: "Please provide a title in at least one language or use AI Assist.", variant: "destructive"});
       return;
@@ -215,6 +226,14 @@ export function GrammarLessonForm({
     setValue('status', 'draft');
     handleSubmit(processSubmit)();
   }
+
+  const handleAddNewExercise = (type: EmbeddedExercise['type']) => {
+    if (type === 'fill-in-the-blank') {
+      appendExercise({ id: `ee-new-${Date.now()}`, type: 'fill-in-the-blank', javaneseSentenceWithPlaceholder: '', correctAnswer: '', hint: {en: '', nl: ''}});
+    } else if (type === 'error-spotting') {
+      appendExercise({ id: `ee-new-${Date.now()}`, type: 'error-spotting', incorrectSentence: {en: '', nl: ''}, correctSentence: {en: '', nl: ''}, hint: {en: '', nl: ''}});
+    }
+  };
 
   const watchedRelatedQuizIds = watch("relatedQuizIds");
   const watchedRelatedWordIds = watch("relatedWordIds");
@@ -249,13 +268,13 @@ export function GrammarLessonForm({
                   <Label htmlFor="title.en">{translations.lessonTitle} (EN)</Label>
                   <Input id="title.en" {...register("title.en")} />
                   {errors.title?.en && <p className="text-sm text-destructive mt-1">{errors.title.en.message}</p>}
-                   {errors.title && !errors.title.en && !errors.title.nl && <p className="text-sm text-destructive mt-1">{errors.title.message}</p>}
+                   {errors.title?.root && <p className="text-sm text-destructive mt-1">{errors.title.root.message}</p>}
                 </div>
                 <div>
                   <Label htmlFor="explanation.en">{translations.lessonExplanation} (EN) - Note: Use Markdown for formatting.</Label>
                   <Textarea id="explanation.en" {...register("explanation.en")} rows={8} placeholder="Enter rich text explanation in English..."/>
                   {errors.explanation?.en && <p className="text-sm text-destructive mt-1">{errors.explanation.en.message}</p>}
-                  {errors.explanation && !errors.explanation.en && !errors.explanation.nl && <p className="text-sm text-destructive mt-1">{errors.explanation.message}</p>}
+                  {errors.explanation?.root && <p className="text-sm text-destructive mt-1">{errors.explanation.root.message}</p>}
                 </div>
               </TabsContent>
               <TabsContent value="nl" className="space-y-3 pt-3">
@@ -353,7 +372,7 @@ export function GrammarLessonForm({
                           <Select onValueChange={controllerField.onChange} value={controllerField.value}>
                             <SelectTrigger><SelectValue placeholder={translations.selectSpeechLevel} /></SelectTrigger>
                             <SelectContent>
-                              {speechLevels.map(sl => <SelectItem key={sl} value={sl}>{translations[sl.toLowerCase()] || sl}</SelectItem>)}
+                              {speechLevels.map(sl => <SelectItem key={sl} value={sl}>{translations[sl.toLowerCase() as keyof typeof translations] || sl}</SelectItem>)}
                             </SelectContent>
                           </Select>
                         )}
@@ -385,9 +404,9 @@ export function GrammarLessonForm({
                     <div key={quiz.id} className="flex items-center space-x-2">
                       <Checkbox
                         id={`quiz-${quiz.id}`}
-                        checked={watchedRelatedQuizIds.includes(quiz.id)}
+                        checked={(watchedRelatedQuizIds || []).includes(quiz.id)}
                         onCheckedChange={(checked) => {
-                          const currentIds = watchedRelatedQuizIds;
+                          const currentIds = getValues("relatedQuizIds") || [];
                           if (checked) {
                             setValue("relatedQuizIds", [...currentIds, quiz.id]);
                           } else {
@@ -415,9 +434,9 @@ export function GrammarLessonForm({
                     <div key={word.id} className="flex items-center space-x-2">
                       <Checkbox
                         id={`word-${word.id}`}
-                        checked={watchedRelatedWordIds.includes(word.id)}
+                        checked={(watchedRelatedWordIds || []).includes(word.id)}
                         onCheckedChange={(checked) => {
-                          const currentIds = watchedRelatedWordIds;
+                          const currentIds = getValues("relatedWordIds") || [];
                           if (checked) {
                             setValue("relatedWordIds", [...currentIds, word.id]);
                           } else {
@@ -440,42 +459,100 @@ export function GrammarLessonForm({
               <h3 className="text-lg font-medium">{translations.embedExercises}</h3>
               {exerciseFields.map((field, index) => (
                 <div key={field.id} className="space-y-3 p-3 border rounded bg-muted/30">
-                  <h4 className="font-medium">{translations.fillInTheBlankExercise} #{index + 1}</h4>
-                  <div>
-                    <Label htmlFor={`embeddedExercises.${index}.javaneseSentenceWithPlaceholder`}>{translations.sentenceWithPlaceholder}</Label>
-                    <Input {...register(`embeddedExercises.${index}.javaneseSentenceWithPlaceholder`)} />
-                    {errors.embeddedExercises?.[index]?.javaneseSentenceWithPlaceholder && <p className="text-sm text-destructive mt-1">{errors.embeddedExercises[index]?.javaneseSentenceWithPlaceholder?.message}</p>}
+                  <div className="flex justify-between items-center">
+                    <h4 className="font-medium">
+                      {field.type === 'fill-in-the-blank' ? translations.fillInTheBlankExercise : translations.errorSpottingExercise} #{index + 1}
+                    </h4>
+                    <Button type="button" variant="ghost" size="sm" onClick={() => removeExercise(index)} className="text-destructive hover:text-destructive-foreground hover:bg-destructive">
+                      <Trash2 className="mr-1 h-4 w-4" /> {translations.removeExercise}
+                    </Button>
                   </div>
-                  <div>
-                    <Label htmlFor={`embeddedExercises.${index}.correctAnswer`}>{translations.correctAnswerForBlank}</Label>
-                    <Input {...register(`embeddedExercises.${index}.correctAnswer`)} />
-                    {errors.embeddedExercises?.[index]?.correctAnswer && <p className="text-sm text-destructive mt-1">{errors.embeddedExercises[index]?.correctAnswer?.message}</p>}
-                  </div>
-                  <Tabs defaultValue="en-hint">
-                    <TabsList className="grid w-full grid-cols-2">
-                      <TabsTrigger value="en-hint">Hint (EN)</TabsTrigger>
-                      <TabsTrigger value="nl-hint">Hint (NL)</TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="en-hint" className="pt-2">
-                      <Label htmlFor={`embeddedExercises.${index}.hint.en`}>{translations.hintForBlank} (EN)</Label>
-                      <Input {...register(`embeddedExercises.${index}.hint.en`)} />
-                       {errors.embeddedExercises?.[index]?.hint?.en && <p className="text-sm text-destructive mt-1">{errors.embeddedExercises[index]?.hint?.en?.message}</p>}
-                    </TabsContent>
-                    <TabsContent value="nl-hint" className="pt-2">
-                      <Label htmlFor={`embeddedExercises.${index}.hint.nl`}>{translations.hintForBlank} (NL)</Label>
-                      <Input {...register(`embeddedExercises.${index}.hint.nl`)} />
-                      {errors.embeddedExercises?.[index]?.hint?.nl && <p className="text-sm text-destructive mt-1">{errors.embeddedExercises[index]?.hint?.nl?.message}</p>}
-                    </TabsContent>
-                  </Tabs>
-                  <Button type="button" variant="ghost" size="sm" onClick={() => removeExercise(index)} className="text-destructive hover:text-destructive-foreground hover:bg-destructive">
-                    <Trash2 className="mr-1 h-4 w-4" /> {translations.removeExercise}
-                  </Button>
+                  
+                  {field.type === 'fill-in-the-blank' && (
+                    <>
+                      <div>
+                        <Label htmlFor={`embeddedExercises.${index}.javaneseSentenceWithPlaceholder`}>{translations.sentenceWithPlaceholder}</Label>
+                        <Input {...register(`embeddedExercises.${index}.javaneseSentenceWithPlaceholder` as const)} />
+                        {errors.embeddedExercises?.[index]?.javaneseSentenceWithPlaceholder && <p className="text-sm text-destructive mt-1">{(errors.embeddedExercises[index] as any)?.javaneseSentenceWithPlaceholder?.message}</p>}
+                      </div>
+                      <div>
+                        <Label htmlFor={`embeddedExercises.${index}.correctAnswer`}>{translations.correctAnswerForBlank}</Label>
+                        <Input {...register(`embeddedExercises.${index}.correctAnswer` as const)} />
+                         {errors.embeddedExercises?.[index]?.correctAnswer && <p className="text-sm text-destructive mt-1">{(errors.embeddedExercises[index] as any)?.correctAnswer?.message}</p>}
+                      </div>
+                      <Tabs defaultValue="en-hint">
+                        <TabsList className="grid w-full grid-cols-2"><TabsTrigger value="en-hint">Hint (EN)</TabsTrigger><TabsTrigger value="nl-hint">Hint (NL)</TabsTrigger></TabsList>
+                        <TabsContent value="en-hint" className="pt-2">
+                          <Label htmlFor={`embeddedExercises.${index}.hint.en`}>{translations.hintForBlank} (EN)</Label>
+                          <Input {...register(`embeddedExercises.${index}.hint.en` as const)} />
+                        </TabsContent>
+                        <TabsContent value="nl-hint" className="pt-2">
+                          <Label htmlFor={`embeddedExercises.${index}.hint.nl`}>{translations.hintForBlank} (NL)</Label>
+                          <Input {...register(`embeddedExercises.${index}.hint.nl` as const)} />
+                        </TabsContent>
+                      </Tabs>
+                    </>
+                  )}
+
+                  {field.type === 'error-spotting' && (
+                    <>
+                      <Tabs defaultValue="en-incorrect">
+                        <TabsList className="grid w-full grid-cols-2">
+                          <TabsTrigger value="en-incorrect">{translations.incorrectSentenceLabel} (EN)</TabsTrigger>
+                          <TabsTrigger value="nl-incorrect">{translations.incorrectSentenceLabel} (NL)</TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="en-incorrect" className="pt-2">
+                          <Label htmlFor={`embeddedExercises.${index}.incorrectSentence.en`}>{translations.incorrectSentenceLabel} (EN)</Label>
+                          <Textarea {...register(`embeddedExercises.${index}.incorrectSentence.en` as const)} />
+                          {errors.embeddedExercises?.[index]?.incorrectSentence?.en && <p className="text-sm text-destructive mt-1">{(errors.embeddedExercises[index] as any)?.incorrectSentence?.en?.message}</p>}
+                           {errors.embeddedExercises?.[index]?.incorrectSentence?.root && <p className="text-sm text-destructive mt-1">{(errors.embeddedExercises[index] as any)?.incorrectSentence?.root?.message}</p>}
+                        </TabsContent>
+                        <TabsContent value="nl-incorrect" className="pt-2">
+                          <Label htmlFor={`embeddedExercises.${index}.incorrectSentence.nl`}>{translations.incorrectSentenceLabel} (NL)</Label>
+                          <Textarea {...register(`embeddedExercises.${index}.incorrectSentence.nl` as const)} />
+                           {errors.embeddedExercises?.[index]?.incorrectSentence?.nl && <p className="text-sm text-destructive mt-1">{(errors.embeddedExercises[index] as any)?.incorrectSentence?.nl?.message}</p>}
+                        </TabsContent>
+                      </Tabs>
+                       <Tabs defaultValue="en-correct">
+                        <TabsList className="grid w-full grid-cols-2">
+                          <TabsTrigger value="en-correct">{translations.correctSentenceLabel} (EN)</TabsTrigger>
+                          <TabsTrigger value="nl-correct">{translations.correctSentenceLabel} (NL)</TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="en-correct" className="pt-2">
+                          <Label htmlFor={`embeddedExercises.${index}.correctSentence.en`}>{translations.correctSentenceLabel} (EN)</Label>
+                          <Textarea {...register(`embeddedExercises.${index}.correctSentence.en` as const)} />
+                          {errors.embeddedExercises?.[index]?.correctSentence?.en && <p className="text-sm text-destructive mt-1">{(errors.embeddedExercises[index] as any)?.correctSentence?.en?.message}</p>}
+                          {errors.embeddedExercises?.[index]?.correctSentence?.root && <p className="text-sm text-destructive mt-1">{(errors.embeddedExercises[index] as any)?.correctSentence?.root?.message}</p>}
+                        </TabsContent>
+                        <TabsContent value="nl-correct" className="pt-2">
+                          <Label htmlFor={`embeddedExercises.${index}.correctSentence.nl`}>{translations.correctSentenceLabel} (NL)</Label>
+                          <Textarea {...register(`embeddedExercises.${index}.correctSentence.nl` as const)} />
+                          {errors.embeddedExercises?.[index]?.correctSentence?.nl && <p className="text-sm text-destructive mt-1">{(errors.embeddedExercises[index] as any)?.correctSentence?.nl?.message}</p>}
+                        </TabsContent>
+                      </Tabs>
+                      <Tabs defaultValue="en-hint-spotting">
+                        <TabsList className="grid w-full grid-cols-2"><TabsTrigger value="en-hint-spotting">{translations.hintOptional} (EN)</TabsTrigger><TabsTrigger value="nl-hint-spotting">{translations.hintOptional} (NL)</TabsTrigger></TabsList>
+                        <TabsContent value="en-hint-spotting" className="pt-2">
+                          <Label htmlFor={`embeddedExercises.${index}.hint.en`}>{translations.hintOptional} (EN)</Label>
+                          <Input {...register(`embeddedExercises.${index}.hint.en` as const)} />
+                        </TabsContent>
+                        <TabsContent value="nl-hint-spotting" className="pt-2">
+                          <Label htmlFor={`embeddedExercises.${index}.hint.nl`}>{translations.hintOptional} (NL)</Label>
+                          <Input {...register(`embeddedExercises.${index}.hint.nl` as const)} />
+                        </TabsContent>
+                      </Tabs>
+                    </>
+                  )}
                 </div>
               ))}
-              <Button type="button" variant="outline" onClick={() => appendExercise({ id: `ee-new-${Date.now()}`, type: 'fill-in-the-blank', javaneseSentenceWithPlaceholder: '', correctAnswer: '', hint: {en: '', nl: ''}})}>
-                <PlusCircle className="mr-2 h-4 w-4" /> {translations.addExercise} ({translations.fillInTheBlankExercise})
-              </Button>
-              <p className="text-xs text-muted-foreground">More exercise types (Multiple Choice, Match Terms) can be added in the future.</p>
+              <div className="flex gap-2">
+                <Button type="button" variant="outline" onClick={() => handleAddNewExercise('fill-in-the-blank')}>
+                  <PlusCircle className="mr-2 h-4 w-4" /> {translations.addExercise} ({translations.fillInTheBlankExercise})
+                </Button>
+                <Button type="button" variant="outline" onClick={() => handleAddNewExercise('error-spotting')}>
+                  <PlusCircle className="mr-2 h-4 w-4" /> {translations.addExercise} ({translations.errorSpottingExercise})
+                </Button>
+              </div>
             </div>
 
             <DialogFooter className="pt-4">
