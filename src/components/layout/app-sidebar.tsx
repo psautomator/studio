@@ -25,8 +25,8 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   useSidebar,
-  SheetTitle, // Added SheetTitle
 } from '@/components/ui/sidebar';
+import { SheetTitle } from '@/components/ui/sheet'; // Corrected import path
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -78,7 +78,7 @@ export function AppSidebar() {
             </span>
           </Link>
         )}
-         {!open && isMobile && <SheetTitle className="sr-only">Navigation Menu</SheetTitle> /* Add this for accessibility when mobile sidebar is just an icon initially - though this case might not happen if open controls header visibility */}
+         {!open && isMobile && <SheetTitle className="sr-only">Navigation Menu</SheetTitle> }
          {open && isMobile && <SheetTitle className="sr-only">Navigation Menu</SheetTitle>}
       </SidebarHeader>
       <SidebarContent className="flex-grow p-2">

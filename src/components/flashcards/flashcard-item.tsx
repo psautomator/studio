@@ -106,7 +106,7 @@ export function FlashcardItem({ word, onPlayAudio, showJavaneseFirst }: Flashcar
                 {(word.category && (word.level || word.formality)) && <span className="mx-1">|</span>}
                 {word.level && <span>{word.level}</span>}
                 {((word.category || word.level) && word.formality) && <span className="mx-1">|</span>}
-                {word.formality && <span>{word.formality}</span>}
+                {word.formality && <span>{word.formality.charAt(0).toUpperCase() + word.formality.slice(1)}</span>}
               </div>
             )}
 
@@ -115,7 +115,7 @@ export function FlashcardItem({ word, onPlayAudio, showJavaneseFirst }: Flashcar
                 <p className="font-medium text-muted-foreground">Example:</p>
                 {javaneseIsOnBack && word.exampleSentenceJavanese && <p className="italic text-primary">{word.exampleSentenceJavanese}</p>}
                 {javaneseIsOnBack && word.exampleSentenceDutch && <p className="text-muted-foreground">{word.exampleSentenceDutch}</p>}
-                {!javaneseIsOnBack && word.exampleSentenceDutch && <p className="italic text-primary">{word.exampleSentenceDutch}</p> }
+                {!javaneseIsOnBack && word.exampleSentenceDutch && <p className="italic text-primary">{word.exampleSentenceDutch}</p>}
                 {!javaneseIsOnBack && word.exampleSentenceJavanese && <p className="text-muted-foreground">{word.exampleSentenceJavanese}</p>}
               </div>
             )}
