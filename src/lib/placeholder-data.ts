@@ -1,5 +1,5 @@
 
-import type { Word, Quiz, User, Badge } from '@/types';
+import type { Word, Quiz, QuizQuestion, User, Badge } from '@/types'; // Updated Quiz import
 
 export const placeholderWords: Word[] = [
   {
@@ -88,45 +88,82 @@ export const placeholderWords: Word[] = [
   },
 ];
 
+// Refactored: placeholderQuizzes is now an array of Quiz (quiz sets)
 export const placeholderQuizzes: Quiz[] = [
   {
-    id: 'q1',
-    question: "Wat betekent 'Sugeng rawuh'?",
-    options: [
-      { text: 'Goedenacht', isCorrect: false },
-      { text: 'Welkom', isCorrect: true },
-      { text: 'Tot ziens', isCorrect: false },
-      { text: 'Hallo', isCorrect: false },
-    ],
-    explanation: "'Sugeng rawuh' is een formele Javaanse begroeting die 'Welkom' betekent.",
+    id: 'quizSet1',
+    title: 'Javanese Greetings',
+    description: 'Test your knowledge of common Javanese greetings and politeness.',
     difficulty: 'easy',
-    audioUrl: 'https://translate.google.com/translate_tts?ie=UTF-8&q=Sugeng%20rawuh&tl=jv&client=tw-ob',
+    questions: [
+      {
+        id: 'q1s1', // Unique ID for this question within the set
+        question: "Wat betekent 'Sugeng rawuh'?",
+        options: [
+          { text: 'Goedenacht', isCorrect: false },
+          { text: 'Welkom', isCorrect: true },
+          { text: 'Tot ziens', isCorrect: false },
+          { text: 'Hallo', isCorrect: false },
+        ],
+        explanation: "'Sugeng rawuh' is een formele Javaanse begroeting die 'Welkom' betekent.",
+        audioUrl: 'https://translate.google.com/translate_tts?ie=UTF-8&q=Sugeng%20rawuh&tl=jv&client=tw-ob',
+      },
+      {
+        id: 'q2s1',
+        question: "How do you say 'Thank you' formally in Javanese?",
+        options: [
+          { text: 'Ngapunten', isCorrect: false },
+          { text: 'Matur nuwun', isCorrect: true },
+          { text: 'Monggo', isCorrect: false },
+          { text: 'Inggih', isCorrect: false },
+        ],
+        explanation: "'Matur nuwun' is the formal way to say 'Thank you'.",
+      },
+    ],
   },
   {
-    id: 'q2',
-    question: "Welk Javaans woord betekent 'water'?",
-    options: [
-      { text: 'Geni', isCorrect: false },
-      { text: 'Angin', isCorrect: false },
-      { text: 'Banyu', isCorrect: true },
-      { text: 'Lemah', isCorrect: false },
-    ],
-    explanation: "'Banyu' is het Javaanse woord voor 'water'. 'Geni' is vuur, 'Angin' is wind, 'Lemah' is aarde.",
+    id: 'quizSet2',
+    title: 'Basic Javanese Vocabulary',
+    description: 'A quiz on fundamental Javanese words like colors and nouns.',
     difficulty: 'medium',
+    questions: [
+      {
+        id: 'q1s2',
+        question: "Welk Javaans woord betekent 'water'?",
+        options: [
+          { text: 'Geni', isCorrect: false },
+          { text: 'Angin', isCorrect: false },
+          { text: 'Banyu', isCorrect: true },
+          { text: 'Lemah', isCorrect: false },
+        ],
+        explanation: "'Banyu' is het Javaanse woord voor 'water'. 'Geni' is vuur, 'Angin' is wind, 'Lemah' is aarde.",
+      },
+      {
+        id: 'q2s2',
+        question: "What is 'Abang' in Dutch?",
+        options: [
+          { text: 'Blauw', isCorrect: false },
+          { text: 'Groen', isCorrect: false },
+          { text: 'Rood', isCorrect: true },
+          { text: 'Geel', isCorrect: false },
+        ],
+        explanation: "'Abang' means 'Rood' (Red).",
+      },
+      {
+        id: 'q3s2',
+        question: "Kies de juiste Javaanse vertaling voor 'Ik hou van jou'.",
+        options: [
+          { text: 'Kula tresna sampeyan', isCorrect: true },
+          { text: 'Kula sengit sampeyan', isCorrect: false },
+          { text: 'Kula kangen sampeyan', isCorrect: false },
+          { text: 'Kula ngantuk', isCorrect: false },
+        ],
+        audioUrl: 'https://translate.google.com/translate_tts?ie=UTF-8&q=Kula%20tresna%20sampeyan&tl=jv&client=tw-ob',
+      },
+    ],
   },
-  {
-    id: 'q3',
-    question: "Kies de juiste Javaanse vertaling voor 'Ik hou van jou'.",
-    options: [
-      { text: 'Kula tresna sampeyan', isCorrect: true },
-      { text: 'Kula sengit sampeyan', isCorrect: false },
-      { text: 'Kula kangen sampeyan', isCorrect: false },
-      { text: 'Kula ngantuk', isCorrect: false },
-    ],
-    difficulty: 'medium',
-    audioUrl: 'https://translate.google.com/translate_tts?ie=UTF-8&q=Kula%20tresna%20sampeyan&tl=jv&client=tw-ob',
-  }
 ];
+
 
 export const placeholderUser: User = {
   id: 'user123',
@@ -151,4 +188,3 @@ export const placeholderAdminUsers: User[] = [
     { id: 'user2', name: 'Piet Pietersen', email: 'piet@example.com', role: 'user', xp: 800, streak: 5, badges: ['newbie'] },
     { id: 'user3', name: 'Admin Account', email: 'admin@example.com', role: 'admin', xp: 0, streak: 0, badges: [] },
 ];
-

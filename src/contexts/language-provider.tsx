@@ -74,16 +74,19 @@ const translationsData = {
     featureAdaptiveGoalsDesc: "Get daily learning goals tailored to you.",
     profile: "Profile",
     profileSettings: "Profile Settings",
-    updateProfile: "Update Profile", // Kept for flexibility, could be used for "Save Profile Settings" button
-    // "Change Password" removed
+    updateProfile: "Update Profile", 
     learningPreferences: "Learning Preferences",
     dailyStudyGoal: "Daily Study Goal (minutes)",
     accountManagement: "Account Management",
-    // "Manage Subscription" removed
     deleteAccount: "Delete Account",
     role: "Role",
     name: "Name",
     email: "Email",
+    finishQuiz: "Finish Quiz",
+    nextQuestion: "Next Question",
+    selectQuizPrompt: "Select a quiz to begin.",
+    quizCompleted: "Quiz Completed!",
+    startQuiz: "Start Quiz",
   },
   nl: {
     appName: "Javaanse Reis",
@@ -143,16 +146,19 @@ const translationsData = {
     featureAdaptiveGoalsDesc: "Ontvang dagelijkse leerdoelen op maat.",
     profile: "Profiel",
     profileSettings: "Profielinstellingen",
-    updateProfile: "Profiel Bijwerken", // Kept for flexibility
-    // "Change Password" (Wachtwoord Wijzigen) removed
+    updateProfile: "Profiel Bijwerken",
     learningPreferences: "Leervoorkeuren",
     dailyStudyGoal: "Dagelijks Studiedoel (minuten)",
     accountManagement: "Accountbeheer",
-    // "Manage Subscription" (Abonnement Beheren) removed
     deleteAccount: "Account Verwijderen",
     role: "Rol",
     name: "Naam",
     email: "E-mailadres",
+    finishQuiz: "Quiz Voltooien",
+    nextQuestion: "Volgende Vraag",
+    selectQuizPrompt: "Selecteer een quiz om te beginnen.",
+    quizCompleted: "Quiz Voltooid!",
+    startQuiz: "Start Quiz",
   },
 };
 

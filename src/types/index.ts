@@ -19,13 +19,23 @@ export interface QuizOption {
   isCorrect: boolean;
 }
 
-export interface Quiz {
-  id:string;
+// Renamed from Quiz to QuizQuestion
+export interface QuizQuestion {
+  id: string; // ID for the question itself
   question: string;
   options: QuizOption[];
   explanation?: string;
+  audioUrl?: string; // For the question audio
+}
+
+// New type for a quiz set
+export interface Quiz {
+  id: string; // ID for the quiz set
+  title: string;
+  description?: string;
   difficulty?: 'easy' | 'medium' | 'hard';
-  audioUrl?: string; // Added for quiz question audio
+  questions: QuizQuestion[];
+  // status?: 'published' | 'draft'; // For later, if needed
 }
 
 export interface User {
@@ -46,4 +56,3 @@ export interface Badge {
   icon: string; // Icon name from lucide-react or path to image
   threshold?: number; // e.g., XP needed or streak length
 }
-

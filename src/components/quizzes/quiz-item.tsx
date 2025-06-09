@@ -1,7 +1,7 @@
 
 "use client";
 
-import type { Quiz, QuizOption } from '@/types';
+import type { QuizQuestion, QuizOption } from '@/types'; // Updated import
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,11 +13,12 @@ import { useLanguage } from '@/hooks/use-language';
 import { useToast } from '@/hooks/use-toast';
 
 interface QuizItemProps {
-  quiz: Quiz;
-  onNextQuiz: () => void;
+  quizQuestion: QuizQuestion; // Renamed from quiz
+  onAdvance: () => void; // Renamed from onNextQuiz
+  isLastQuestion: boolean;
 }
 
-export function QuizItem({ quiz, onNextQuiz }: QuizItemProps) {
+export function QuizItem({ quizQuestion, onAdvance, isLastQuestion }: QuizItemProps) {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<{ type: 'correct' | 'incorrect'; message: string } | null>(null);
   const [isAnswered, setIsAnswered] = useState(false);
@@ -25,44 +26,47 @@ export function QuizItem({ quiz, onNextQuiz }: QuizItemProps) {
   const { toast } = useToast();
 
   const handleOptionSelect = (value: string) => {
-    if (isAnswered) return; // Don't process if already answered
+    if (isAnswered) return;
 
     setSelectedOption(value);
+    const chosenOption = quizQuestion.options.find(opt => opt.text === value);
 
-    const chosenOption = quiz.options.find(opt => opt.text === value);
     if (chosenOption) {
       if (chosenOption.isCorrect) {
         setFeedback({ type: 'correct', message: translations.correct });
       } else {
-        const correctAnswerText = quiz.options.find(opt => opt.isCorrect)?.text;
+        const correctAnswerText = quizQuestion.options.find(opt => opt.isCorrect)?.text;
+        const incorrectMessage = correctAnswerText 
+          ? `${translations.incorrect} ${correctAnswerText}`
+          : translations.incorrect; // Fallback if somehow no correct answer is found
         setFeedback({
           type: 'incorrect',
-          message: `${translations.incorrect} ${correctAnswerText || ''}`,
+          message: incorrectMessage,
         });
       }
       setIsAnswered(true);
     }
   };
 
-  const handleNext = () => {
+  const handleAdvanceClick = () => {
     setSelectedOption(null);
     setFeedback(null);
     setIsAnswered(false);
-    onNextQuiz();
+    onAdvance();
   };
 
   const playAudio = () => {
-    if (quiz.audioUrl) {
+    if (quizQuestion.audioUrl) {
       toast({
         title: "Playing Audio",
-        description: `Simulating playback for quiz question. URL: ${quiz.audioUrl}`,
+        description: `Simulating playback for quiz question. URL: ${quizQuestion.audioUrl}`,
       });
-      // Actual audio playback: new Audio(quiz.audioUrl).play();
+      // Actual audio playback: new Audio(quizQuestion.audioUrl).play();
     } else {
       toast({ title: "Audio Not Available" });
     }
   };
-
+  
   const getOptionLabelClass = (optionText: string, isOptionCorrect: boolean) => {
     if (!isAnswered) {
       return "text-base cursor-pointer flex-1";
@@ -85,16 +89,14 @@ export function QuizItem({ quiz, onNextQuiz }: QuizItemProps) {
     <Card className="w-full max-w-2xl mx-auto shadow-lg">
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="font-headline text-2xl text-primary flex-1">{quiz.question}</CardTitle>
-          {quiz.audioUrl && (
+          <CardTitle className="font-headline text-2xl text-primary flex-1">{quizQuestion.question}</CardTitle>
+          {quizQuestion.audioUrl && (
             <Button variant="ghost" size="icon" type="button" onClick={playAudio} aria-label="Play question audio" className="ml-2">
               <Volume2 className="h-5 w-5 text-accent" />
             </Button>
           )}
         </div>
-        {quiz.difficulty && (
-          <CardDescription>Difficulty: <span className="capitalize">{quiz.difficulty}</span></CardDescription>
-        )}
+         {/* Difficulty is now part of the Quiz (set), not QuizQuestion. Displayed on overview page. */}
       </CardHeader>
       <CardContent>
         <RadioGroup
@@ -104,11 +106,11 @@ export function QuizItem({ quiz, onNextQuiz }: QuizItemProps) {
           className="space-y-3"
           aria-label="Quiz options"
         >
-          {quiz.options.map((option, index) => (
+          {quizQuestion.options.map((option, index) => (
             <div key={index} className={`flex items-center space-x-3 p-3 rounded-md border transition-colors ${selectedOption === option.text && !isAnswered ? 'bg-accent/10 border-accent' : 'border-border'}`}>
-              <RadioGroupItem value={option.text} id={`option-${quiz.id}-${index}`} />
+              <RadioGroupItem value={option.text} id={`option-${quizQuestion.id}-${index}`} />
               <Label 
-                htmlFor={`option-${quiz.id}-${index}`} 
+                htmlFor={`option-${quizQuestion.id}-${index}`} 
                 className={getOptionLabelClass(option.text, option.isCorrect)}
               >
                 {option.text}
@@ -122,16 +124,16 @@ export function QuizItem({ quiz, onNextQuiz }: QuizItemProps) {
             {feedback.type === 'correct' ? <CheckCircle className="h-5 w-5" /> : <XCircle className="h-5 w-5" />}
             <AlertTitle>{feedback.type === 'correct' ? translations.correct : translations.yourAnswer}</AlertTitle>
             <AlertDescription>{feedback.message}</AlertDescription>
-            {quiz.explanation && feedback.type === 'incorrect' && (
-                 <p className="text-sm mt-2">{quiz.explanation}</p>
+            {quizQuestion.explanation && feedback.type === 'incorrect' && (
+                 <p className="text-sm mt-2">{quizQuestion.explanation}</p>
             )}
           </Alert>
         )}
       </CardContent>
       <CardFooter>
         {isAnswered && (
-          <Button type="button" onClick={handleNext} className="w-full bg-primary hover:bg-primary/90">
-            {translations.next}
+          <Button type="button" onClick={handleAdvanceClick} className="w-full bg-primary hover:bg-primary/90">
+            {isLastQuestion ? translations.finishQuiz : translations.nextQuestion}
           </Button>
         )}
       </CardFooter>
