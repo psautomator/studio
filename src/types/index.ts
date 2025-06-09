@@ -54,6 +54,14 @@ export interface LearningGoal {
   createdAt: Date;
 }
 
+export interface UserQuizAttempt {
+  quizId: string;
+  score: number; // Percentage or raw score
+  completedAt: Date;
+  questionsAnswered: number;
+  correctAnswers: number;
+}
+
 export interface User {
   id: string;
   name: string;
@@ -63,14 +71,17 @@ export interface User {
   streak: number;
   badges: string[];
   lastLogin?: Date;
+
   // Fields for tracking progress and last activities
-  lastGrammarLessonId?: string;
-  lastQuizId?: string; // Could be last one attempted or started
+  completedLessonIds?: string[]; // IDs of completed grammar lessons
+  quizAttempts?: UserQuizAttempt[]; // History of quiz attempts
   currentQuizProgress?: { // For resuming an incomplete quiz
     quizId: string;
     currentQuestionIndex: number;
-    answersSoFar: { questionId: string; selectedOptionText: string }[]; // Example structure
+    answersSoFar: { questionId: string; selectedOptionText: string }[];
   };
+
+  lastGrammarLessonId?: string; // ID of the last grammar lesson viewed/interacted with
   lastFlashcardDeckId?: string; // If flashcards are in decks/categories
   lastFlashcardIndex?: number; // Index within the last viewed deck
   lastPronunciationWordId?: string;
@@ -112,7 +123,7 @@ export interface EmbeddedFillInTheBlankExercise {
   javaneseSentenceWithPlaceholder: string;
   correctAnswer: string;
   hint?: LocaleString;
-  originalJavaneseSentenceForDisplay?: string; // Added to make reconstruction easier for display
+  originalJavaneseSentenceForDisplay?: string;
 }
 
 export type EmbeddedExercise = EmbeddedFillInTheBlankExercise;

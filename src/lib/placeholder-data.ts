@@ -1,5 +1,5 @@
 
-import type { User as UserType } from '@/types'; // Renamed to avoid conflict
+import type { User as UserType, UserQuizAttempt } from '@/types'; // Renamed to avoid conflict
 import type { Word, Quiz, Badge, GrammarLesson, GrammarExample, EmbeddedExercise, SpeechLevel, QuizQuestion, LearningGoal } from '@/types';
 
 export const placeholderWords: Word[] = [
@@ -255,6 +255,11 @@ const placeholderActiveGoals: LearningGoal[] = [
   // { id: 'goal3', text: "Listen to Javanese audio for 10 minutes.", isCompleted: false, createdAt: new Date() },
 ];
 
+const placeholderQuizAttempts: UserQuizAttempt[] = [
+    { quizId: 'quizSet1', score: 80, completedAt: new Date(Date.now() - 86400000 * 3), questionsAnswered: 2, correctAnswers: 1 },
+    { quizId: 'quizSet1', score: 100, completedAt: new Date(Date.now() - 86400000 * 2), questionsAnswered: 2, correctAnswers: 2 },
+];
+
 
 export const placeholderUser: UserType = {
   id: 'user123',
@@ -265,18 +270,19 @@ export const placeholderUser: UserType = {
   streak: 15,
   badges: ['newbie', 'wordmaster_lvl1'],
   lastLogin: new Date(Date.now() - 86400000), // Logged in yesterday
-  // New fields for progress tracking
-  lastGrammarLessonId: 'gl1',
-  lastQuizId: 'quizSet1',
+  
+  completedLessonIds: ['gl2'], // Completed 'Basic Sentence Structure'
+  quizAttempts: placeholderQuizAttempts,
   currentQuizProgress: {
     quizId: 'quizSet2',
-    currentQuestionIndex: 1, // Started quizSet2, on the second question
+    currentQuestionIndex: 1, 
     answersSoFar: [ { questionId: 'q1s2', selectedOptionText: 'Banyu' } ],
   },
-  lastFlashcardDeckId: 'Greetings', // Assuming flashcards are grouped by category
-  lastFlashcardIndex: 2, // Was on the 3rd card in "Greetings" deck
-  lastPronunciationWordId: 'word2', // Last practiced "Matur nuwun"
-  lastFillInTheBlanksExerciseId: placeholderWords[5]?.id, // Assuming the 6th word has an example for fill-in-the-blanks
+  lastGrammarLessonId: 'gl1', // Last viewed 'Intro to Speech Levels'
+  lastFlashcardDeckId: 'Greetings', 
+  lastFlashcardIndex: 2, 
+  lastPronunciationWordId: 'word2', 
+  lastFillInTheBlanksExerciseId: placeholderWords[5]?.id,
   activeLearningGoals: placeholderActiveGoals,
   learningPreferences: {
     preferredStyle: 'Visual',
@@ -285,8 +291,8 @@ export const placeholderUser: UserType = {
 };
 
 export const placeholderAdminUsers: UserType[] = [
-    { id: 'user1', name: 'Jan Jansen', email: 'jan@example.com', roles: ['user'], xp: 1500, streak: 10, badges: ['newbie', 'wordmaster_lvl1'], lastLogin: new Date(Date.now() - 172800000) },
-    { id: 'user2', name: 'Piet Pietersen', email: 'piet@example.com', roles: ['user', 'editor'], xp: 800, streak: 5, badges: ['newbie'], lastLogin: new Date(Date.now() - 86400000 * 3) },
+    { id: 'user1', name: 'Jan Jansen', email: 'jan@example.com', roles: ['user'], xp: 1500, streak: 10, badges: ['newbie', 'wordmaster_lvl1'], lastLogin: new Date(Date.now() - 172800000), completedLessonIds: ['gl1', 'gl2'], quizAttempts: [{quizId: 'quizSet1', score: 90, completedAt: new Date(), questionsAnswered: 2, correctAnswers: 2}]},
+    { id: 'user2', name: 'Piet Pietersen', email: 'piet@example.com', roles: ['user', 'editor'], xp: 800, streak: 5, badges: ['newbie'], lastLogin: new Date(Date.now() - 86400000 * 3), completedLessonIds: ['gl1'] },
     { id: 'user3', name: 'Admin Account', email: 'admin@example.com', roles: ['user', 'admin'], xp: 0, streak: 0, badges: [], lastLogin: new Date(), activeLearningGoals: [] },
     { id: 'user4', name: 'Publisher Paula', email: 'paula@example.com', roles: ['user', 'publisher'], xp: 200, streak: 2, badges: ['newbie'], lastLogin: new Date(Date.now() - 86400000 * 5) },
     { id: 'user5', name: 'Editor Eddie', email: 'eddie@example.com', roles: ['user', 'editor', 'publisher'], xp: 1200, streak: 20, badges: ['newbie', 'wordmaster_lvl1', 'streak_7'], lastLogin: new Date(Date.now() - 86400000), lastGrammarLessonId: 'gl2' },
@@ -403,3 +409,4 @@ export const placeholderGrammarLessons: GrammarLesson[] = [
     status: 'published',
   },
 ];
+
