@@ -8,7 +8,7 @@ import { usePathname, useRouter } from 'next/navigation';
 
 interface LanguageContextType {
   language: Language;
-  toggleLanguage: () => void; 
+  toggleLanguage: () => void;
   translations: Record<string, string>;
 }
 
@@ -143,8 +143,8 @@ const translationsData = {
     selectQuizPrompt: "Select a quiz to begin.",
     quizCompleted: "Quiz Completed!",
     startQuiz: "Start Quiz",
-    fillInTheBlanks: "Fill in the Blanks", 
-    fillintheblanks: "Fill in Blanks", 
+    fillInTheBlanks: "Fill in the Blanks",
+    fillintheblanks: "Fill in Blanks",
     fillInTheBlankInstruction: "Type the missing Javanese word.",
     nextExercise: "Next Exercise",
     typeYourAnswer: "Type your answer here...",
@@ -163,8 +163,8 @@ const translationsData = {
     published: "Published",
     archived: "Archived",
     ngoko: "Ngoko (Informal)",
-    krama: "Krama (Formal)",
-    madya: "Madya (Semi-formal)",
+    krama: "Krama (Formeel)",
+    madya: "Madya (Semi-formeel)",
     neutral: "Neutral",
     other: "Other",
     english: "English",
@@ -202,6 +202,33 @@ const translationsData = {
     discoverMore: "Discover More",
     yourAchievements: "Your Achievements",
     viewAllProgress: "View All Progress & Badges",
+    viewedLesson: "Viewed lesson",
+    lessonNotFound: "Lesson Not Found",
+    lessonNotFoundDesc: "The grammar lesson you are looking for does not exist or could not be loaded.",
+    backToLessons: "Back to Lessons",
+    listenToLesson: "Listen to Lesson Overview",
+    playingAudio: "Playing audio for",
+    simulatingPlayback: "Simulating playback",
+    audioNotAvailable: "Audio Not Available",
+    noAudioFor: "No audio for",
+    practiceExercises: "Practice Exercises",
+    applyWhatLearned: "Apply what you've learned with these interactive exercises.",
+    relatedVocabulary: "Related Vocabulary",
+    keyWordsRelated: "Key words related to this lesson.",
+    practiceInFlashcards: "Practice these words in Flashcards",
+    relatedQuizzes: "Related Quizzes",
+    testYourUnderstanding: "Test your understanding of concepts from this lesson.",
+    lessonRelatesToQuiz: "This lesson relates to the quiz:",
+    quizPageNote: "(This will take you to the main Quizzes page where you can select this quiz.)",
+    tryAgain: "Try Again",
+    checkMasteryAndComplete: "Check Mastery & Complete Lesson",
+    masteryNote: "Mastery requires all embedded exercises to be correct on the first attempt.",
+    completeAllExercises: "Incomplete",
+    attemptAllEmbeddedExercises: "Please attempt all embedded exercises before checking mastery.",
+    lessonMastered: "Lesson Mastered!",
+    congratsPerfectEmbedded: "Congratulations! You completed all embedded exercises perfectly on the first try.",
+    masteryNotAchieved: "Mastery Not Achieved",
+    reviewAndRetryLesson: "Not all exercises were correct on the first try. Review the material and try the lesson again (e.g., by re-navigating) for a fresh attempt at mastery.",
   },
   nl: {
     appName: "Javaanse Reis",
@@ -390,17 +417,44 @@ const translationsData = {
     discoverMore: "Ontdek Meer",
     yourAchievements: "Jouw Prestaties",
     viewAllProgress: "Bekijk Alle Voortgang & Badges",
+    viewedLesson: "Les bekeken",
+    lessonNotFound: "Les Niet Gevonden",
+    lessonNotFoundDesc: "De grammaticales die je zoekt bestaat niet of kon niet geladen worden.",
+    backToLessons: "Terug naar Lessen",
+    listenToLesson: "Luister naar Lesoverzicht",
+    playingAudio: "Audio afspelen voor",
+    simulatingPlayback: "Simuleert afspelen",
+    audioNotAvailable: "Audio Niet Beschikbaar",
+    noAudioFor: "Geen audio voor",
+    practiceExercises: "Oefeningen",
+    applyWhatLearned: "Pas toe wat je hebt geleerd met deze interactieve oefeningen.",
+    relatedVocabulary: "Gerelateerde Woordenschat",
+    keyWordsRelated: "Sleutelwoorden gerelateerd aan deze les.",
+    practiceInFlashcards: "Oefen deze woorden in Flashcards",
+    relatedQuizzes: "Gerelateerde Quizzen",
+    testYourUnderstanding: "Test je begrip van concepten uit deze les.",
+    lessonRelatesToQuiz: "Deze les relateert aan de quiz:",
+    quizPageNote: "(Dit brengt je naar de hoofd Quizzen pagina waar je deze quiz kunt selecteren.)",
+    tryAgain: "Probeer Opnieuw",
+    checkMasteryAndComplete: "Controleer Meesterschap & Voltooi Les",
+    masteryNote: "Meesterschap vereist dat alle ingebedde oefeningen bij de eerste poging correct zijn.",
+    completeAllExercises: "Onvolledig",
+    attemptAllEmbeddedExercises: "Probeer alle ingebedde oefeningen voordat u meesterschap controleert.",
+    lessonMastered: "Les Beheerst!",
+    congratsPerfectEmbedded: "Gefeliciteerd! Je hebt alle ingebedde oefeningen perfect voltooid bij de eerste poging.",
+    masteryNotAchieved: "Meesterschap Niet Behaald",
+    reviewAndRetryLesson: "Niet alle oefeningen waren correct bij de eerste poging. Bekijk de stof opnieuw en probeer de les nogmaals (bijv. door opnieuw te navigeren) voor een nieuwe poging tot meesterschap.",
   },
 };
 
 interface LanguageProviderProps {
   children: ReactNode;
-  passedLocale: Language; 
+  passedLocale: Language;
 }
 
 export function LanguageProvider({ children, passedLocale }: LanguageProviderProps) {
   const router = useRouter();
-  const pathname = usePathname(); 
+  const pathname = usePathname();
 
   const language = passedLocale;
 
@@ -411,17 +465,17 @@ export function LanguageProvider({ children, passedLocale }: LanguageProviderPro
 
   const toggleLanguage = () => {
     const newLanguage = language === 'en' ? 'nl' : 'en';
-    
+
     let newPath = pathname;
     if (pathname.startsWith(`/${language}`)) {
       newPath = pathname.substring(`/${language}`.length);
-      if (newPath === "") newPath = "/"; 
+      if (newPath === "") newPath = "/";
     }
-    
+
     router.push(`/${newLanguage}${newPath}`);
   };
 
-  const currentTranslations = translationsData[language] || translationsData.nl; 
+  const currentTranslations = translationsData[language] || translationsData.nl;
 
   return (
     <LanguageContext.Provider value={{ language, toggleLanguage, translations: currentTranslations }}>

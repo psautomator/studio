@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from 'react';
-import type { EmbeddedFillInTheBlankExercise } from '@/types'; // Changed import
+import type { EmbeddedFillInTheBlankExercise } from '@/types';
 import { useLanguage } from '@/hooks/use-language';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
@@ -12,40 +12,41 @@ import { CheckCircle, XCircle, Lightbulb } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface EmbeddedFillInTheBlankItemProps {
-  // word: Word; // Previous prop
-  exerciseData: EmbeddedFillInTheBlankExercise & { originalJavaneseSentenceForDisplay?: string }; // New prop
+  exerciseData: EmbeddedFillInTheBlankExercise & { originalJavaneseSentenceForDisplay?: string };
+  onFirstAttempt: (exerciseId: string, wasCorrectOnFirstTry: boolean) => void;
 }
 
-// function escapeRegExp(string: string): string {
-//   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-// }
-
-export function EmbeddedFillInTheBlankItem({ exerciseData }: EmbeddedFillInTheBlankItemProps) {
-  const { translations, language } = useLanguage(); // Added language
+export function EmbeddedFillInTheBlankItem({ exerciseData, onFirstAttempt }: EmbeddedFillInTheBlankItemProps) {
+  const { translations, language } = useLanguage();
   const { toast } = useToast();
 
   const [userAnswer, setUserAnswer] = useState('');
   const [feedback, setFeedback] = useState<{ type: 'correct' | 'incorrect'; message: string } | null>(null);
   const [isAnswered, setIsAnswered] = useState(false);
+  const [isFirstAttempt, setIsFirstAttempt] = useState(true);
 
-  // Use exerciseData directly
   const exercise = exerciseData;
 
   const handleCheckAnswer = () => {
     if (!exercise || !userAnswer.trim()) {
-      toast({title: "Please enter an answer.", variant: "destructive"});
+      toast({title: translations.typeYourAnswer || "Please enter an answer.", variant: "destructive"});
       return;
     }
 
     const isCorrect = userAnswer.trim().toLowerCase() === exercise.correctAnswer.toLowerCase();
     if (isCorrect) {
       setFeedback({ type: 'correct', message: translations.correct });
-      toast({ title: "+10 XP!", description: "Correct! You earned 10 XP." });
+      toast({ title: "+2 XP!", description: "Correct embedded exercise!" }); // Smaller XP for embedded
     } else {
       setFeedback({
         type: 'incorrect',
         message: `${translations.incorrect} ${exercise.correctAnswer}`,
       });
+    }
+
+    if (isFirstAttempt) {
+      onFirstAttempt(exercise.id, isCorrect);
+      setIsFirstAttempt(false);
     }
     setIsAnswered(true);
   };
@@ -54,6 +55,8 @@ export function EmbeddedFillInTheBlankItem({ exerciseData }: EmbeddedFillInTheBl
     setUserAnswer('');
     setFeedback(null);
     setIsAnswered(false);
+    // Note: isFirstAttempt remains false. This "Try Again" is for practice, not for mastery re-evaluation
+    // unless the whole page/lesson state is reset.
   };
 
   if (!exercise) {
@@ -67,9 +70,7 @@ export function EmbeddedFillInTheBlankItem({ exerciseData }: EmbeddedFillInTheBl
   }
 
   const hintText = exercise.hint?.[language] || exercise.hint?.en;
-  // The sentence with placeholder should come directly from `exercise.javaneseSentenceWithPlaceholder`
   const questionSentence = exercise.javaneseSentenceWithPlaceholder;
-  // The full original sentence for feedback, reconstruct if not directly provided or use the admin-provided structure
   const originalSentenceForFeedback = exercise.originalJavaneseSentenceForDisplay || questionSentence.replace('_______', exercise.correctAnswer);
 
 
@@ -90,8 +91,8 @@ export function EmbeddedFillInTheBlankItem({ exerciseData }: EmbeddedFillInTheBl
         </CardTitle>
         {hintText && (
           <CardDescription className="text-center pt-2 text-xs">
-            <Lightbulb className="inline-block h-3 w-3 mr-1 text-accent" /> 
-            ({translations.dutch || 'Hint'}): <em className="text-muted-foreground">{hintText}</em>
+            <Lightbulb className="inline-block h-3 w-3 mr-1 text-accent" />
+            ({translations.hintForBlank || 'Hint'}): <em className="text-muted-foreground">{hintText}</em>
           </CardDescription>
         )}
       </CardHeader>
@@ -112,8 +113,8 @@ export function EmbeddedFillInTheBlankItem({ exerciseData }: EmbeddedFillInTheBl
             {feedback.type === 'correct' ? <CheckCircle className="h-4 w-4" /> : <XCircle className="h-4 w-4" />}
             <AlertTitle className="text-sm">{feedback.type === 'correct' ? translations.correct : translations.yourAnswer}</AlertTitle>
             <AlertDescription className="text-xs">
-                {feedback.type === 'incorrect' ? 
-                    `${translations.missingWordWas} "${exercise.correctAnswer}". ` 
+                {feedback.type === 'incorrect' ?
+                    `${translations.missingWordWas} "${exercise.correctAnswer}". `
                     : ''}
                  Original: <em>{originalSentenceForFeedback}</em>
             </AlertDescription>
@@ -122,24 +123,23 @@ export function EmbeddedFillInTheBlankItem({ exerciseData }: EmbeddedFillInTheBl
       </CardContent>
       <CardFooter className="flex justify-center gap-3 pt-0 pb-4">
         {!isAnswered ? (
-            <Button 
-            onClick={handleCheckAnswer} 
+            <Button
+            onClick={handleCheckAnswer}
             disabled={!userAnswer.trim()}
             size="sm"
             >
             {translations.checkAnswer}
             </Button>
         ) : (
-            <Button 
-            onClick={handleTryAgain} 
+            <Button
+            onClick={handleTryAgain}
             variant="outline"
             size="sm"
             >
-            Try Again
+            {translations.tryAgain || "Try Again"}
             </Button>
         )}
       </CardFooter>
     </Card>
   );
 }
-

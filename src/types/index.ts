@@ -57,17 +57,20 @@ export interface LearningGoal {
 export type QuizAttemptStatus = 'Incomplete' | 'Completed' | 'Perfect';
 
 export interface UserQuizAttempt {
-  // userId: string; // Implicit if stored as a subcollection under user, or explicit if top-level
+  // userId: string; // Will be added when actual user data is stored
   quizId: string;
   totalQuestions: number;
   correctAnswers: number;
-  scorePercentage: number; // Calculated: (correctAnswers / totalQuestions) * 100
-  status: QuizAttemptStatus; // 'Incomplete' (<90%), 'Completed' (90-99%), 'Perfect' (100%)
-  perfect: boolean; // True if scorePercentage is 100
-  attempts: number; // Number of times this specific quiz has been attempted by the user
+  /** Score as a percentage (0-100), calculated server-side or by a function. */
+  scorePercentage: number;
+  /** Status derived from scorePercentage: <90% Incomplete, 90-99% Completed, 100% Perfect. */
+  status: QuizAttemptStatus;
+  /** True if scorePercentage is 100, set server-side or by a function. */
+  perfect: boolean;
+  /** Number of times this specific quiz has been attempted by the user. */
+  attempts: number;
   timeSpentSeconds?: number; // Optional: duration of the quiz attempt
   completedAt: Date | string; // Firestore Timestamp ideally, or ISO string
-  // `id` field for the attempt itself can be the document ID in Firestore
 }
 
 export interface User {
@@ -80,19 +83,19 @@ export interface User {
   badges: string[];
   lastLogin?: Date;
 
-  // Fields for tracking progress and last activities
-  // completedLessonIds should only contain IDs of lessons where mastery is achieved (e.g., no mistakes in embedded exercises or linked quizzes)
+  /** Stores IDs of grammar lessons where the user demonstrated mastery
+   * (e.g., all embedded exercises correct on first try, or perfect score on a linked mastery quiz). */
   completedLessonIds?: string[];
-  quizAttempts?: UserQuizAttempt[]; // History of quiz attempts
-  currentQuizProgress?: { // For resuming an incomplete quiz
+  quizAttempts?: UserQuizAttempt[];
+  currentQuizProgress?: {
     quizId: string;
     currentQuestionIndex: number;
     answersSoFar: { questionId: string; selectedOptionText: string }[];
   };
 
-  lastGrammarLessonId?: string; // ID of the last grammar lesson viewed/interacted with
-  lastFlashcardDeckId?: string; // If flashcards are in decks/categories
-  lastFlashcardIndex?: number; // Index within the last viewed deck
+  lastGrammarLessonId?: string;
+  lastFlashcardDeckId?: string;
+  lastFlashcardIndex?: number;
   lastPronunciationWordId?: string;
   lastFillInTheBlanksExerciseId?: string;
   activeLearningGoals?: LearningGoal[];

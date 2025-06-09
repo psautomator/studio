@@ -8,9 +8,9 @@ import { PageHeader } from '@/components/shared/page-header';
 import { placeholderGrammarLessons, placeholderQuizzes, placeholderWords } from '@/lib/placeholder-data';
 import type { GrammarLesson, Quiz, Word } from '@/types';
 import { useLanguage } from '@/hooks/use-language';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Volume2, ArrowLeft, HelpCircle, FileSignature, BookHeadphones, List } from 'lucide-react';
+import { Volume2, ArrowLeft, HelpCircle, FileSignature, BookHeadphones, List, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
 import { useToast } from '@/hooks/use-toast';
@@ -26,17 +26,19 @@ export default function GrammarLessonPage() {
   const [lesson, setLesson] = useState<GrammarLesson | undefined>(undefined);
   const [relatedQuizzes, setRelatedQuizzes] = useState<Quiz[]>([]);
   const [linkedWords, setLinkedWords] = useState<Word[]>([]);
+  const [firstAttemptResults, setFirstAttemptResults] = useState<{ [exerciseId: string]: boolean }>({});
 
   useEffect(() => {
     const foundLesson = placeholderGrammarLessons.find(l => l.id === lessonId);
     setLesson(foundLesson);
+    setFirstAttemptResults({}); // Reset attempt results when lesson changes
 
     if (foundLesson) {
       const viewedKey = `viewed_lesson_${foundLesson.id}`;
       if (typeof window !== 'undefined' && !sessionStorage.getItem(viewedKey)) {
         toast({
           title: "+5 XP",
-          description: `Viewed lesson: ${foundLesson.title[language] || foundLesson.title.en}`,
+          description: `${translations.viewedLesson || "Viewed lesson"}: ${foundLesson.title[language] || foundLesson.title.en}`,
         });
         sessionStorage.setItem(viewedKey, 'true');
       }
@@ -56,31 +58,73 @@ export default function GrammarLessonPage() {
       }
 
     }
-  }, [lessonId, toast, language]);
+  }, [lessonId, toast, language, translations.viewedLesson]);
 
   const handlePlayAudio = (url: string, itemName: string) => {
     if (url) {
       toast({
-        title: `Playing audio for: ${itemName}`,
-        description: `Simulating playback. URL: ${url}`,
+        title: `${translations.playingAudio || "Playing audio for"}: ${itemName}`,
+        description: `${translations.simulatingPlayback || "Simulating playback"}. URL: ${url}`,
       });
       // new Audio(url).play().catch(err => console.error("Audio playback error:", err));
     } else {
       toast({
-        title: "Audio Not Available",
-        description: `No audio for "${itemName}".`,
+        title: translations.audioNotAvailable || "Audio Not Available",
+        description: `${translations.noAudioFor || "No audio for"} "${itemName}".`,
         variant: "destructive"
       });
     }
   };
 
+  const handleFirstExerciseAttempt = (exerciseId: string, wasCorrectOnFirstTry: boolean) => {
+    setFirstAttemptResults(prev => ({ ...prev, [exerciseId]: wasCorrectOnFirstTry }));
+  };
+
+  const handleMasteryCheck = () => {
+    if (!lesson || lesson.embeddedExercises.length === 0) return;
+
+    const allAttempted = lesson.embeddedExercises.every(ex => ex.id in firstAttemptResults);
+    if (!allAttempted) {
+      toast({
+        title: translations.completeAllExercises || "Incomplete",
+        description: translations.attemptAllEmbeddedExercises || "Please attempt all embedded exercises before checking mastery.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const allCorrectOnFirstTry = lesson.embeddedExercises.every(ex => firstAttemptResults[ex.id] === true);
+
+    if (allCorrectOnFirstTry) {
+      toast({
+        title: translations.lessonMastered || "Lesson Mastered!",
+        description: `${translations.congratsPerfectEmbedded || "Congratulations! You completed all embedded exercises perfectly on the first try."} (+20 XP - simulated)`,
+      });
+      // Here you would update user data, e.g., add lesson.id to user.completedLessonIds
+      // For now, we can log it and perhaps disable the button.
+      console.log(`Lesson ${lesson.id} mastered and would be added to completed list.`);
+      // Potentially disable the button or change its text
+    } else {
+      toast({
+        title: translations.masteryNotAchieved || "Mastery Not Achieved",
+        description: translations.reviewAndRetryLesson || "Not all exercises were correct on the first try. Review the material and try the lesson again (e.g., by re-navigating) for a fresh attempt at mastery.",
+        variant: "default",
+        duration: 7000,
+      });
+    }
+  };
+  
+  const allExercisesAttempted = lesson && lesson.embeddedExercises.length > 0 && 
+                               lesson.embeddedExercises.every(ex => ex.id in firstAttemptResults);
+
+
   if (!lesson) {
     return (
       <MainAppLayout>
-        <PageHeader title="Lesson Not Found" />
-        <p>The grammar lesson you are looking for does not exist or could not be loaded.</p>
+        <PageHeader title={translations.lessonNotFound || "Lesson Not Found"} />
+        <p>{translations.lessonNotFoundDesc || "The grammar lesson you are looking for does not exist or could not be loaded."}</p>
         <Button asChild variant="outline" className="mt-4">
-          <Link href="/grammar"><ArrowLeft className="mr-2 h-4 w-4" /> Back to Grammar Lessons</Link>
+          <Link href="/grammar"><ArrowLeft className="mr-2 h-4 w-4" /> {translations.backToLessons || "Back to Grammar Lessons"}</Link>
         </Button>
       </MainAppLayout>
     );
@@ -93,7 +137,7 @@ export default function GrammarLessonPage() {
     <MainAppLayout>
       <PageHeader title={lessonTitle} description={`${lesson.level} - ${lesson.category}`}>
         <Button asChild variant="outline">
-          <Link href="/grammar"><ArrowLeft className="mr-2 h-4 w-4" /> Back to Lessons</Link>
+          <Link href="/grammar"><ArrowLeft className="mr-2 h-4 w-4" /> {translations.backToLessons || "Back to Lessons"}</Link>
         </Button>
       </PageHeader>
 
@@ -107,17 +151,17 @@ export default function GrammarLessonPage() {
          <div className="mb-6 flex justify-center">
             <Button variant="outline" onClick={() => handlePlayAudio(lesson.lessonAudioUrl!, 'lesson audio')}>
               <BookHeadphones className="mr-2 h-5 w-5 text-accent" />
-              Listen to Lesson Overview
+              {translations.listenToLesson || "Listen to Lesson Overview"}
             </Button>
           </div>
       )}
 
       <Card className="shadow-lg mb-6">
         <CardHeader>
-          <CardTitle className="font-headline text-2xl text-primary">Explanation</CardTitle>
+          <CardTitle className="font-headline text-2xl text-primary">{translations.explanation || "Explanation"}</CardTitle>
         </CardHeader>
         <CardContent>
-          <article className="prose prose-sm sm:prose lg:prose-lg xl:prose-xl max-w-none text-foreground dark:prose-invert 
+          <article className="prose prose-sm sm:prose lg:prose-lg xl:prose-xl max-w-none text-foreground dark:prose-invert
             prose-headings:text-primary prose-strong:text-foreground/90 prose-a:text-accent hover:prose-a:text-accent/80
             prose-code:bg-muted prose-code:text-muted-foreground prose-code:p-1 prose-code:rounded-sm prose-code:font-mono prose-code:text-sm
             prose-ul:list-disc prose-ul:pl-5 prose-ol:list-decimal prose-ol:pl-5
@@ -131,7 +175,7 @@ export default function GrammarLessonPage() {
       {lesson.examples && lesson.examples.length > 0 && (
         <Card className="shadow-lg mb-6">
           <CardHeader>
-            <CardTitle className="font-headline text-2xl text-primary">Examples</CardTitle>
+            <CardTitle className="font-headline text-2xl text-primary">{translations.lessonExamples || "Examples"}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {lesson.examples.map((example) => (
@@ -145,7 +189,7 @@ export default function GrammarLessonPage() {
                   )}
                 </div>
                 <p className="text-muted-foreground italic">({translations.dutch || "Dutch"}): {example.dutch}</p>
-                <p className="text-xs text-muted-foreground capitalize mt-1">Level: {example.speechLevel}</p>
+                <p className="text-xs text-muted-foreground capitalize mt-1">{translations.exampleSpeechLevel || "Level"}: {example.speechLevel}</p>
               </div>
             ))}
           </CardContent>
@@ -157,9 +201,9 @@ export default function GrammarLessonPage() {
           <CardHeader>
             <CardTitle className="font-headline text-xl text-primary flex items-center">
               <FileSignature className="mr-2 h-5 w-5" />
-              Practice Exercises
+              {translations.practiceExercises || "Practice Exercises"}
             </CardTitle>
-            <CardDescription>Apply what you've learned with these interactive exercises.</CardDescription>
+            <CardDescription>{translations.applyWhatLearned || "Apply what you've learned with these interactive exercises."}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             {lesson.embeddedExercises.map((exercise) => {
@@ -168,12 +212,26 @@ export default function GrammarLessonPage() {
                     <EmbeddedFillInTheBlankItem
                         key={exercise.id}
                         exerciseData={exercise}
+                        onFirstAttempt={handleFirstExerciseAttempt}
                     />
                 );
               }
               return null;
             })}
           </CardContent>
+          <CardFooter className="flex-col items-center gap-2 pt-4">
+            <Button 
+              onClick={handleMasteryCheck} 
+              disabled={!allExercisesAttempted}
+              className="w-full max-w-xs bg-green-600 hover:bg-green-700 text-white"
+            >
+              <CheckCircle className="mr-2 h-5 w-5" />
+              {translations.checkMasteryAndComplete || "Check Mastery & Complete Lesson"}
+            </Button>
+            <p className="text-xs text-muted-foreground text-center">
+              {translations.masteryNote || "Mastery requires all embedded exercises to be correct on the first attempt."}
+            </p>
+          </CardFooter>
         </Card>
       )}
 
@@ -182,9 +240,9 @@ export default function GrammarLessonPage() {
           <CardHeader>
             <CardTitle className="font-headline text-xl text-primary flex items-center">
               <List className="mr-2 h-5 w-5" />
-              Related Vocabulary
+              {translations.relatedVocabulary || "Related Vocabulary"}
             </CardTitle>
-            <CardDescription>Key words related to this lesson.</CardDescription>
+            <CardDescription>{translations.keyWordsRelated || "Key words related to this lesson."}</CardDescription>
           </CardHeader>
           <CardContent>
             <ul className="list-disc list-inside space-y-1">
@@ -196,7 +254,7 @@ export default function GrammarLessonPage() {
             </ul>
              <Button asChild variant="link" className="mt-2 px-0">
               <Link href="/flashcards">
-                Practice these words in Flashcards <ArrowLeft className="ml-1 h-3 w-3 -rotate-180"/>
+                {translations.practiceInFlashcards || "Practice these words in Flashcards"} <ArrowLeft className="ml-1 h-3 w-3 -rotate-180"/>
               </Link>
             </Button>
           </CardContent>
@@ -208,15 +266,15 @@ export default function GrammarLessonPage() {
           <CardHeader>
             <CardTitle className="font-headline text-xl text-primary flex items-center">
               <HelpCircle className="mr-2 h-5 w-5" />
-              Related Quizzes
+              {translations.relatedQuizzes || "Related Quizzes"}
             </CardTitle>
-            <CardDescription>Test your understanding of concepts from this lesson.</CardDescription>
+            <CardDescription>{translations.testYourUnderstanding || "Test your understanding of concepts from this lesson."}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             {relatedQuizzes.map(quiz => (
                  <div key={quiz.id}>
                     <p className="mb-1">
-                    This lesson relates to the quiz: <strong className="text-primary">{quiz.title}</strong>.
+                    {translations.lessonRelatesToQuiz || "This lesson relates to the quiz:"} <strong className="text-primary">{quiz.title}</strong>.
                     </p>
                     <Button asChild>
                     <Link href={`/quizzes?quizId=${quiz.id}`}>
@@ -226,7 +284,7 @@ export default function GrammarLessonPage() {
                 </div>
             ))}
             <p className="text-xs text-muted-foreground mt-2">
-              (This will take you to the main Quizzes page where you can select this quiz.)
+              {translations.quizPageNote || "(This will take you to the main Quizzes page where you can select this quiz.)"}
             </p>
           </CardContent>
         </Card>
