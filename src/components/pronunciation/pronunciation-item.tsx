@@ -6,8 +6,9 @@ import type { PronunciationFeedbackOutput } from '@/ai/flows/pronunciation-feedb
 import { Button } from '@/components/ui/button';
 import { Volume2, Mic, Square, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'; // Added Alert components
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'; 
 import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
 
 interface PronunciationItemProps {
   word: Word;
@@ -46,7 +47,7 @@ export function PronunciationItem({
   return (
     <div className="flex flex-col items-start justify-between p-6 gap-4">
       <div className="w-full">
-        <div className="flex items-center mb-2">
+        <div className="flex items-center mb-1">
           <p className="font-headline text-3xl md:text-4xl font-semibold text-primary">{word.javanese}</p>
           {word.audioUrl ? (
              <Button variant="ghost" size="icon" onClick={handlePlayAudio} aria-label={`Play audio for ${word.javanese}`} className="ml-3">
@@ -58,7 +59,12 @@ export function PronunciationItem({
             </Button>
           )}
         </div>
-        <p className="text-lg text-muted-foreground mb-3">{word.dutch}</p>
+        <p className="text-lg text-muted-foreground mb-1">{word.dutch}</p>
+        {word.formality && (
+          <Badge variant="secondary" className="capitalize mb-3 text-xs">
+            Formality: {word.formality}
+          </Badge>
+        )}
         
         {(word.exampleSentenceJavanese || word.exampleSentenceDutch) && (
           <div className="mt-3 text-sm p-3 bg-muted/50 rounded-md">

@@ -33,13 +33,13 @@ export function FlashcardItem({ word, onPlayAudio }: FlashcardItemProps) {
   };
   
   const handleKnown = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent card flip if buttons were somehow on card
+    e.stopPropagation();
     toast({ title: "Marked as Known!", description: `You marked "${word.javanese}" as known.` });
     // Add logic to advance or mark as known
   };
 
   const handleReview = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent card flip
+    e.stopPropagation();
     toast({ title: "Marked for Review!", description: `"${word.javanese}" will be reviewed later.` });
     // Add logic for review
   };
@@ -80,11 +80,11 @@ export function FlashcardItem({ word, onPlayAudio }: FlashcardItemProps) {
             </h2>
             
             {(word.category || word.level || word.formality) && (
-              <div className="text-xs text-muted-foreground mb-3 text-center capitalize">
+              <div className="text-xs text-muted-foreground mb-3 text-center capitalize space-x-1">
                 {word.category && <span>{word.category}</span>}
                 {(word.category && (word.level || word.formality)) && <span className="mx-1">|</span>}
                 {word.level && <span>{word.level}</span>}
-                {(word.level && word.formality) && <span className="mx-1">|</span>}
+                {((word.category || word.level) && word.formality) && <span className="mx-1">|</span>}
                 {word.formality && <span>{word.formality}</span>}
               </div>
             )}
@@ -96,7 +96,6 @@ export function FlashcardItem({ word, onPlayAudio }: FlashcardItemProps) {
                 {word.exampleSentenceDutch && <p className="text-muted-foreground">{word.exampleSentenceDutch}</p>}
               </div>
             )}
-            {/* Buttons moved out from here */}
           </div>
         </div>
       </Card>
