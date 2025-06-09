@@ -1,11 +1,12 @@
 
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { MainAppLayout } from '@/components/layout/main-app-layout';
 import { PageHeader } from '@/components/shared/page-header';
 import { PronunciationItem } from '@/components/pronunciation/pronunciation-item';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { placeholderWords } from '@/lib/placeholder-data';
 import { useLanguage } from '@/hooks/use-language';
 import type { Word } from '@/types';
@@ -17,25 +18,61 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from '@/components/ui/label';
+import { ChevronRight, ThumbsUp, RotateCcw } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 export default function PronunciationPage() {
   const { translations } = useLanguage();
-  const [selectedLevel, setSelectedLevel] = useState<Word['level'] | 'all'>('all');
+  const { toast } = useToast();
+  const [allWords] = useState<Word[]>(placeholderWords);
   const [filteredWords, setFilteredWords] = useState<Word[]>(placeholderWords);
+  const [selectedLevel, setSelectedLevel] = useState<Word['level'] | 'all'>('all');
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
+    let newFilteredWords;
     if (selectedLevel === 'all') {
-      setFilteredWords(placeholderWords);
+      newFilteredWords = allWords;
     } else {
-      setFilteredWords(placeholderWords.filter(word => word.level === selectedLevel));
+      newFilteredWords = allWords.filter(word => word.level === selectedLevel);
     }
-  }, [selectedLevel]);
+    setFilteredWords(newFilteredWords);
+    setCurrentIndex(0); // Reset to first word of new filter
+  }, [selectedLevel, allWords]);
+
+  const currentWord = filteredWords.length > 0 ? filteredWords[currentIndex] : null;
+
+  const handleNextWord = useCallback(() => {
+    if (filteredWords.length === 0) return;
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % filteredWords.length);
+  }, [filteredWords.length]);
+
+  const handleMarkKnown = () => {
+    if (currentWord) {
+      toast({
+        title: "Marked as Known",
+        description: `You marked "${currentWord.javanese}" as known.`,
+      });
+    }
+    handleNextWord();
+  };
+
+  const handleMarkRepeat = () => {
+     if (currentWord) {
+      toast({
+        title: "Marked for Repeat",
+        description: `"${currentWord.javanese}" will be set for future review.`,
+      });
+    }
+    handleNextWord();
+  };
+
 
   const levels: (Word['level'] | 'all')[] = ['all', 'Beginner', 'Intermediate', 'Advanced'];
 
   return (
     <MainAppLayout>
-      <PageHeader title={translations.pronunciation} description="Listen and perfect your Javanese accent." />
+      <PageHeader title={translations.pronunciation} description="Listen, learn, and practice one word at a time." />
       
       <div className="mb-6 max-w-xs">
         <Label htmlFor="level-filter" className="text-sm font-medium">Filter by Level:</Label>
@@ -56,24 +93,38 @@ export default function PronunciationPage() {
         </Select>
       </div>
 
-      <Card className="shadow-lg">
-        <CardHeader>
-          <CardTitle className="font-headline text-xl">Word List</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {filteredWords.length > 0 ? (
-            <div className="divide-y">
-              {filteredWords.map((word) => (
-                <PronunciationItem key={word.id} word={word} />
-              ))}
-            </div>
-          ) : (
-            <p className="text-muted-foreground text-center py-4">
-              No words found for the selected level.
+      {currentWord ? (
+        <div className="flex flex-col items-center gap-6">
+          <Card className="w-full max-w-2xl shadow-lg">
+            <CardContent className="p-0"> {/* Remove CardContent padding if PronunciationItem handles it */}
+              <PronunciationItem word={currentWord} />
+            </CardContent>
+          </Card>
+          
+          <div className="flex w-full max-w-2xl justify-center gap-4 mt-4">
+            <Button variant="outline" onClick={handleMarkKnown} className="text-green-600 border-green-600 hover:bg-green-50 hover:text-green-700">
+              <ThumbsUp className="mr-2 h-4 w-4" /> I Know This
+            </Button>
+            <Button variant="outline" onClick={handleMarkRepeat} className="text-orange-500 border-orange-500 hover:bg-orange-50 hover:text-orange-600">
+              <RotateCcw className="mr-2 h-4 w-4" /> Repeat Later
+            </Button>
+            <Button onClick={handleNextWord} variant="default" className="bg-primary hover:bg-primary/90">
+              Next Word <ChevronRight className="ml-2 h-4 w-4" />
+            </Button>
+          </div>
+           <p className="text-sm text-muted-foreground mt-2">
+              Word {currentIndex + 1} of {filteredWords.length}
             </p>
-          )}
-        </CardContent>
-      </Card>
+        </div>
+      ) : (
+        <Card className="shadow-lg">
+          <CardContent className="p-6">
+            <p className="text-muted-foreground text-center py-4">
+              No words found for the selected level. Please try a different filter.
+            </p>
+          </CardContent>
+        </Card>
+      )}
     </MainAppLayout>
   );
 }
