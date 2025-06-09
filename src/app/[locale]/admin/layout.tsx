@@ -3,8 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import React, { use } from 'react'; // Import React and 'use' hook
-// MainAppLayout is not used for AdminLayout structure
+import React, { use } from 'react';
 import {
   Sidebar,
   SidebarHeader,
@@ -12,7 +11,7 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-  SidebarInset,
+  SidebarInset, // Import SidebarInset
 } from '@/components/ui/sidebar';
 import { Navbar } from '@/components/layout/navbar';
 import { Package, Users, FileText, LayoutDashboard, Home, ListChecks, Award } from 'lucide-react';
@@ -39,7 +38,7 @@ const allAdminNavItems = [
 
 function AdminSidebar() {
   const pathname = usePathname();
-  const { translations, language } = useLanguage(); // language is the current locale (en/nl)
+  const { translations, language } = useLanguage();
 
   const getLabel = (item: { labelKey: string, defaultLabel: string }) => {
     return translations[item.labelKey.toLowerCase() as keyof typeof translations] || item.defaultLabel;
@@ -50,9 +49,7 @@ function AdminSidebar() {
   );
 
   const appLink = { baseHref: '/dashboard', labelKey: 'backToApp', icon: Home, defaultLabel: 'Back to App' };
-  const localizedAdminBase = `/${language}/admin`;
-
-
+  
   return (
      <Sidebar collapsible="icon" side="left" variant="sidebar">
       <SidebarHeader className="p-4">
@@ -66,7 +63,7 @@ function AdminSidebar() {
         <SidebarMenu>
           {visibleAdminNavItems.map((item) => {
             const localizedItemHref = `/${language}${item.href}`;
-            const IconComponent = item.icon; 
+            const IconComponent = item.icon;
             return (
               <SidebarMenuItem key={item.href}>
                 <SidebarMenuButton
@@ -75,7 +72,7 @@ function AdminSidebar() {
                   tooltip={{ children: getLabel(item) }}
                 >
                   <Link href={localizedItemHref}>
-                    <IconComponent /> 
+                    <IconComponent />
                     <span>{getLabel(item)}</span>
                   </Link>
                 </SidebarMenuButton>
@@ -104,31 +101,31 @@ function AdminSidebar() {
 
 export default function AdminLayout({
   children,
-  params: paramsPromise, // Rename to indicate it's a promise
+  params: paramsPromise,
 }: {
   children: React.ReactNode;
-  params: Promise<{ locale: string }>; // Correctly type params as a Promise
+  params: Promise<{ locale: string }>;
 }) {
-  const params = use(paramsPromise); // Resolve the promise using React.use()
+  const params = use(paramsPromise);
   const locale = params.locale;
 
+  // This logic is for illustrative purposes; actual auth would be more robust
+  // For now, we assume if they can reach this layout, they have some admin role.
   const canAccessAdmin = allAdminNavItems.some(item => userHasAnyRequiredRole(currentUser.roles, item.requiredRoles));
 
-  if (!canAccessAdmin && typeof window !== 'undefined') {
-    // Basic redirect - in a real app, this would be handled by middleware or auth provider
-    // window.location.href = `/${locale}/dashboard`;
-    // return <p>Access Denied or redirecting...</p>;
-  }
+  // if (!canAccessAdmin && typeof window !== 'undefined') {
+  //   window.location.href = `/${locale}/dashboard`;
+  //   return <p>Access Denied or redirecting...</p>;
+  // }
 
   return (
-      <div className="flex min-h-screen">
+      <div className="flex min-h-screen w-full"> {/* Ensure w-full for full width */}
         <AdminSidebar />
-        <div className="flex flex-1 flex-col w-0">
-          <Navbar /> {/* Navbar now uses useLanguage to get locale from context */}
-          <SidebarInset>
-            <main className="flex-1 p-4 md:p-6 lg:p-8">
-              {children}
-            </main>
+        <div className="flex flex-1 flex-col w-0"> {/* w-0 is important for flex-1 content to not overflow */}
+          <Navbar />
+          {/* Use SidebarInset for consistent main content area styling */}
+          <SidebarInset as="main" className="bg-muted/10"> {/* Added bg-muted/10 as an example */}
+            {children}
           </SidebarInset>
         </div>
       </div>
