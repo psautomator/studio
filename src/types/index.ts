@@ -54,12 +54,20 @@ export interface LearningGoal {
   createdAt: Date;
 }
 
+export type QuizAttemptStatus = 'Incomplete' | 'Completed' | 'Perfect';
+
 export interface UserQuizAttempt {
+  // userId: string; // Implicit if stored as a subcollection under user, or explicit if top-level
   quizId: string;
-  score: number; // Percentage or raw score (0-100). A score of 100 means "completed with no mistakes".
-  completedAt: Date;
-  questionsAnswered: number;
+  totalQuestions: number;
   correctAnswers: number;
+  scorePercentage: number; // Calculated: (correctAnswers / totalQuestions) * 100
+  status: QuizAttemptStatus; // 'Incomplete' (<90%), 'Completed' (90-99%), 'Perfect' (100%)
+  perfect: boolean; // True if scorePercentage is 100
+  attempts: number; // Number of times this specific quiz has been attempted by the user
+  timeSpentSeconds?: number; // Optional: duration of the quiz attempt
+  completedAt: Date | string; // Firestore Timestamp ideally, or ISO string
+  // `id` field for the attempt itself can be the document ID in Firestore
 }
 
 export interface User {
@@ -73,7 +81,8 @@ export interface User {
   lastLogin?: Date;
 
   // Fields for tracking progress and last activities
-  completedLessonIds?: string[]; // IDs of grammar lessons MASTERED (e.g., all embedded exercises correct, or mastery quiz 100%)
+  // completedLessonIds should only contain IDs of lessons where mastery is achieved (e.g., no mistakes in embedded exercises or linked quizzes)
+  completedLessonIds?: string[];
   quizAttempts?: UserQuizAttempt[]; // History of quiz attempts
   currentQuizProgress?: { // For resuming an incomplete quiz
     quizId: string;

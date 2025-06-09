@@ -1,5 +1,5 @@
 
-import type { User as UserType, UserQuizAttempt } from '@/types'; // Renamed to avoid conflict
+import type { User as UserType, UserQuizAttempt, QuizAttemptStatus } from '@/types'; // Renamed to avoid conflict
 import type { Word, Quiz, Badge, GrammarLesson, GrammarExample, EmbeddedExercise, SpeechLevel, QuizQuestion, LearningGoal } from '@/types';
 
 export const placeholderWords: Word[] = [
@@ -256,8 +256,39 @@ const placeholderActiveGoals: LearningGoal[] = [
 ];
 
 const placeholderQuizAttempts: UserQuizAttempt[] = [
-    { quizId: 'quizSet1', score: 80, completedAt: new Date(Date.now() - 86400000 * 3), questionsAnswered: 2, correctAnswers: 1 },
-    { quizId: 'quizSet1', score: 100, completedAt: new Date(Date.now() - 86400000 * 2), questionsAnswered: 2, correctAnswers: 2 },
+    {
+        quizId: 'quizSet1',
+        totalQuestions: 2,
+        correctAnswers: 2,
+        scorePercentage: 100,
+        status: 'Perfect',
+        perfect: true,
+        attempts: 1,
+        completedAt: new Date(Date.now() - 86400000 * 3).toISOString(), // 3 days ago
+        timeSpentSeconds: 120,
+    },
+    {
+        quizId: 'quizSet2',
+        totalQuestions: 4,
+        correctAnswers: 3,
+        scorePercentage: 75,
+        status: 'Incomplete',
+        perfect: false,
+        attempts: 1,
+        completedAt: new Date(Date.now() - 86400000 * 2).toISOString(), // 2 days ago
+        timeSpentSeconds: 240,
+    },
+    {
+        quizId: 'quizSet2', // Second attempt for quizSet2
+        totalQuestions: 4,
+        correctAnswers: 4,
+        scorePercentage: 100,
+        status: 'Perfect',
+        perfect: true,
+        attempts: 2, // This should be the user's 2nd attempt for this specific quiz
+        completedAt: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
+        timeSpentSeconds: 180,
+    },
 ];
 
 
@@ -268,7 +299,7 @@ export const placeholderUser: UserType = {
   roles: ['user', 'admin'],
   xp: 1250,
   streak: 15,
-  badges: ['newbie', 'wordmaster_lvl1'],
+  badges: ['newbie', 'wordmaster_lvl1', 'quiz_champ_easy'], // Added quiz_champ_easy for perfect score
   lastLogin: new Date(Date.now() - 86400000), // Logged in yesterday
   
   completedLessonIds: ['gl2'], // Completed 'Basic Sentence Structure'
@@ -291,7 +322,7 @@ export const placeholderUser: UserType = {
 };
 
 export const placeholderAdminUsers: UserType[] = [
-    { id: 'user1', name: 'Jan Jansen', email: 'jan@example.com', roles: ['user'], xp: 1500, streak: 10, badges: ['newbie', 'wordmaster_lvl1'], lastLogin: new Date(Date.now() - 172800000), completedLessonIds: ['gl1', 'gl2'], quizAttempts: [{quizId: 'quizSet1', score: 90, completedAt: new Date(), questionsAnswered: 2, correctAnswers: 2}]},
+    { id: 'user1', name: 'Jan Jansen', email: 'jan@example.com', roles: ['user'], xp: 1500, streak: 10, badges: ['newbie', 'wordmaster_lvl1'], lastLogin: new Date(Date.now() - 172800000), completedLessonIds: ['gl1', 'gl2'], quizAttempts: [{quizId: 'quizSet1', totalQuestions: 2, correctAnswers: 2, scorePercentage: 100, status: 'Perfect', perfect: true, attempts: 1, completedAt: new Date()}]},
     { id: 'user2', name: 'Piet Pietersen', email: 'piet@example.com', roles: ['user', 'editor'], xp: 800, streak: 5, badges: ['newbie'], lastLogin: new Date(Date.now() - 86400000 * 3), completedLessonIds: ['gl1'] },
     { id: 'user3', name: 'Admin Account', email: 'admin@example.com', roles: ['user', 'admin'], xp: 0, streak: 0, badges: [], lastLogin: new Date(), activeLearningGoals: [] },
     { id: 'user4', name: 'Publisher Paula', email: 'paula@example.com', roles: ['user', 'publisher'], xp: 200, streak: 2, badges: ['newbie'], lastLogin: new Date(Date.now() - 86400000 * 5) },
@@ -302,7 +333,8 @@ export const placeholderBadges: Badge[] = [
   { id: 'newbie', name: 'Newbie Linguist', description: 'Started your Javanese journey!', icon: 'Award' },
   { id: 'wordmaster_lvl1', name: 'Word Master Lv. 1', description: 'Learned 50 new words.', icon: 'BookOpenCheck', threshold: 50 },
   { id: 'streak_7', name: '7-Day Streak', description: 'Logged in for 7 days in a row!', icon: 'Flame', threshold: 7 },
-  { id: 'quiz_champ_easy', name: 'Quiz Champion (Easy)', description: 'Completed 10 easy quizzes with 80%+ accuracy.', icon: 'StarIcon', threshold: 10 },
+  { id: 'quiz_champ_easy', name: 'Quiz Champion (Easy)', description: 'Completed 10 easy quizzes with 90%+ accuracy.', icon: 'StarIcon', threshold: 10 }, // Adjusted description
+  { id: 'quiz_perfect_1', name: 'Quiz Perfectionist', description: 'Achieved a perfect 100% score on any quiz.', icon: 'Trophy' }, // New badge
   { id: 'grammar_initiate', name: 'Grammar Initiate', description: 'Completed your first grammar lesson.', icon: 'GraduationCap' },
   { id: 'perfect_pronunciation_1', name: 'Clear Speaker', description: 'Achieved 90%+ on a pronunciation exercise.', icon: 'Trophy', threshold: 1 },
 ];
@@ -409,4 +441,3 @@ export const placeholderGrammarLessons: GrammarLesson[] = [
     status: 'published',
   },
 ];
-
