@@ -2,8 +2,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
-// LanguageProvider and SidebarProvider will be in [locale]/layout.tsx
-// AppProviders is removed as its responsibilities are shifted
 
 export const metadata: Metadata = {
   title: 'Javanese Journey',
@@ -16,7 +14,6 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    // The lang attribute will be set in [locale]/layout.tsx
     <html suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -24,10 +21,12 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
         <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&display=swap" rel="stylesheet" />
       </head>
-      <body className="font-body antialiased min-h-screen flex flex-col">
+      <body className="font-body antialiased min-h-screen flex flex-col w-full"> {/* Added w-full */}
         {children}
         <Toaster />
       </body>
     </html>
   );
 }
+
+    
