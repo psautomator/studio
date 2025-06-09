@@ -56,7 +56,7 @@ export interface LearningGoal {
 
 export interface UserQuizAttempt {
   quizId: string;
-  score: number; // Percentage or raw score
+  score: number; // Percentage or raw score (0-100). A score of 100 means "completed with no mistakes".
   completedAt: Date;
   questionsAnswered: number;
   correctAnswers: number;
@@ -73,7 +73,7 @@ export interface User {
   lastLogin?: Date;
 
   // Fields for tracking progress and last activities
-  completedLessonIds?: string[]; // IDs of completed grammar lessons
+  completedLessonIds?: string[]; // IDs of grammar lessons MASTERED (e.g., all embedded exercises correct, or mastery quiz 100%)
   quizAttempts?: UserQuizAttempt[]; // History of quiz attempts
   currentQuizProgress?: { // For resuming an incomplete quiz
     quizId: string;
