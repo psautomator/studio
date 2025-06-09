@@ -151,6 +151,7 @@ const translationsData = {
     showAnswer: "Show Answer",
     missingWordWas: "The missing word was:",
     noFillExercises: "No fill-in-the-blank exercises available at the moment.",
+    noFillExercisesForLevel: "No fill-in-the-blank exercises available for the selected level. Try a different filter.",
     noHintAvailable: "No hint available.",
     showJavaneseFirst: "Show Javanese First",
     selectLevel: "Select Level",
@@ -159,6 +160,8 @@ const translationsData = {
     beginner: "Beginner",
     intermediate: "Intermediate",
     advanced: "Advanced",
+    allLevels: "All Levels",
+    filterByLevel: "Filter by Level:",
     draft: "Draft",
     published: "Published",
     archived: "Archived",
@@ -366,6 +369,7 @@ const translationsData = {
     showAnswer: "Toon Antwoord",
     missingWordWas: "Het ontbrekende woord was:",
     noFillExercises: "Momenteel geen invuloefeningen beschikbaar.",
+    noFillExercisesForLevel: "Momenteel geen invuloefeningen beschikbaar voor het geselecteerde niveau. Probeer een ander filter.",
     noHintAvailable: "Geen hint beschikbaar.",
     showJavaneseFirst: "Toon Javaans Eerst",
     selectLevel: "Selecteer Niveau",
@@ -374,6 +378,8 @@ const translationsData = {
     beginner: "Beginner",
     intermediate: "Gemiddeld",
     advanced: "Gevorderd",
+    allLevels: "Alle Niveaus",
+    filterByLevel: "Filter op Niveau:",
     draft: "Concept",
     published: "Gepubliceerd",
     archived: "Gearchiveerd",
@@ -491,3 +497,5 @@ export function useLanguage() {
   }
   return context;
 }
+
+    
