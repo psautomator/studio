@@ -59,12 +59,12 @@ const translationsData = {
     reviewDraftQuizzes: "Quizzes needing review.",
     draftGrammarLessonsCount: "Draft Grammar Lessons",
     reviewDraftGrammar: "Lessons needing review.",
-    contentAnalytics: "Content Analytics", // Kept for potential future use
-    viewLearningStats: "View learning statistics.", // Kept for potential future use
+    contentAnalytics: "Content Analytics",
+    viewLearningStats: "View learning statistics.",
     backToApp: "Back to App",
     toggleToDutch: "Switch to Dutch",
     toggleToEnglish: "Switch to English",
-    welcome: "Welcome to Javanese Journey!",
+    welcome: "Welcome to", // Changed from "Welcome to Javanese Journey!" to allow dynamic app name
     welcomeBack: "Welcome back,",
     days: "days",
     startLearning: "Start Learning",
@@ -187,8 +187,7 @@ const translationsData = {
     selectQuizPrompt: "Select a quiz to begin.",
     quizCompleted: "Quiz Completed!",
     startQuiz: "Start Quiz",
-    fillInTheBlanks: "Fill in the Blanks", // Retained for any direct text use
-    fillintheblanks: "Fill in Blanks", // Sidebar key
+    fillintheblanks: "Fill in Blanks",
     fillInTheBlankInstruction: "Type the missing Javanese word.",
     nextExercise: "Next Exercise",
     typeYourAnswer: "Type your answer here...",
@@ -209,7 +208,7 @@ const translationsData = {
     filterByDifficulty: "Filter by Difficulty:",
     filterByCategory: "Filter by Category:",
     allDifficulties: "All Difficulties",
-    allCategories: "All Categories",
+    allCategories: "Alle Categorieën", // Needs Dutch translation
     noQuizzesMatchFilters: "No quizzes match your current filters.",
     resetFilters: "Reset Filters",
     draft: "Draft",
@@ -282,6 +281,7 @@ const translationsData = {
     congratsPerfectEmbedded: "Congratulations! You completed all embedded exercises perfectly on the first try.",
     masteryNotAchieved: "Mastery Not Achieved",
     reviewAndRetryLesson: "Not all exercises were correct on the first try. Review the material and try the lesson again (e.g., by re-navigating) for a fresh attempt at mastery.",
+    allRightsReserved: "All rights reserved."
   },
   nl: {
     appName: "Javaanse Reis",
@@ -327,12 +327,12 @@ const translationsData = {
     reviewDraftQuizzes: "Quizzen die nagekeken moeten worden.",
     draftGrammarLessonsCount: "Concept Grammaticalessen",
     reviewDraftGrammar: "Lessen die nagekeken moeten worden.",
-    contentAnalytics: "Inhoudsanalyse", // Kept for potential future use
-    viewLearningStats: "Bekijk leerstatistieken.", // Kept for potential future use
+    contentAnalytics: "Inhoudsanalyse",
+    viewLearningStats: "Bekijk leerstatistieken.",
     backToApp: "Terug naar App",
     toggleToDutch: "Schakel naar Nederlands",
     toggleToEnglish: "Switch to English",
-    welcome: "Welkom bij Javaanse Reis!",
+    welcome: "Welkom bij", // Changed for dynamic app name
     welcomeBack: "Welkom terug,",
     days: "dagen",
     startLearning: "Begin met Leren",
@@ -455,8 +455,7 @@ const translationsData = {
     selectQuizPrompt: "Selecteer een quiz om te beginnen.",
     quizCompleted: "Quiz Voltooid!",
     startQuiz: "Start Quiz",
-    fillInTheBlanks: "Vul de Leemtes In", // Retained for any direct text use
-    fillintheblanks: "Zoek het woord", // Sidebar key
+    fillintheblanks: "Zoek het woord",
     fillInTheBlankInstruction: "Typ het ontbrekende Javaanse woord.",
     nextExercise: "Volgende Oefening",
     typeYourAnswer: "Typ hier je antwoord...",
@@ -550,6 +549,7 @@ const translationsData = {
     congratsPerfectEmbedded: "Gefeliciteerd! Je hebt alle ingebedde oefeningen perfect voltooid bij de eerste poging.",
     masteryNotAchieved: "Meesterschap Niet Behaald",
     reviewAndRetryLesson: "Niet alle oefeningen waren correct bij de eerste poging. Bekijk de stof opnieuw en probeer de les nogmaals (bijv. door opnieuw te navigeren) voor een nieuwe poging tot meesterschap.",
+    allRightsReserved: "Alle rechten voorbehouden."
   },
 };
 
