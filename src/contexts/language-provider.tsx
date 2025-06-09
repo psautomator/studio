@@ -27,7 +27,7 @@ const translationsData = {
     grammar: "Grammar",
     grammarLessons: "Grammar Lessons",
     grammarManagement: "Grammar Management",
-    admin: "Admin Panel",
+    admin: "Admin", // Changed from "Admin Panel" for brevity in some contexts
     adminDashboard: "Admin Dashboard",
     backToApp: "Back to App",
     toggleToDutch: "Switch to Dutch",
@@ -55,6 +55,7 @@ const translationsData = {
     wordsManagement: "Words Management",
     quizzesManagement: "Quizzes Management",
     usersManagement: "Users Management",
+    usersManagementDesc: "View user data and manage roles.",
     badgesManagement: "Badges Management",
     badgesManagementDesc: "Create and manage achievement badges.",
     addNewWord: "Add New Word",
@@ -125,7 +126,10 @@ const translationsData = {
     dailyStudyGoal: "Daily Study Goal (minutes)",
     accountManagement: "Account Management",
     deleteAccount: "Delete Account",
-    role: "Role",
+    role: "Role", // Generic role
+    roles: "Roles", // Plural
+    editor: "Editor",
+    publisher: "Publisher",
     name: "Name",
     email: "Email",
     finishQuiz: "Finish Quiz",
@@ -175,6 +179,13 @@ const translationsData = {
     aiAssistContent: "AI Assist Content",
     aiAssistComplete: "AI Assistance Complete",
     aiAssistError: "AI Assist Error",
+    manageUserRoles: "Manage User Roles",
+    selectRolesForUser: "Select the roles for this user.",
+    assignableRoles: "Assignable Roles",
+    saveRoles: "Save Roles",
+    userRolesUpdated: "User Roles Updated",
+    rolesFor: "Roles for",
+    haveBeenSaved: "have been saved.",
   },
   nl: {
     appName: "Javaanse Reis",
@@ -187,7 +198,7 @@ const translationsData = {
     grammar: "Grammatica",
     grammarLessons: "Grammaticalessen",
     grammarManagement: "Grammaticabeheer",
-    admin: "Beheerderspaneel",
+    admin: "Beheer", // Changed from "Beheerderspaneel"
     adminDashboard: "Beheerdersdashboard",
     backToApp: "Terug naar App",
     toggleToDutch: "Schakel naar Nederlands",
@@ -215,6 +226,7 @@ const translationsData = {
     wordsManagement: "Woordenbeheer",
     quizzesManagement: "Quizbeheer",
     usersManagement: "Gebruikersbeheer",
+    usersManagementDesc: "Bekijk gebruikersgegevens en beheer rollen.",
     badgesManagement: "Badgebeheer",
     badgesManagementDesc: "Creëer en beheer prestatiebadges.",
     addNewWord: "Nieuw Woord Toevoegen",
@@ -285,7 +297,10 @@ const translationsData = {
     dailyStudyGoal: "Dagelijks Studiedoel (minuten)",
     accountManagement: "Accountbeheer",
     deleteAccount: "Account Verwijderen",
-    role: "Rol",
+    role: "Rol", // Generic role
+    roles: "Rollen", // Plural
+    editor: "Redacteur",
+    publisher: "Uitgever",
     name: "Naam",
     email: "E-mailadres",
     finishQuiz: "Quiz Voltooien",
@@ -335,6 +350,13 @@ const translationsData = {
     aiAssistContent: "AI Assistentie Inhoud",
     aiAssistComplete: "AI Assistentie Voltooid",
     aiAssistError: "Fout bij AI Assistentie",
+    manageUserRoles: "Gebruikersrollen Beheren",
+    selectRolesForUser: "Selecteer de rollen voor deze gebruiker.",
+    assignableRoles: "Toewijsbare Rollen",
+    saveRoles: "Rollen Opslaan",
+    userRolesUpdated: "Gebruikersrollen Bijgewerkt",
+    rolesFor: "Rollen voor",
+    haveBeenSaved: "zijn opgeslagen.",
   },
 };
 
@@ -370,3 +392,4 @@ export function useLanguage() {
   }
   return context;
 }
+

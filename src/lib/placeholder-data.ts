@@ -249,21 +249,23 @@ export const placeholderQuizzes: Quiz[] = [
   },
 ];
 
-export const placeholderUser: UserType = { // Renamed to UserType
+export const placeholderUser: UserType = { 
   id: 'user123',
   name: 'Alex Doe',
   email: 'alex.doe@example.com',
-  roles: ['user', 'admin'], // Updated to roles array
+  roles: ['user', 'admin'], 
   xp: 1250,
   streak: 15,
   badges: ['newbie', 'wordmaster_lvl1'],
   lastLogin: new Date(Date.now() - 86400000)
 };
 
-export const placeholderAdminUsers: UserType[] = [ // Renamed to UserType
-    { id: 'user1', name: 'Jan Jansen', email: 'jan@example.com', roles: ['user'], xp: 1500, streak: 10, badges: ['newbie', 'wordmaster_lvl1'] },
-    { id: 'user2', name: 'Piet Pietersen', email: 'piet@example.com', roles: ['user', 'editor'], xp: 800, streak: 5, badges: ['newbie'] },
-    { id: 'user3', name: 'Admin Account', email: 'admin@example.com', roles: ['admin', 'user'], xp: 0, streak: 0, badges: [] },
+export const placeholderAdminUsers: UserType[] = [ 
+    { id: 'user1', name: 'Jan Jansen', email: 'jan@example.com', roles: ['user'], xp: 1500, streak: 10, badges: ['newbie', 'wordmaster_lvl1'], lastLogin: new Date(Date.now() - 172800000) },
+    { id: 'user2', name: 'Piet Pietersen', email: 'piet@example.com', roles: ['user', 'editor'], xp: 800, streak: 5, badges: ['newbie'], lastLogin: new Date(Date.now() - 86400000 * 3) },
+    { id: 'user3', name: 'Admin Account', email: 'admin@example.com', roles: ['user', 'admin'], xp: 0, streak: 0, badges: [], lastLogin: new Date() },
+    { id: 'user4', name: 'Publisher Paula', email: 'paula@example.com', roles: ['user', 'publisher'], xp: 200, streak: 2, badges: ['newbie'], lastLogin: new Date(Date.now() - 86400000 * 5) },
+    { id: 'user5', name: 'Editor Eddie', email: 'eddie@example.com', roles: ['user', 'editor', 'publisher'], xp: 1200, streak: 20, badges: ['newbie', 'wordmaster_lvl1', 'streak_7'], lastLogin: new Date(Date.now() - 86400000) },
 ];
 
 export const placeholderBadges: Badge[] = [
@@ -272,7 +274,7 @@ export const placeholderBadges: Badge[] = [
   { id: 'streak_7', name: '7-Day Streak', description: 'Logged in for 7 days in a row!', icon: 'Flame', threshold: 7 },
   { id: 'quiz_champ_easy', name: 'Quiz Champion (Easy)', description: 'Completed 10 easy quizzes with 80%+ accuracy.', icon: 'StarIcon', threshold: 10 },
   { id: 'grammar_initiate', name: 'Grammar Initiate', description: 'Completed your first grammar lesson.', icon: 'GraduationCap' }, 
-  { id: 'perfect_pronunciation_1', name: 'Clear Speaker', description: 'Achieved 90%+ on a pronunciation exercise.', icon: 'Trophy' },
+  { id: 'perfect_pronunciation_1', name: 'Clear Speaker', description: 'Achieved 90%+ on a pronunciation exercise.', icon: 'Trophy', threshold: 1 }, // Example threshold
 ];
 
 export const placeholderGrammarLessons: GrammarLesson[] = [
@@ -375,3 +377,4 @@ export const placeholderGrammarLessons: GrammarLesson[] = [
     status: 'published',
   },
 ];
+
