@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from 'next/link';
@@ -25,7 +26,7 @@ export function Navbar() {
 
         <div className="flex items-center gap-3">
           <nav className="hidden md:flex items-center gap-2">
-            <Button variant="ghost" asChild>
+            <Button variant="default" asChild>
               <Link href="/admin">{translations.admin}</Link>
             </Button>
           </nav>
