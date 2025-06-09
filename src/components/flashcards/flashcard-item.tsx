@@ -1,10 +1,10 @@
+
 "use client";
 
 import type { Word } from '@/types';
 import { useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { RefreshCw } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+// Removed Button and RefreshCw as they are no longer needed for the flip action
 import { useLanguage } from '@/hooks/use-language';
 
 interface FlashcardItemProps {
@@ -15,8 +15,20 @@ export function FlashcardItem({ word }: FlashcardItemProps) {
   const [isFlipped, setIsFlipped] = useState(false);
   const { translations } = useLanguage();
 
+  const handleFlip = () => {
+    setIsFlipped(!isFlipped);
+  };
+
   return (
-    <Card className="w-full max-w-md mx-auto aspect-[3/2] perspective shadow-xl relative">
+    <Card 
+      className="w-full max-w-md mx-auto aspect-[3/2] perspective shadow-xl relative cursor-pointer"
+      onClick={handleFlip}
+      role="button" // Make it accessible as a button
+      tabIndex={0} // Make it focusable
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleFlip(); }} // Allow flipping with Enter/Space
+      aria-pressed={isFlipped} // Indicate a toggled state for screen readers
+      aria-label={isFlipped ? `Showing ${translations.dutch} side. Click to show ${translations.javanese} side.` : `Showing ${translations.javanese} side. Click to show ${translations.dutch} side.`}
+    >
       <div
         className={`absolute inset-0 w-full h-full transition-transform duration-700 transform-style-preserve-3d ${
           isFlipped ? 'rotate-y-180' : ''
@@ -56,12 +68,7 @@ export function FlashcardItem({ word }: FlashcardItemProps) {
           -webkit-backface-visibility: hidden;
         }
       `}</style>
-      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
-        <Button onClick={() => setIsFlipped(!isFlipped)} variant="outline" className="shadow-md">
-          <RefreshCw className="mr-2 h-4 w-4" />
-          {translations.flip}
-        </Button>
-      </div>
+      {/* The flip button has been removed. The entire card is now clickable. */}
     </Card>
   );
 }
