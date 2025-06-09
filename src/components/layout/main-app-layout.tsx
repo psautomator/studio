@@ -1,3 +1,4 @@
+
 import type { ReactNode } from 'react';
 import { Navbar } from './navbar';
 import { AppSidebar } from './app-sidebar';
@@ -7,9 +8,10 @@ export function MainAppLayout({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-screen">
       <AppSidebar />
-      <div className="flex flex-1 flex-col">
+      {/* Added w-0 to ensure flex-1 properly calculates width */}
+      <div className="flex flex-1 flex-col w-0"> 
         <Navbar />
-        <SidebarInset> {/* This will be the main content area that resizes with the sidebar */}
+        <SidebarInset> 
           <main className="flex-1 p-4 md:p-6 lg:p-8">
             {children}
           </main>
