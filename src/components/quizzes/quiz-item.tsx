@@ -24,10 +24,12 @@ export function QuizItem({ quiz, onNextQuiz }: QuizItemProps) {
   const { translations } = useLanguage();
   const { toast } = useToast();
 
-  const processSubmit = () => {
-    if (!selectedOption) return;
+  const handleOptionSelect = (value: string) => {
+    if (isAnswered) return; // Don't process if already answered
 
-    const chosenOption = quiz.options.find(opt => opt.text === selectedOption);
+    setSelectedOption(value);
+
+    const chosenOption = quiz.options.find(opt => opt.text === value);
     if (chosenOption) {
       if (chosenOption.isCorrect) {
         setFeedback({ type: 'correct', message: translations.correct });
@@ -41,16 +43,6 @@ export function QuizItem({ quiz, onNextQuiz }: QuizItemProps) {
       setIsAnswered(true);
     }
   };
-  
-  const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!isAnswered) {
-      processSubmit();
-    } else {
-      handleNext();
-    }
-  };
-
 
   const handleNext = () => {
     setSelectedOption(null);
@@ -91,59 +83,58 @@ export function QuizItem({ quiz, onNextQuiz }: QuizItemProps) {
 
   return (
     <Card className="w-full max-w-2xl mx-auto shadow-lg">
-      <form onSubmit={handleFormSubmit}>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="font-headline text-2xl text-primary flex-1">{quiz.question}</CardTitle>
-            {quiz.audioUrl && (
-              <Button variant="ghost" size="icon" type="button" onClick={playAudio} aria-label="Play question audio" className="ml-2">
-                <Volume2 className="h-5 w-5 text-accent" />
-              </Button>
-            )}
-          </div>
-          {quiz.difficulty && (
-            <CardDescription>Difficulty: <span className="capitalize">{quiz.difficulty}</span></CardDescription>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle className="font-headline text-2xl text-primary flex-1">{quiz.question}</CardTitle>
+          {quiz.audioUrl && (
+            <Button variant="ghost" size="icon" type="button" onClick={playAudio} aria-label="Play question audio" className="ml-2">
+              <Volume2 className="h-5 w-5 text-accent" />
+            </Button>
           )}
-        </CardHeader>
-        <CardContent>
-          <RadioGroup
-            value={selectedOption || undefined}
-            onValueChange={setSelectedOption}
-            disabled={isAnswered}
-            className="space-y-3"
-            aria-label="Quiz options"
-          >
-            {quiz.options.map((option, index) => (
-              <div key={index} className={`flex items-center space-x-3 p-3 rounded-md border transition-colors ${selectedOption === option.text && !isAnswered ? 'bg-accent/10 border-accent' : 'border-border'}`}>
-                <RadioGroupItem value={option.text} id={`option-${quiz.id}-${index}`} />
-                <Label 
-                  htmlFor={`option-${quiz.id}-${index}`} 
-                  className={getOptionLabelClass(option.text, option.isCorrect)}
-                >
-                  {option.text}
-                </Label>
-              </div>
-            ))}
-          </RadioGroup>
+        </div>
+        {quiz.difficulty && (
+          <CardDescription>Difficulty: <span className="capitalize">{quiz.difficulty}</span></CardDescription>
+        )}
+      </CardHeader>
+      <CardContent>
+        <RadioGroup
+          value={selectedOption || undefined}
+          onValueChange={handleOptionSelect}
+          disabled={isAnswered}
+          className="space-y-3"
+          aria-label="Quiz options"
+        >
+          {quiz.options.map((option, index) => (
+            <div key={index} className={`flex items-center space-x-3 p-3 rounded-md border transition-colors ${selectedOption === option.text && !isAnswered ? 'bg-accent/10 border-accent' : 'border-border'}`}>
+              <RadioGroupItem value={option.text} id={`option-${quiz.id}-${index}`} />
+              <Label 
+                htmlFor={`option-${quiz.id}-${index}`} 
+                className={getOptionLabelClass(option.text, option.isCorrect)}
+              >
+                {option.text}
+              </Label>
+            </div>
+          ))}
+        </RadioGroup>
 
-          {feedback && (
-            <Alert variant={feedback.type === 'correct' ? 'default' : 'destructive'} className="mt-6 animate-in fade-in">
-              {feedback.type === 'correct' ? <CheckCircle className="h-5 w-5" /> : <XCircle className="h-5 w-5" />}
-              <AlertTitle>{feedback.type === 'correct' ? translations.correct : translations.yourAnswer}</AlertTitle>
-              <AlertDescription>{feedback.message}</AlertDescription>
-              {quiz.explanation && feedback.type === 'incorrect' && (
-                   <p className="text-sm mt-2">{quiz.explanation}</p>
-              )}
-            </Alert>
-          )}
-        </CardContent>
-        <CardFooter>
-          <Button type="submit" disabled={!selectedOption && !isAnswered} className="w-full bg-primary hover:bg-primary/90">
-            {isAnswered ? translations.next : translations.checkAnswer}
+        {feedback && (
+          <Alert variant={feedback.type === 'correct' ? 'default' : 'destructive'} className="mt-6 animate-in fade-in">
+            {feedback.type === 'correct' ? <CheckCircle className="h-5 w-5" /> : <XCircle className="h-5 w-5" />}
+            <AlertTitle>{feedback.type === 'correct' ? translations.correct : translations.yourAnswer}</AlertTitle>
+            <AlertDescription>{feedback.message}</AlertDescription>
+            {quiz.explanation && feedback.type === 'incorrect' && (
+                 <p className="text-sm mt-2">{quiz.explanation}</p>
+            )}
+          </Alert>
+        )}
+      </CardContent>
+      <CardFooter>
+        {isAnswered && (
+          <Button type="button" onClick={handleNext} className="w-full bg-primary hover:bg-primary/90">
+            {translations.next}
           </Button>
-        </CardFooter>
-      </form>
+        )}
+      </CardFooter>
     </Card>
   );
 }
-
