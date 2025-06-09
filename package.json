@@ -10,7 +10,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "validate": "npm run lint && npm run typecheck",
+    "check-outdated": "npm outdated",
+    "update-interactive": "npm_config_yes=true npx npm-check-updates -u"
   },
   "dependencies": {
     "@genkit-ai/googleai": "^1.8.0",
@@ -61,6 +64,7 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "genkit-cli": "^1.8.0",
+    "npm-check-updates": "^16.14.20",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
