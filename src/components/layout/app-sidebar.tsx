@@ -14,7 +14,7 @@ import {
   Shield,
   User,
   GraduationCap,
-  FileSignature, 
+  FileSignature,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -36,30 +36,28 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { APP_NAME } from '@/lib/constants';
 import { useLanguage } from '@/hooks/use-language';
-import { placeholderUser } from '@/lib/placeholder-data'; 
+import { placeholderUser } from '@/lib/placeholder-data';
 import type { User as UserType } from '@/types';
 
 
 const mainNavItems = [
-  { href: '/dashboard', labelKey: 'dashboard', icon: LayoutDashboard },
-  { href: '/flashcards', labelKey: 'flashcards', icon: BookOpen },
-  { href: '/quizzes', labelKey: 'quizzes', icon: HelpCircle },
-  { href: '/pronunciation', labelKey: 'pronunciation', icon: Volume2 },
-  { href: '/grammar', labelKey: 'grammar', icon: GraduationCap },
-  { href: '/fill-in-the-blanks', labelKey: 'fillintheblanks', icon: FileSignature },
-  { href: '/progress', labelKey: 'progress', icon: BarChart3 },
-  { href: '/goals', labelKey: 'goals', icon: Target },
+  { baseHref: '/dashboard', labelKey: 'dashboard', icon: LayoutDashboard },
+  { baseHref: '/flashcards', labelKey: 'flashcards', icon: BookOpen },
+  { baseHref: '/quizzes', labelKey: 'quizzes', icon: HelpCircle },
+  { baseHref: '/pronunciation', labelKey: 'pronunciation', icon: Volume2 },
+  { baseHref: '/grammar', labelKey: 'grammar', icon: GraduationCap },
+  { baseHref: '/fill-in-the-blanks', labelKey: 'fillintheblanks', icon: FileSignature },
+  { baseHref: '/progress', labelKey: 'progress', icon: BarChart3 },
+  { baseHref: '/goals', labelKey: 'goals', icon: Target },
 ];
 
-// For now, using placeholderUser. In a real app, this would come from auth context.
-const currentUser: UserType = placeholderUser; 
-
-const adminAccessRoles = ['admin', 'editor', 'publisher']; // Roles that can access any part of admin panel
+const currentUser: UserType = placeholderUser;
+const adminAccessRoles = ['admin', 'editor', 'publisher'];
 
 export function AppSidebar() {
   const pathname = usePathname();
-  const { translations } = useLanguage();
-  const { open, isMobile, setOpenMobile } = useSidebar(); 
+  const { translations, language } = useLanguage(); // language is the current locale (en/nl)
+  const { open, isMobile, setOpenMobile } = useSidebar();
 
   const getLabel = (labelKey: string, defaultLabel?: string) => {
     return translations[labelKey.toLowerCase()] || defaultLabel || labelKey;
@@ -72,12 +70,15 @@ export function AppSidebar() {
   };
 
   const canAccessAdminPanel = currentUser.roles.some(role => adminAccessRoles.includes(role));
+  const localizedProfileBaseHref = `/${language}/profile`;
+  const localizedProgressBaseHref = `/${language}/progress`;
+
 
   return (
     <Sidebar collapsible="icon" side="left" variant="sidebar">
       <SidebarHeader className="p-4">
         {open && (
-           <Link href="/dashboard" onClick={handleMobileLinkClick} className="flex items-center">
+           <Link href={`/${language}/dashboard`} onClick={handleMobileLinkClick} className="flex items-center">
             <span className="font-headline text-lg font-semibold text-sidebar-foreground">
               {APP_NAME}
             </span>
@@ -88,20 +89,23 @@ export function AppSidebar() {
       </SidebarHeader>
       <SidebarContent className="flex-grow p-2">
         <SidebarMenu>
-          {mainNavItems.map((item) => (
-            <SidebarMenuItem key={item.href}>
-              <SidebarMenuButton
-                asChild
-                isActive={pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href))}
-                tooltip={{ children: getLabel(item.labelKey, item.labelKey) }}
-              >
-                <Link href={item.href} onClick={handleMobileLinkClick}>
-                  <item.icon />
-                  <span>{getLabel(item.labelKey, item.labelKey)}</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
+          {mainNavItems.map((item) => {
+            const localizedHref = `/${language}${item.baseHref}`;
+            return (
+              <SidebarMenuItem key={item.baseHref}>
+                <SidebarMenuButton
+                  asChild
+                  isActive={pathname === localizedHref || (item.baseHref !== "/dashboard" && pathname.startsWith(localizedHref))}
+                  tooltip={{ children: getLabel(item.labelKey, item.labelKey) }}
+                >
+                  <Link href={localizedHref} onClick={handleMobileLinkClick}>
+                    <item.icon />
+                    <span>{getLabel(item.labelKey, item.labelKey)}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            );
+          })}
         </SidebarMenu>
       </SidebarContent>
       <SidebarFooter className="p-2">
@@ -119,13 +123,13 @@ export function AppSidebar() {
               </DropdownMenuTrigger>
               <DropdownMenuContent side="right" align="start" className="w-56 mb-2 ml-1">
                 <DropdownMenuItem asChild>
-                  <Link href="/profile" className="flex items-center w-full" onClick={handleMobileLinkClick}>
+                  <Link href={localizedProfileBaseHref} className="flex items-center w-full" onClick={handleMobileLinkClick}>
                     <User className="mr-2 h-4 w-4" />
                     <span>{getLabel('profile', 'Profile')}</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href="/progress" className="flex items-center w-full" onClick={handleMobileLinkClick}>
+                  <Link href={localizedProgressBaseHref} className="flex items-center w-full" onClick={handleMobileLinkClick}>
                     <BarChart3 className="mr-2 h-4 w-4" />
                     <span>{getLabel('progress', 'Progress')}</span>
                   </Link>
@@ -134,6 +138,7 @@ export function AppSidebar() {
                   <>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild className="bg-primary text-primary-foreground hover:bg-primary/90 focus:bg-primary/90 focus:text-primary-foreground">
+                      {/* Admin link is not locale-prefixed */}
                       <Link href="/admin" className="flex items-center w-full" onClick={handleMobileLinkClick}>
                         <Shield className="mr-2 h-4 w-4" />
                         <span>{getLabel('admin', 'Admin Panel')}</span>

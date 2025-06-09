@@ -7,72 +7,68 @@ import { useLanguage } from '@/hooks/use-language';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { 
+import {
   ArrowRight, BookOpen, HelpCircle, Target, Mic, FileSignature, GraduationCap, Award, Star, FastForward, Compass, ClipboardList
 } from 'lucide-react';
 import { placeholderUser, placeholderBadges, placeholderGrammarLessons, placeholderQuizzes } from '@/lib/placeholder-data';
 import type { Badge as BadgeType } from '@/types';
 
 export default function DashboardPage() {
-  const { translations, language } = useLanguage(); // Added language
+  const { translations, language } = useLanguage();
   const user = placeholderUser;
-  const earnedBadges = placeholderBadges.filter(b => user.badges.includes(b.id)).slice(0, 3); 
+  const earnedBadges = placeholderBadges.filter(b => user.badges.includes(b.id)).slice(0, 3);
 
-  const dailyGoals: string[] = [
-    // "Learn 5 new vocabulary words related to family.",
-    // "Practice forming simple sentences using 'kula' and 'sampeyan'.",
-    // "Listen to Javanese audio for 10 minutes.",
-  ];
+  const dailyGoals: string[] = user.activeLearningGoals?.map(g => g.text).slice(0,3) || [];
 
-  const firstGrammarLesson = placeholderGrammarLessons[0];
-  const firstQuiz = placeholderQuizzes.filter(q => q.status === 'published')[0];
+  const firstGrammarLesson = placeholderGrammarLessons.find(lesson => lesson.status === 'published');
+  const firstQuiz = placeholderQuizzes.find(q => q.status === 'published');
 
   const continueLearningItems = [
-    { 
-      id: 'gl1', 
-      titleKey: 'resumeGrammar', 
-      itemTitle: firstGrammarLesson?.title[language] || firstGrammarLesson?.title.en || "Intro to Speech Levels", 
-      href: `/grammar/${firstGrammarLesson?.id || 'gl1'}`, 
-      icon: GraduationCap 
+    {
+      id: 'gl1',
+      titleKey: 'resumeGrammar',
+      itemTitle: firstGrammarLesson?.title[language] || firstGrammarLesson?.title.en || "Intro to Speech Levels",
+      href: `/${language}/grammar/${firstGrammarLesson?.id || 'gl1'}`,
+      icon: GraduationCap
     },
-    { 
-      id: 'qz1', 
-      titleKey: 'tryNewQuiz', 
-      itemTitle: firstQuiz?.title || "Javanese Greetings", 
-      href: `/quizzes?quizId=${firstQuiz?.id || 'quizSet1'}`, 
-      icon: HelpCircle 
+    {
+      id: 'qz1',
+      titleKey: 'tryNewQuiz',
+      itemTitle: firstQuiz?.title || "Javanese Greetings",
+      href: `/${language}/quizzes?quizId=${firstQuiz?.id || 'quizSet1'}`,
+      icon: HelpCircle
     },
-    { 
-      id: 'pr1', 
-      titleKey: 'practicePronunciation', 
-      itemTitle: "Common Phrases", 
-      href: '/pronunciation', 
-      icon: Mic 
+    {
+      id: 'pr1',
+      titleKey: 'practicePronunciation',
+      itemTitle: "Common Phrases",
+      href: `/${language}/pronunciation`,
+      icon: Mic
     },
   ];
 
   const discoverMoreItems = [
-    { labelKey: 'flashcards', href: '/flashcards', icon: BookOpen, description: "Master vocabulary with interactive cards." },
-    { labelKey: 'fillintheblanks', href: '/fill-in-the-blanks', icon: FileSignature, description: "Test your sentence completion skills." },
-    { labelKey: 'grammarLessonsOverview', href: '/grammar', icon: GraduationCap, description: "Explore Javanese grammar rules." },
+    { labelKey: 'flashcards', baseHref: '/flashcards', icon: BookOpen, description: "Master vocabulary with interactive cards." },
+    { labelKey: 'fillintheblanks', baseHref: '/fill-in-the-blanks', icon: FileSignature, description: "Test your sentence completion skills." },
+    { labelKey: 'grammarLessonsOverview', baseHref: '/grammar', icon: GraduationCap, description: "Explore Javanese grammar rules." },
   ];
 
   return (
     <MainAppLayout>
-      <PageHeader 
-        title={translations.dashboard} 
-        description={`${translations.welcomeBack || "Welcome back,"} ${user.name}!  XP: ${user.xp} | ${translations.learningStreak || "Streak"}: ${user.streak} ${translations.days || "days"}`} 
+      <PageHeader
+        title={translations.dashboard}
+        description={`${translations.welcomeBack || "Welcome back,"} ${user.name}!  XP: ${user.xp} | ${translations.learningStreak || "Streak"}: ${user.streak} ${translations.days || "days"}`}
       />
-      
+
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <Card className="lg:col-span-2 shadow-lg border-primary/30">
           <CardHeader>
             <CardTitle className="font-headline text-2xl text-primary flex items-center">
-              <ClipboardList className="mr-3 h-6 w-6" /> 
+              <ClipboardList className="mr-3 h-6 w-6" />
               {translations.todaysFocus || "Today's Focus"}
             </CardTitle>
             <CardDescription>
-              {dailyGoals.length > 0 ? "Your personalized tasks for today." : translations.noGoalsYet || "No goals generated yet. Let's create some!"}
+              {dailyGoals.length > 0 ? (translations.yourPersonalizedTasks || "Your personalized tasks for today.") : (translations.noGoalsYet || "No goals generated yet. Let's create some!")}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -88,7 +84,7 @@ export default function DashboardPage() {
           </CardContent>
           <CardFooter>
             <Button variant="default" size="lg" asChild className="w-full bg-primary hover:bg-primary/90 text-lg">
-              <Link href="/goals">
+              <Link href={`/${language}/goals`}>
                 <Target className="mr-2 h-5 w-5" />
                 {dailyGoals.length > 0 ? (translations.viewYourGoals || "View Your Goals") : (translations.generateYourGoals || "Generate Your Goals")}
               </Link>
@@ -118,7 +114,7 @@ export default function DashboardPage() {
               <p className="text-sm text-muted-foreground">{translations.noBadgesEarned || "No badges earned yet. Keep learning!"}</p>
             )}
              <Button variant="secondary" size="sm" asChild className="mt-3 w-full">
-              <Link href="/progress">{translations.viewAllProgress || "View All Progress & Badges"} <ArrowRight className="ml-2 h-4 w-4" /></Link>
+              <Link href={`/${language}/progress`}>{translations.viewAllProgress || "View All Progress & Badges"} <ArrowRight className="ml-2 h-4 w-4" /></Link>
             </Button>
           </CardContent>
         </Card>
@@ -135,7 +131,7 @@ export default function DashboardPage() {
         <CardContent className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {continueLearningItems.map(item => (
             <Button variant="outline" className="w-full justify-start h-auto py-3 text-left border-border hover:border-primary/50 hover:bg-primary/5" asChild key={item.id}>
-              <Link href={item.href}>
+              <Link href={item.href}> {/* href is already locale-prefixed */}
                 <item.icon className="mr-3 h-5 w-5 text-primary/80" />
                 <div>
                   <span className="font-medium text-primary">{translations[item.titleKey.toLowerCase() as keyof typeof translations] || item.titleKey}</span>
@@ -146,7 +142,7 @@ export default function DashboardPage() {
           ))}
         </CardContent>
       </Card>
-      
+
       <Card className="mt-6 shadow-lg">
         <CardHeader>
           <CardTitle className="font-headline text-xl text-primary flex items-center">
@@ -157,7 +153,7 @@ export default function DashboardPage() {
         </CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {discoverMoreItems.map(item => (
-            <Link href={item.href} key={item.href} className="block p-4 rounded-lg border bg-card hover:shadow-md transition-shadow hover:bg-muted/30">
+            <Link href={`/${language}${item.baseHref}`} key={item.baseHref} className="block p-4 rounded-lg border bg-card hover:shadow-md transition-shadow hover:bg-muted/30">
                 <div className="flex items-center mb-2">
                     <item.icon className="mr-3 h-6 w-6 text-accent" />
                     <h3 className="text-md font-semibold text-foreground">{translations[item.labelKey.toLowerCase() as keyof typeof translations] || item.labelKey}</h3>

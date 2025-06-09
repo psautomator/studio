@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { MainAppLayout } from '@/components/layout/main-app-layout'; 
+// MainAppLayout is not used for AdminLayout structure
 import {
   Sidebar,
   SidebarHeader,
@@ -14,24 +14,18 @@ import {
   SidebarInset,
   SidebarProvider,
 } from '@/components/ui/sidebar';
-import { Navbar } from '@/components/layout/navbar'; 
+import { Navbar } from '@/components/layout/navbar';
 import { Package, Users, FileText, LayoutDashboard, Home, ListChecks, Award } from 'lucide-react';
-import { APP_NAME } from '@/lib/constants';
+// APP_NAME is not used directly in AdminSidebar titles
 import { useLanguage } from '@/hooks/use-language';
-import { placeholderUser } from '@/lib/placeholder-data'; // For current user roles
-import type { User as UserType } from '@/types'; // Import UserType
+import { placeholderUser } from '@/lib/placeholder-data';
+import type { User as UserType } from '@/types';
 
-// Assume placeholderUser is our current user for now
-const currentUser: UserType = placeholderUser; 
+const currentUser: UserType = placeholderUser;
 
-// Helper function to check roles
 const userHasAnyRequiredRole = (userRoles: string[], requiredRoles?: string[]): boolean => {
-  if (!requiredRoles || requiredRoles.length === 0) {
-    return true; // No specific roles required, accessible to all who can see admin panel
-  }
-  if (!userRoles || userRoles.length === 0) {
-    return false; // User has no roles, cannot access role-protected item
-  }
+  if (!requiredRoles || requiredRoles.length === 0) return true;
+  if (!userRoles || userRoles.length === 0) return false;
   return requiredRoles.some(role => userRoles.includes(role));
 };
 
@@ -44,19 +38,22 @@ const allAdminNavItems = [
   { href: '/admin/users', labelKey: 'usersManagement', icon: Users, defaultLabel: 'Users Management', requiredRoles: ['admin'] },
 ];
 
-const appLink = { href: '/dashboard', labelKey: 'backToApp', icon: Home, defaultLabel: 'Back to App' };
-
 function AdminSidebar() {
   const pathname = usePathname();
-  const { translations } = useLanguage();
+  const { translations, language } = useLanguage(); // language is the current locale (en/nl)
 
   const getLabel = (item: { labelKey: string, defaultLabel: string }) => {
-    return translations[item.labelKey] || item.defaultLabel;
+    return translations[item.labelKey.toLowerCase() as keyof typeof translations] || item.defaultLabel;
   };
 
-  const visibleAdminNavItems = allAdminNavItems.filter(item => 
+  const visibleAdminNavItems = allAdminNavItems.filter(item =>
     userHasAnyRequiredRole(currentUser.roles, item.requiredRoles)
   );
+
+  // Admin area specific "Back to App" link
+  const appLink = { baseHref: '/dashboard', labelKey: 'backToApp', icon: Home, defaultLabel: 'Back to App' };
+  const localizedAppLinkHref = `/${language}${appLink.baseHref}`;
+
 
   return (
      <Sidebar collapsible="icon" side="left" variant="sidebar">
@@ -88,10 +85,10 @@ function AdminSidebar() {
            <SidebarMenuItem>
               <SidebarMenuButton
                 asChild
-                isActive={pathname === appLink.href}
+                isActive={pathname === localizedAppLinkHref}
                 tooltip={{ children: getLabel(appLink) }}
               >
-                <Link href={appLink.href}>
+                <Link href={localizedAppLinkHref}>
                   <appLink.icon />
                   <span>{getLabel(appLink)}</span>
                 </Link>
@@ -103,30 +100,27 @@ function AdminSidebar() {
   );
 }
 
-
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  // This check ideally would be more robust, e.g., redirecting if user doesn't have any admin-level roles
-  // For now, if no admin links are visible, it implies limited access, but actual page protection is needed.
   const canAccessAdmin = allAdminNavItems.some(item => userHasAnyRequiredRole(currentUser.roles, item.requiredRoles));
 
   if (!canAccessAdmin && typeof window !== 'undefined') {
-    // Basic redirect if no admin rights at all based on current roles
-    // In a real app with auth, this would be handled by a proper auth provider / middleware
-    // window.location.href = '/dashboard'; 
-    // return <p>Access Denied. Redirecting...</p>; // Or a proper "Access Denied" component
+    // Basic redirect - in a real app, this would be handled by middleware or auth provider
+    // if (!pathname.startsWith('/admin')) { // Avoid redirect loop if already trying to leave admin
+    //    window.location.href = '/dashboard'; // Potentially needs locale prefix
+    // }
+    // return <p>Access Denied or redirecting...</p>;
   }
-
 
   return (
     <SidebarProvider defaultOpen={true}>
       <div className="flex min-h-screen">
         <AdminSidebar />
         <div className="flex flex-1 flex-col">
-          <Navbar />
+          <Navbar /> {/* Navbar now uses useLanguage to get locale */}
           <SidebarInset>
             <main className="flex-1 p-4 md:p-6 lg:p-8">
               {children}
