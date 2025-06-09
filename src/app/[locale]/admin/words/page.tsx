@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import { PageHeader } from '@/components/shared/page-header';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Upload } from 'lucide-react';
+import { PlusCircle, Upload, Sparkles } from 'lucide-react'; // Added Sparkles
 import { DataTable } from '@/components/admin/data-table';
 import type { Word } from '@/types';
 import { placeholderWords } from '@/lib/placeholder-data';
@@ -30,6 +30,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from '@/components/ui/badge';
+import { GenerateQuizForWordDialog } from '@/components/admin/generate-quiz-for-word-dialog'; // Import the new dialog
 
 function WordForm({
   open,
@@ -287,6 +288,10 @@ export default function AdminWordsPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingWord, setEditingWord] = useState<Partial<Word> | null>(null);
   const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
+  
+  const [isGenerateQuizDialogOpen, setIsGenerateQuizDialogOpen] = useState(false);
+  const [wordForQuizGeneration, setWordForQuizGeneration] = useState<Word | null>(null);
+
 
   const columns = [
     { accessorKey: 'javanese', header: translations.javanese },
@@ -335,6 +340,11 @@ export default function AdminWordsPage() {
     setWords(Array.from(updatedWordsMap.values()));
   };
 
+  const handleOpenGenerateQuizDialog = (word: Word) => {
+    setWordForQuizGeneration(word);
+    setIsGenerateQuizDialogOpen(true);
+  };
+
   return (
     <>
       <PageHeader title={translations.wordsManagement} description="Manage Javanese vocabulary and translations.">
@@ -347,7 +357,13 @@ export default function AdminWordsPage() {
           {translations.addNewWord}
         </Button>
       </PageHeader>
-      <DataTable columns={columns} data={words} onEdit={handleEdit} onDelete={handleDelete} />
+      <DataTable
+        columns={columns}
+        data={words}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        onGenerateQuizAction={handleOpenGenerateQuizDialog} // Pass the new action handler
+      />
       <WordForm 
         open={isFormOpen}
         onOpenChange={setIsFormOpen}
@@ -358,6 +374,11 @@ export default function AdminWordsPage() {
         open={isImportDialogOpen}
         onOpenChange={setIsImportDialogOpen}
         onImport={handleBulkImport}
+      />
+      <GenerateQuizForWordDialog
+        open={isGenerateQuizDialogOpen}
+        onOpenChange={setIsGenerateQuizDialogOpen}
+        word={wordForQuizGeneration}
       />
     </>
   );

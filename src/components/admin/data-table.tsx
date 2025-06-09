@@ -1,3 +1,4 @@
+
 "use client";
 
 import {
@@ -9,7 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Edit, Trash2, Eye } from "lucide-react";
+import { Edit, Trash2, Eye, Sparkles } from "lucide-react"; // Added Sparkles
 import type { ReactNode } from "react";
 
 interface DataTableColumn<T> {
@@ -24,6 +25,7 @@ interface DataTableProps<T> {
   onEdit?: (item: T) => void;
   onDelete?: (item: T) => void;
   onView?: (item: T) => void;
+  onGenerateQuizAction?: (item: T) => void; // New prop for custom action
 }
 
 export function DataTable<T extends { id: string | number }>({
@@ -32,6 +34,7 @@ export function DataTable<T extends { id: string | number }>({
   onEdit,
   onDelete,
   onView,
+  onGenerateQuizAction, // Destructure new prop
 }: DataTableProps<T>) {
   
   const renderCellContent = (item: T, column: DataTableColumn<T>): ReactNode => {
@@ -58,7 +61,7 @@ export function DataTable<T extends { id: string | number }>({
             {columns.map((column) => (
               <TableHead key={String(column.accessorKey)} className="font-semibold">{column.header}</TableHead>
             ))}
-            {(onEdit || onDelete || onView) && <TableHead className="text-right">Actions</TableHead>}
+            {(onEdit || onDelete || onView || onGenerateQuizAction) && <TableHead className="text-right">Actions</TableHead>}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -70,21 +73,26 @@ export function DataTable<T extends { id: string | number }>({
                     {renderCellContent(item, column)}
                   </TableCell>
                 ))}
-                {(onEdit || onDelete || onView) && (
+                {(onEdit || onDelete || onView || onGenerateQuizAction) && (
                   <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
+                    <div className="flex justify-end gap-1">
                       {onView && (
-                        <Button variant="ghost" size="icon" onClick={() => onView(item)} aria-label="View item">
+                        <Button variant="ghost" size="icon" onClick={() => onView(item)} aria-label="View item" title="View">
                           <Eye className="h-4 w-4" />
                         </Button>
                       )}
                       {onEdit && (
-                        <Button variant="ghost" size="icon" onClick={() => onEdit(item)} aria-label="Edit item">
+                        <Button variant="ghost" size="icon" onClick={() => onEdit(item)} aria-label="Edit item" title="Edit">
                           <Edit className="h-4 w-4" />
                         </Button>
                       )}
+                       {onGenerateQuizAction && ( // Conditionally render new action button
+                        <Button variant="ghost" size="icon" onClick={() => onGenerateQuizAction(item)} aria-label="Generate AI Quiz" title="Generate AI Quiz">
+                          <Sparkles className="h-4 w-4 text-accent" />
+                        </Button>
+                      )}
                       {onDelete && (
-                        <Button variant="ghost" size="icon" onClick={() => onDelete(item)} className="text-destructive hover:text-destructive" aria-label="Delete item">
+                        <Button variant="ghost" size="icon" onClick={() => onDelete(item)} className="text-destructive hover:text-destructive" aria-label="Delete item" title="Delete">
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       )}
@@ -95,7 +103,7 @@ export function DataTable<T extends { id: string | number }>({
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={columns.length + ((onEdit || onDelete || onView) ? 1 : 0)} className="h-24 text-center">
+              <TableCell colSpan={columns.length + ((onEdit || onDelete || onView || onGenerateQuizAction) ? 1 : 0)} className="h-24 text-center">
                 No results.
               </TableCell>
             </TableRow>
