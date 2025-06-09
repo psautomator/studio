@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { MainAppLayout } from '@/components/layout/main-app-layout';
 import { PageHeader } from '@/components/shared/page-header';
 import { PronunciationItem } from '@/components/pronunciation/pronunciation-item';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { placeholderWords } from '@/lib/placeholder-data';
 import { useLanguage } from '@/hooks/use-language';
@@ -18,8 +18,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from '@/components/ui/label';
-import { ChevronRight, ThumbsUp, RotateCcw } from 'lucide-react';
+import { ChevronRight, ThumbsUp, RotateCcw, Mic, Square, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { runFlow } from '@genkit-ai/next/client';
+import { getPronunciationFeedback, type PronunciationFeedbackOutput } from '@/ai/flows/pronunciation-feedback-flow';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export default function PronunciationPage() {
   const { translations } = useLanguage();
@@ -29,6 +32,11 @@ export default function PronunciationPage() {
   const [selectedLevel, setSelectedLevel] = useState<Word['level'] | 'all'>('all');
   const [currentIndex, setCurrentIndex] = useState(0);
 
+  // AI Tutor State
+  const [isRecordingAi, setIsRecordingAi] = useState(false);
+  const [isProcessingAi, setIsProcessingAi] = useState(false);
+  const [aiFeedback, setAiFeedback] = useState<PronunciationFeedbackOutput | null>(null);
+
   useEffect(() => {
     let newFilteredWords;
     if (selectedLevel === 'all') {
@@ -37,15 +45,24 @@ export default function PronunciationPage() {
       newFilteredWords = allWords.filter(word => word.level === selectedLevel);
     }
     setFilteredWords(newFilteredWords);
-    setCurrentIndex(0); // Reset to first word of new filter
+    setCurrentIndex(0);
+    setAiFeedback(null); // Clear AI feedback when filter changes
   }, [selectedLevel, allWords]);
 
   const currentWord = filteredWords.length > 0 ? filteredWords[currentIndex] : null;
 
-  const handleNextWord = useCallback(() => {
+  const advanceWord = useCallback(() => {
     if (filteredWords.length === 0) return;
     setCurrentIndex((prevIndex) => (prevIndex + 1) % filteredWords.length);
+    setAiFeedback(null); // Clear AI feedback when word changes
+    setIsRecordingAi(false);
+    setIsProcessingAi(false);
   }, [filteredWords.length]);
+
+
+  const handleNextWord = useCallback(() => {
+    advanceWord();
+  }, [advanceWord]);
 
   const handleMarkKnown = () => {
     if (currentWord) {
@@ -54,7 +71,7 @@ export default function PronunciationPage() {
         description: `You marked "${currentWord.javanese}" as known.`,
       });
     }
-    handleNextWord();
+    advanceWord();
   };
 
   const handleMarkRepeat = () => {
@@ -64,9 +81,46 @@ export default function PronunciationPage() {
         description: `"${currentWord.javanese}" will be set for future review.`,
       });
     }
-    handleNextWord();
+    advanceWord();
   };
 
+  const handleAiPracticeToggle = async () => {
+    if (!currentWord) return;
+
+    if (isRecordingAi) { // Simulate stopping recording and getting feedback
+      setIsRecordingAi(false);
+      setIsProcessingAi(true);
+      setAiFeedback(null);
+      try {
+        // Simulate sending a dummy audio data URI
+        const dummyAudioDataUri = 'data:audio/webm;base64,XXXX';
+        const result = await runFlow(getPronunciationFeedback, {
+          targetWord: currentWord.javanese,
+          audioDataUri: dummyAudioDataUri,
+        });
+        setAiFeedback(result);
+      } catch (error) {
+        console.error("Error getting AI feedback:", error);
+        toast({
+          title: "AI Feedback Error",
+          description: "Could not get feedback from the AI tutor. Please try again.",
+          variant: "destructive",
+        });
+        setAiFeedback(null);
+      } finally {
+        setIsProcessingAi(false);
+      }
+    } else { // Simulate starting recording
+      setIsRecordingAi(true);
+      setIsProcessingAi(false);
+      setAiFeedback(null);
+      // In a real app, you'd start MediaRecorder here.
+      toast({
+        title: "Recording Started (Simulated)",
+        description: "Microphone recording is simulated. Click 'Stop & Get Feedback' to proceed.",
+      });
+    }
+  };
 
   const levels: (Word['level'] | 'all')[] = ['all', 'Beginner', 'Intermediate', 'Advanced'];
 
@@ -96,8 +150,14 @@ export default function PronunciationPage() {
       {currentWord ? (
         <div className="flex flex-col items-center gap-6">
           <Card className="w-full max-w-2xl shadow-lg">
-            <CardContent className="p-0"> {/* Remove CardContent padding if PronunciationItem handles it */}
-              <PronunciationItem word={currentWord} />
+            <CardContent className="p-0">
+              <PronunciationItem
+                word={currentWord}
+                onAiPracticeToggle={handleAiPracticeToggle}
+                isRecordingAi={isRecordingAi}
+                isProcessingAi={isProcessingAi}
+                aiFeedback={aiFeedback}
+              />
             </CardContent>
           </Card>
           
