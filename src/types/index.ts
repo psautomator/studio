@@ -20,9 +20,16 @@ export interface QuizOption {
   isCorrect: boolean;
 }
 
+export type QuestionType =
+  | 'multiple-choice' // Standard text question with text options
+  | 'translation-word-to-dutch' // Given Javanese word, options are Dutch words
+  | 'translation-sentence-to-dutch' // Given Javanese sentence, options are Dutch sentences
+  | 'fill-in-the-blank-mcq'; // Sentence with a blank, options are words to fill
+
 export interface QuizQuestion {
   id: string;
-  question: string;
+  questionType: QuestionType;
+  questionText: string; // Main question text (e.g., "What is X?", "Translate Y", "Aku ____ Z.")
   options: QuizOption[];
   explanation?: string;
   audioUrl?: string;

@@ -1,7 +1,7 @@
 
 "use client";
 
-import type { QuizQuestion, QuizOption } from '@/types'; // Updated import
+import type { QuizQuestion, QuizOption, QuestionType } from '@/types';
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,8 +13,8 @@ import { useLanguage } from '@/hooks/use-language';
 import { useToast } from '@/hooks/use-toast';
 
 interface QuizItemProps {
-  quizQuestion: QuizQuestion; // Renamed from quiz
-  onAdvance: () => void; // Renamed from onNextQuiz
+  quizQuestion: QuizQuestion;
+  onAdvance: () => void;
   isLastQuestion: boolean;
 }
 
@@ -37,9 +37,9 @@ export function QuizItem({ quizQuestion, onAdvance, isLastQuestion }: QuizItemPr
         toast({ title: "+10 XP!", description: "Correct answer!" });
       } else {
         const correctAnswerText = quizQuestion.options.find(opt => opt.isCorrect)?.text;
-        const incorrectMessage = correctAnswerText 
+        const incorrectMessage = correctAnswerText
           ? `${translations.incorrect} ${correctAnswerText}`
-          : translations.incorrect; // Fallback if somehow no correct answer is found
+          : translations.incorrect;
         setFeedback({
           type: 'incorrect',
           message: incorrectMessage,
@@ -67,7 +67,7 @@ export function QuizItem({ quizQuestion, onAdvance, isLastQuestion }: QuizItemPr
       toast({ title: "Audio Not Available" });
     }
   };
-  
+
   const getOptionLabelClass = (optionText: string, isOptionCorrect: boolean) => {
     if (!isAnswered) {
       return "text-base cursor-pointer flex-1";
@@ -79,25 +79,59 @@ export function QuizItem({ quizQuestion, onAdvance, isLastQuestion }: QuizItemPr
     }
     // Not selected by user, but IS the correct answer
     if (isOptionCorrect) {
-      return "text-base cursor-pointer flex-1 text-green-600"; 
+      return "text-base cursor-pointer flex-1 text-green-600";
     }
     // Other options that were not selected and are not correct
     return "text-base cursor-pointer flex-1 text-muted-foreground opacity-75";
+  };
+
+  const renderQuestionContent = () => {
+    const { questionType, questionText } = quizQuestion;
+    let typeLabel = "";
+
+    switch (questionType) {
+      case 'translation-word-to-dutch':
+        typeLabel = translations.translateWordDutch || "Translate to Dutch:";
+        break;
+      case 'translation-sentence-to-dutch':
+        typeLabel = translations.translateSentenceDutch || "Translate sentence to Dutch:";
+        break;
+      case 'translation-word-to-javanese':
+        typeLabel = translations.translateWordJavanese || "Translate to Javanese:";
+        break;
+      case 'translation-sentence-to-javanese':
+        typeLabel = translations.translateSentenceJavanese || "Translate sentence to Javanese:";
+        break;
+      case 'fill-in-the-blank-mcq':
+        typeLabel = translations.fillInTheBlankMCQ || "Complete the sentence:";
+        break;
+      default: // 'multiple-choice'
+        // No specific label needed, the questionText is self-explanatory
+        break;
+    }
+
+    return (
+      <>
+        {typeLabel && <p className="text-sm text-muted-foreground mb-2">{typeLabel}</p>}
+        <CardTitle className="font-headline text-2xl text-primary flex-1">{questionText}</CardTitle>
+      </>
+    );
   };
 
 
   return (
     <Card className="w-full max-w-2xl mx-auto shadow-lg">
       <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="font-headline text-2xl text-primary flex-1">{quizQuestion.question}</CardTitle>
+        <div className="flex items-start justify-between">
+          <div className="flex-1">
+            {renderQuestionContent()}
+          </div>
           {quizQuestion.audioUrl && (
-            <Button variant="ghost" size="icon" type="button" onClick={playAudio} aria-label="Play question audio" className="ml-2">
+            <Button variant="ghost" size="icon" type="button" onClick={playAudio} aria-label="Play question audio" className="ml-2 flex-shrink-0">
               <Volume2 className="h-5 w-5 text-accent" />
             </Button>
           )}
         </div>
-         {/* Difficulty is now part of the Quiz (set), not QuizQuestion. Displayed on overview page. */}
       </CardHeader>
       <CardContent>
         <RadioGroup
@@ -110,8 +144,8 @@ export function QuizItem({ quizQuestion, onAdvance, isLastQuestion }: QuizItemPr
           {quizQuestion.options.map((option, index) => (
             <div key={index} className={`flex items-center space-x-3 p-3 rounded-md border transition-colors ${selectedOption === option.text && !isAnswered ? 'bg-accent/10 border-accent' : 'border-border'}`}>
               <RadioGroupItem value={option.text} id={`option-${quizQuestion.id}-${index}`} />
-              <Label 
-                htmlFor={`option-${quizQuestion.id}-${index}`} 
+              <Label
+                htmlFor={`option-${quizQuestion.id}-${index}`}
                 className={getOptionLabelClass(option.text, option.isCorrect)}
               >
                 {option.text}
@@ -125,7 +159,7 @@ export function QuizItem({ quizQuestion, onAdvance, isLastQuestion }: QuizItemPr
             {feedback.type === 'correct' ? <CheckCircle className="h-5 w-5" /> : <XCircle className="h-5 w-5" />}
             <AlertTitle>{feedback.type === 'correct' ? translations.correct : translations.yourAnswer}</AlertTitle>
             <AlertDescription>{feedback.message}</AlertDescription>
-            {quizQuestion.explanation && feedback.type === 'incorrect' && (
+            {quizQuestion.explanation && (isAnswered || feedback.type === 'incorrect') && ( // Show explanation if answered or if incorrect
                  <p className="text-sm mt-2">{quizQuestion.explanation}</p>
             )}
           </Alert>

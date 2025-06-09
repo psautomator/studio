@@ -149,6 +149,11 @@ const translationsData = {
     imageURL: "Image URL",
     audioURL: "Audio URL",
     preview: "Preview (simulated)",
+    translateWordDutch: "Translate word to Dutch:",
+    translateSentenceDutch: "Translate sentence to Dutch:",
+    translateWordJavanese: "Translate word to Javanese:",
+    translateSentenceJavanese: "Translate sentence to Javanese:",
+    fillInTheBlankMCQ: "Complete the sentence:",
   },
   nl: {
     appName: "Javaanse Reis",
@@ -283,6 +288,11 @@ const translationsData = {
     imageURL: "Afbeelding URL",
     audioURL: "Audio URL",
     preview: "Voorbeeld (gesimuleerd)",
+    translateWordDutch: "Vertaal woord naar Nederlands:",
+    translateSentenceDutch: "Vertaal zin naar Nederlands:",
+    translateWordJavanese: "Vertaal woord naar Javaans:",
+    translateSentenceJavanese: "Vertaal zin naar Javaans:",
+    fillInTheBlankMCQ: "Maak de zin compleet:",
   },
 };
 

@@ -144,7 +144,8 @@ export const placeholderQuizzes: Quiz[] = [
     questions: [
       {
         id: 'q1s1',
-        question: "Wat betekent 'Sugeng rawuh'?",
+        questionType: 'multiple-choice',
+        questionText: "Wat betekent 'Sugeng rawuh'?",
         options: [
           { text: 'Goedenacht', isCorrect: false },
           { text: 'Welkom', isCorrect: true },
@@ -156,7 +157,8 @@ export const placeholderQuizzes: Quiz[] = [
       },
       {
         id: 'q2s1',
-        question: "How do you say 'Thank you' formally in Javanese?",
+        questionType: 'translation-word-to-javanese',
+        questionText: "How do you say 'Thank you' formally in Javanese?",
         options: [
           { text: 'Ngapunten', isCorrect: false },
           { text: 'Matur nuwun', isCorrect: true },
@@ -169,14 +171,15 @@ export const placeholderQuizzes: Quiz[] = [
   },
   {
     id: 'quizSet2',
-    title: 'Basic Javanese Vocabulary',
-    description: 'A quiz on fundamental Javanese words like colors and nouns.',
+    title: 'Basic Javanese Vocabulary & Sentences',
+    description: 'A quiz on fundamental Javanese words, colors, and simple sentences.',
     difficulty: 'medium',
     status: 'published',
     questions: [
       {
         id: 'q1s2',
-        question: "Welk Javaans woord betekent 'water'?",
+        questionType: 'translation-word-to-javanese',
+        questionText: "Welk Javaans woord betekent 'water'?",
         options: [
           { text: 'Geni', isCorrect: false },
           { text: 'Angin', isCorrect: false },
@@ -187,7 +190,8 @@ export const placeholderQuizzes: Quiz[] = [
       },
       {
         id: 'q2s2',
-        question: "What is 'Abang' in Dutch?",
+        questionType: 'translation-word-to-dutch',
+        questionText: "What is 'Abang' in Dutch?",
         options: [
           { text: 'Blauw', isCorrect: false },
           { text: 'Groen', isCorrect: false },
@@ -198,7 +202,8 @@ export const placeholderQuizzes: Quiz[] = [
       },
       {
         id: 'q3s2',
-        question: "Kies de juiste Javaanse vertaling voor 'Ik hou van jou'.",
+        questionType: 'translation-sentence-to-javanese',
+        questionText: "Kies de juiste Javaanse vertaling voor 'Ik hou van jou'.",
         options: [
           { text: 'Kula tresna sampeyan', isCorrect: true },
           { text: 'Kula sengit sampeyan', isCorrect: false },
@@ -207,6 +212,19 @@ export const placeholderQuizzes: Quiz[] = [
         ],
         audioUrl: 'https://translate.google.com/translate_tts?ie=UTF-8&q=Kula%20tresna%20sampeyan&tl=jv&client=tw-ob',
       },
+      {
+        id: 'q4s2',
+        questionType: 'fill-in-the-blank-mcq',
+        questionText: "Aku arep _______ sega goreng.",
+        options: [
+          { text: 'sinau', isCorrect: false },
+          { text: 'mangan', isCorrect: true },
+          { text: 'turu', isCorrect: false },
+          { text: 'lunga', isCorrect: false },
+        ],
+        explanation: "The sentence means 'I want to eat fried rice.' 'Mangan' means 'to eat'.",
+        audioUrl: 'https://translate.google.com/translate_tts?ie=UTF-8&q=Aku%20arep%20mangan%20sega%20goreng&tl=jv&client=tw-ob',
+      }
     ],
   },
    {
@@ -218,7 +236,8 @@ export const placeholderQuizzes: Quiz[] = [
     questions: [
       {
         id: 'q1s3',
-        question: "What is 'siji' in Javanese?",
+        questionType: 'translation-word-to-dutch',
+        questionText: "What is 'siji' in English?",
         options: [
           { text: 'One', isCorrect: true },
           { text: 'Two', isCorrect: false },
@@ -245,6 +264,8 @@ export const placeholderBadges: Badge[] = [
   { id: 'wordmaster_lvl1', name: 'Word Master Lv. 1', description: 'Learned 50 new words.', icon: 'BookOpenCheck', threshold: 50 },
   { id: 'streak_7', name: '7-Day Streak', description: 'Logged in for 7 days in a row!', icon: 'Flame', threshold: 7 },
   { id: 'quiz_champ_easy', name: 'Quiz Champion (Easy)', description: 'Completed 10 easy quizzes with 80%+ accuracy.', icon: 'StarIcon', threshold: 10 },
+  { id: 'grammar_initiate', name: 'Grammar Initiate', description: 'Completed your first grammar lesson.', icon: 'GraduationCap' }, // Added Trophy
+  { id: 'perfect_pronunciation_1', name: 'Clear Speaker', description: 'Achieved 90%+ on a pronunciation exercise.', icon: 'Trophy' }, // Added Trophy
 ];
 
 export const placeholderAdminUsers: User[] = [
