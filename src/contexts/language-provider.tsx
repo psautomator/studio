@@ -74,12 +74,12 @@ const translationsData = {
     featureAdaptiveGoalsDesc: "Get daily learning goals tailored to you.",
     profile: "Profile",
     profileSettings: "Profile Settings",
-    updateProfile: "Update Profile",
-    changePassword: "Change Password",
+    updateProfile: "Update Profile", // Kept for flexibility, could be used for "Save Profile Settings" button
+    // "Change Password" removed
     learningPreferences: "Learning Preferences",
     dailyStudyGoal: "Daily Study Goal (minutes)",
     accountManagement: "Account Management",
-    manageSubscription: "Manage Subscription",
+    // "Manage Subscription" removed
     deleteAccount: "Delete Account",
     role: "Role",
     name: "Name",
@@ -143,12 +143,12 @@ const translationsData = {
     featureAdaptiveGoalsDesc: "Ontvang dagelijkse leerdoelen op maat.",
     profile: "Profiel",
     profileSettings: "Profielinstellingen",
-    updateProfile: "Profiel Bijwerken",
-    changePassword: "Wachtwoord Wijzigen",
+    updateProfile: "Profiel Bijwerken", // Kept for flexibility
+    // "Change Password" (Wachtwoord Wijzigen) removed
     learningPreferences: "Leervoorkeuren",
     dailyStudyGoal: "Dagelijks Studiedoel (minuten)",
     accountManagement: "Accountbeheer",
-    manageSubscription: "Abonnement Beheren",
+    // "Manage Subscription" (Abonnement Beheren) removed
     deleteAccount: "Account Verwijderen",
     role: "Rol",
     name: "Naam",

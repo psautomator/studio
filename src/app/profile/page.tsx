@@ -11,11 +11,18 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { useLanguage } from '@/hooks/use-language';
 import { placeholderUser } from '@/lib/placeholder-data';
-import { UserCircle, Edit3, Shield, BookOpen, Settings, Trash2, KeyRound } from 'lucide-react';
+import { UserCircle, Shield, BookOpen, Settings, Trash2, Save } from 'lucide-react'; // Added Save icon, removed Edit3, KeyRound
 
 export default function ProfilePage() {
   const { translations } = useLanguage();
-  const user = placeholderUser; // In a real app, this would come from user context/API
+  const user = placeholderUser; // In a real app, this would come from user context/API (Google Auth)
+
+  // Mock handler for saving settings
+  const handleSaveSettings = (section: string) => {
+    // In a real app, you'd call an API here
+    console.log(`Saving ${section} settings...`);
+    // Example: toast({ title: `${section} settings saved!` });
+  };
 
   return (
     <MainAppLayout>
@@ -39,9 +46,7 @@ export default function ProfilePage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="text-center p-6 pt-2">
-            <Button variant="outline" className="w-full mt-4">
-              <Edit3 className="mr-2 h-4 w-4" /> {translations.updateProfile || 'Update Profile'}
-            </Button>
+            {/* Removed "Update Profile" button from here */}
           </CardContent>
         </Card>
 
@@ -53,7 +58,7 @@ export default function ProfilePage() {
               <CardTitle className="font-headline text-xl flex items-center">
                 <Settings className="mr-3 h-6 w-6 text-primary" /> {translations.profileSettings || 'Profile Settings'}
               </CardTitle>
-              <CardDescription>Update your personal information and password.</CardDescription>
+              <CardDescription>Update your display name and view your email.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-2">
@@ -62,10 +67,10 @@ export default function ProfilePage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="email">{translations.email || 'Email'}</Label>
-                <Input id="email" type="email" defaultValue={user.email} />
+                <p id="email" className="text-sm text-muted-foreground pt-2">{user.email} (Managed by Google)</p>
               </div>
-              <Button variant="secondary">
-                <KeyRound className="mr-2 h-4 w-4" /> {translations.changePassword || 'Change Password'}
+              <Button onClick={() => handleSaveSettings('Profile')}>
+                <Save className="mr-2 h-4 w-4" /> {translations.save} {translations.profileSettings || 'Profile Settings'}
               </Button>
             </CardContent>
           </Card>
@@ -87,8 +92,8 @@ export default function ProfilePage() {
                 <Label htmlFor="studyGoal">{translations.dailyStudyGoal || 'Daily Study Goal (minutes)'}</Label>
                 <Input id="studyGoal" type="number" placeholder="e.g., 30" />
               </div>
-               <Button variant="secondary">
-                {translations.save} {translations.learningPreferences || 'Learning Preferences'}
+               <Button onClick={() => handleSaveSettings('Learning Preferences')}>
+                <Save className="mr-2 h-4 w-4" /> {translations.save} {translations.learningPreferences || 'Learning Preferences'}
               </Button>
             </CardContent>
           </Card>
@@ -99,13 +104,10 @@ export default function ProfilePage() {
               <CardTitle className="font-headline text-xl flex items-center">
                 <UserCircle className="mr-3 h-6 w-6 text-primary" /> {translations.accountManagement || 'Account Management'}
               </CardTitle>
-              <CardDescription>Manage your subscription and account status.</CardDescription>
+              <CardDescription>Manage your account status.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Button variant="outline" className="w-full justify-start">
-                {translations.manageSubscription || 'Manage Subscription'}
-              </Button>
-              <Separator />
+              {/* Removed Manage Subscription button */}
               <Button variant="destructive" className="w-full justify-start">
                 <Trash2 className="mr-2 h-4 w-4" /> {translations.deleteAccount || 'Delete Account'}
               </Button>
