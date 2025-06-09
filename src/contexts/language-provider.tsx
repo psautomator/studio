@@ -154,6 +154,9 @@ const translationsData = {
     translateWordJavanese: "Translate word to Javanese:",
     translateSentenceJavanese: "Translate sentence to Javanese:",
     fillInTheBlankMCQ: "Complete the sentence:",
+    aiAssistContent: "AI Assist Content",
+    aiAssistComplete: "AI Assistance Complete",
+    aiAssistError: "AI Assist Error",
   },
   nl: {
     appName: "Javaanse Reis",
@@ -293,6 +296,9 @@ const translationsData = {
     translateWordJavanese: "Vertaal woord naar Javaans:",
     translateSentenceJavanese: "Vertaal zin naar Javaans:",
     fillInTheBlankMCQ: "Maak de zin compleet:",
+    aiAssistContent: "AI Assistentie Inhoud",
+    aiAssistComplete: "AI Assistentie Voltooid",
+    aiAssistError: "Fout bij AI Assistentie",
   },
 };
 

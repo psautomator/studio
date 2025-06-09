@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm, useFieldArray, Controller, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -21,15 +21,22 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useLanguage } from '@/hooks/use-language';
 import { useToast } from '@/hooks/use-toast';
 import type { GrammarLesson, LocaleString, GrammarExample, EmbeddedFillInTheBlankExercise, SpeechLevel, Quiz, Word, EmbeddedExercise } from '@/types';
-import { PlusCircle, Trash2, Eye } from 'lucide-react';
+import { PlusCircle, Trash2, Eye, Sparkles, Loader2 } from 'lucide-react';
+import { runFlow } from '@genkit-ai/next/client';
+import { assistGrammarContent, type GrammarContentAssistInput, type GrammarContentAssistOutput } from '@/ai/flows/grammar-content-assist-flow';
+
 
 const localeStringSchema = z.object({
-  en: z.string().min(1, { message: "English content is required." }),
-  nl: z.string().min(1, { message: "Dutch content is required." }),
+  en: z.string().min(1, { message: "English content is required." }).or(z.literal('')), // Allow empty if AI will fill
+  nl: z.string().min(1, { message: "Dutch content is required." }).or(z.literal('')), // Allow empty if AI will fill
+}).refine(data => data.en || data.nl, {
+    message: "At least one language (English or Dutch) must be provided for title and explanation, or use AI Assist.",
+    path: ["en"], // Arbitrary path for the error message to appear under one field
 });
 
+
 const grammarExampleSchema = z.object({
-  id: z.string().optional(), // Keep optional for new items
+  id: z.string().optional(), 
   javanese: z.string().min(1, "Javanese sentence is required."),
   dutch: z.string().min(1, "Dutch translation is required."),
   speechLevel: z.enum(['ngoko', 'krama', 'madya', 'neutral', 'other']),
@@ -45,7 +52,6 @@ const embeddedFillInTheBlankExerciseSchema = z.object({
 });
 
 
-// For now, only fill-in-the-blank is supported for embedded exercises
 const embeddedExerciseSchema = embeddedFillInTheBlankExerciseSchema;
 
 
@@ -80,6 +86,7 @@ export function GrammarLessonForm({
 }: GrammarLessonFormProps) {
   const { translations, language } = useLanguage();
   const { toast } = useToast();
+  const [isAiProcessing, setIsAiProcessing] = useState(false);
 
   const speechLevels: SpeechLevel[] = ['ngoko', 'krama', 'madya', 'neutral', 'other'];
 
@@ -89,7 +96,8 @@ export function GrammarLessonForm({
     handleSubmit,
     reset,
     formState: { errors },
-    setValue, // To manage checkbox arrays
+    setValue, 
+    getValues,
     watch
   } = useForm<GrammarLessonFormValues>({
     resolver: zodResolver(grammarLessonFormSchema),
@@ -122,15 +130,14 @@ export function GrammarLessonForm({
     if (lesson) {
       reset({
         ...lesson,
-        id: lesson.id, // Ensure id is passed
-        // Ensure arrays are correctly initialized if they are undefined in the lesson prop
+        id: lesson.id, 
         relatedQuizIds: lesson.relatedQuizIds || [],
         relatedWordIds: lesson.relatedWordIds || [],
         embeddedExercises: lesson.embeddedExercises || [],
       });
     } else {
-      reset({ // Reset to default values for a new lesson
-        id: undefined, // No ID for new lesson yet
+      reset({ 
+        id: undefined, 
         title: { en: '', nl: '' },
         explanation: { en: '', nl: '' },
         level: 'Beginner',
@@ -146,27 +153,67 @@ export function GrammarLessonForm({
     }
   }, [lesson, reset, open]);
 
+  const handleAiAssist = async () => {
+    setIsAiProcessing(true);
+    const currentData = getValues();
+    const input: GrammarContentAssistInput = {
+        titleEn: currentData.title.en,
+        titleNl: currentData.title.nl,
+        explanationEn: currentData.explanation.en,
+        explanationNl: currentData.explanation.nl,
+    };
+
+    try {
+        const result = await runFlow(assistGrammarContent, input);
+        setValue('title.en', result.assistedTitleEn);
+        setValue('title.nl', result.assistedTitleNl);
+        setValue('explanation.en', result.assistedExplanationEn);
+        setValue('explanation.nl', result.assistedExplanationNl);
+        toast({
+            title: translations.aiAssistComplete || "AI Assistance Complete",
+            description: result.feedbackMessage || "Content has been processed by AI.",
+        });
+    } catch (error) {
+        console.error("AI Assist Error:", error);
+        toast({
+            title: translations.aiAssistError || "AI Assist Error",
+            description: (error as Error).message || "Could not process content with AI.",
+            variant: "destructive",
+        });
+    } finally {
+        setIsAiProcessing(false);
+    }
+  };
+
   const processSubmit: SubmitHandler<GrammarLessonFormValues> = (data) => {
+    // Ensure at least one title and one explanation is filled, or AI has been used.
+    if (!data.title.en && !data.title.nl) {
+      toast({ title: "Validation Error", description: "Please provide a title in at least one language or use AI Assist.", variant: "destructive"});
+      return;
+    }
+    if (!data.explanation.en && !data.explanation.nl) {
+      toast({ title: "Validation Error", description: "Please provide an explanation in at least one language or use AI Assist.", variant: "destructive"});
+      return;
+    }
+
     const finalData = {
       ...data,
-      id: lesson?.id || `gl-${Date.now()}`, // Assign new ID if it's a new lesson
+      id: lesson?.id || `gl-${Date.now()}`, 
       examples: data.examples.map(ex => ({...ex, id: ex.id || `ex-${Date.now()}-${Math.random()}`})),
       embeddedExercises: data.embeddedExercises.map(ex => ({...ex, id: ex.id || `ee-${Date.now()}-${Math.random()}`})),
     };
-    onSave(finalData as GrammarLesson); // The structure now matches GrammarLesson
+    onSave(finalData as GrammarLesson); 
     onOpenChange(false);
   };
 
   const handlePublish = () => {
     setValue('status', 'published');
     handleSubmit(processSubmit)();
-    toast({ title: translations.lessonPublished || "Lesson Published"});
   }
   
   const handleSaveDraft = () => {
     setValue('status', 'draft');
     handleSubmit(processSubmit)();
-    toast({ title: translations.lessonSaved || "Lesson Saved"});
   }
 
   const watchedRelatedQuizIds = watch("relatedQuizIds");
@@ -176,10 +223,18 @@ export function GrammarLessonForm({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[80vw] md:max-w-[70vw] lg:max-w-[900px] max-h-[90vh]">
         <DialogHeader>
-          <DialogTitle>{lesson ? translations.editLesson : translations.addNewLesson}</DialogTitle>
-          <DialogDescription>
-            {lesson ? 'Modify lesson details.' : 'Enter details for the new grammar lesson.'}
-          </DialogDescription>
+          <div className="flex justify-between items-center">
+            <div>
+                <DialogTitle>{lesson ? translations.editLesson : translations.addNewLesson}</DialogTitle>
+                <DialogDescription>
+                {lesson ? 'Modify lesson details.' : 'Enter details for the new grammar lesson.'}
+                </DialogDescription>
+            </div>
+            <Button onClick={handleAiAssist} variant="outline" size="sm" disabled={isAiProcessing}>
+                {isAiProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4 text-accent" />}
+                {translations.aiAssistContent || "AI Assist Content"}
+            </Button>
+          </div>
         </DialogHeader>
         
         <ScrollArea className="max-h-[calc(90vh-200px)] p-1">
@@ -194,11 +249,13 @@ export function GrammarLessonForm({
                   <Label htmlFor="title.en">{translations.lessonTitle} (EN)</Label>
                   <Input id="title.en" {...register("title.en")} />
                   {errors.title?.en && <p className="text-sm text-destructive mt-1">{errors.title.en.message}</p>}
+                   {errors.title && !errors.title.en && !errors.title.nl && <p className="text-sm text-destructive mt-1">{errors.title.message}</p>}
                 </div>
                 <div>
                   <Label htmlFor="explanation.en">{translations.lessonExplanation} (EN) - Note: Use Markdown for formatting.</Label>
                   <Textarea id="explanation.en" {...register("explanation.en")} rows={8} placeholder="Enter rich text explanation in English..."/>
                   {errors.explanation?.en && <p className="text-sm text-destructive mt-1">{errors.explanation.en.message}</p>}
+                  {errors.explanation && !errors.explanation.en && !errors.explanation.nl && <p className="text-sm text-destructive mt-1">{errors.explanation.message}</p>}
                 </div>
               </TabsContent>
               <TabsContent value="nl" className="space-y-3 pt-3">
@@ -270,7 +327,6 @@ export function GrammarLessonForm({
                 {errors.lessonAudioUrl && <p className="text-sm text-destructive mt-1">{errors.lessonAudioUrl.message}</p>}
             </div>
 
-            {/* Examples Section */}
             <div className="space-y-4 border p-4 rounded-md">
               <h3 className="text-lg font-medium">{translations.lessonExamples}</h3>
               {exampleFields.map((field, index) => (
@@ -320,7 +376,6 @@ export function GrammarLessonForm({
               </Button>
             </div>
 
-            {/* Attach Quizzes Section */}
             <div className="space-y-2 border p-4 rounded-md">
               <h3 className="text-lg font-medium">{translations.attachQuizzes}</h3>
               {allQuizzes.length > 0 ? (
@@ -351,7 +406,6 @@ export function GrammarLessonForm({
               ) : <p className="text-sm text-muted-foreground">{translations.noQuizzesAvailable}</p>}
             </div>
 
-            {/* Attach Vocabulary Words Section */}
              <div className="space-y-2 border p-4 rounded-md">
               <h3 className="text-lg font-medium">{translations.attachWords}</h3>
                {allWords.length > 0 ? (
@@ -382,7 +436,6 @@ export function GrammarLessonForm({
               ) : <p className="text-sm text-muted-foreground">{translations.noWordsAvailable}</p>}
             </div>
 
-            {/* Embed Exercises Section */}
             <div className="space-y-4 border p-4 rounded-md">
               <h3 className="text-lg font-medium">{translations.embedExercises}</h3>
               {exerciseFields.map((field, index) => (
@@ -406,10 +459,12 @@ export function GrammarLessonForm({
                     <TabsContent value="en-hint" className="pt-2">
                       <Label htmlFor={`embeddedExercises.${index}.hint.en`}>{translations.hintForBlank} (EN)</Label>
                       <Input {...register(`embeddedExercises.${index}.hint.en`)} />
+                       {errors.embeddedExercises?.[index]?.hint?.en && <p className="text-sm text-destructive mt-1">{errors.embeddedExercises[index]?.hint?.en?.message}</p>}
                     </TabsContent>
                     <TabsContent value="nl-hint" className="pt-2">
                       <Label htmlFor={`embeddedExercises.${index}.hint.nl`}>{translations.hintForBlank} (NL)</Label>
                       <Input {...register(`embeddedExercises.${index}.hint.nl`)} />
+                      {errors.embeddedExercises?.[index]?.hint?.nl && <p className="text-sm text-destructive mt-1">{errors.embeddedExercises[index]?.hint?.nl?.message}</p>}
                     </TabsContent>
                   </Tabs>
                   <Button type="button" variant="ghost" size="sm" onClick={() => removeExercise(index)} className="text-destructive hover:text-destructive-foreground hover:bg-destructive">
