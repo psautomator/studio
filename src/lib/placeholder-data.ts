@@ -8,6 +8,7 @@ export const placeholderWords: Word[] = [
     dutch: 'Goedemorgen',
     category: 'Greetings',
     level: 'Beginner',
+    formality: 'krama', // Formal greeting
     audioUrl: 'https://translate.google.com/translate_tts?ie=UTF-8&q=Sugeng%20enjing&tl=jv&client=tw-ob',
     exampleSentenceJavanese: 'Sugeng enjing, Bu Guru.',
     exampleSentenceDutch: 'Goedemorgen, mevrouw de lerares.'
@@ -18,6 +19,7 @@ export const placeholderWords: Word[] = [
     dutch: 'Dank u wel',
     category: 'Politeness',
     level: 'Beginner',
+    formality: 'krama', // Formal
     audioUrl: 'https://translate.google.com/translate_tts?ie=UTF-8&q=Matur%20nuwun&tl=jv&client=tw-ob',
     exampleSentenceJavanese: 'Matur nuwun kagem bantuanipun.',
     exampleSentenceDutch: 'Dank u wel voor uw hulp.'
@@ -25,10 +27,20 @@ export const placeholderWords: Word[] = [
   {
     id: '3',
     javanese: 'Kula',
-    dutch: 'Ik',
+    dutch: 'Ik (formeel)',
     category: 'Pronouns',
     level: 'Beginner',
+    formality: 'krama',
     audioUrl: 'https://translate.google.com/translate_tts?ie=UTF-8&q=Kula&tl=jv&client=tw-ob',
+  },
+  {
+    id: '3ngoko',
+    javanese: 'Aku',
+    dutch: 'Ik (informeel)',
+    category: 'Pronouns',
+    level: 'Beginner',
+    formality: 'ngoko',
+    audioUrl: 'https://translate.google.com/translate_tts?ie=UTF-8&q=Aku&tl=jv&client=tw-ob',
   },
   {
     id: '4',
@@ -36,7 +48,17 @@ export const placeholderWords: Word[] = [
     dutch: 'U (formeel)',
     category: 'Pronouns',
     level: 'Beginner',
+    formality: 'krama',
     audioUrl: 'https://translate.google.com/translate_tts?ie=UTF-8&q=Sampeyan&tl=jv&client=tw-ob',
+  },
+  {
+    id: '4ngoko',
+    javanese: 'Kowe',
+    dutch: 'Jij (informeel)',
+    category: 'Pronouns',
+    level: 'Beginner',
+    formality: 'ngoko',
+    audioUrl: 'https://translate.google.com/translate_tts?ie=UTF-8&q=Kowe&tl=jv&client=tw-ob',
   },
   {
     id: '5',
@@ -44,7 +66,17 @@ export const placeholderWords: Word[] = [
     dutch: 'Hoe heet u?',
     category: 'Phrases',
     level: 'Intermediate',
+    formality: 'krama',
     audioUrl: 'https://translate.google.com/translate_tts?ie=UTF-8&q=Sinten%20asmanipun%20sampeyan&tl=jv&client=tw-ob',
+  },
+  {
+    id: '5ngoko',
+    javanese: 'Sapa jenengmu?',
+    dutch: 'Hoe heet jij?',
+    category: 'Phrases',
+    level: 'Intermediate',
+    formality: 'ngoko',
+    audioUrl: 'https://translate.google.com/translate_tts?ie=UTF-8&q=Sapa%20jenengmu&tl=jv&client=tw-ob',
   },
   {
     id: '6',
@@ -52,6 +84,7 @@ export const placeholderWords: Word[] = [
     dutch: 'Huis',
     category: 'Nouns',
     level: 'Beginner',
+    formality: 'ngoko', // Generally Ngoko, Griya for Krama
     exampleSentenceJavanese: 'Omahku cedhak pasar.',
     exampleSentenceDutch: 'Mijn huis is dichtbij de markt.'
   },
@@ -61,16 +94,27 @@ export const placeholderWords: Word[] = [
     dutch: 'School',
     category: 'Nouns',
     level: 'Beginner',
+    formality: 'ngoko',
   },
   {
     id: '8',
     javanese: 'Mangan',
-    dutch: 'Eten',
+    dutch: 'Eten (informeel)',
     category: 'Verbs',
     level: 'Beginner',
+    formality: 'ngoko',
     audioUrl: 'https://translate.google.com/translate_tts?ie=UTF-8&q=Mangan&tl=jv&client=tw-ob',
     exampleSentenceJavanese: 'Aku arep mangan sega goreng.',
     exampleSentenceDutch: 'Ik wil gebakken rijst eten.'
+  },
+  {
+    id: '8krama',
+    javanese: 'Dahar',
+    dutch: 'Eten (formeel)',
+    category: 'Verbs',
+    level: 'Beginner',
+    formality: 'krama',
+    audioUrl: 'https://translate.google.com/translate_tts?ie=UTF-8&q=Dahar&tl=jv&client=tw-ob',
   },
   {
     id: '9',
@@ -78,6 +122,7 @@ export const placeholderWords: Word[] = [
     dutch: 'Leren/Studeren',
     category: 'Verbs',
     level: 'Intermediate',
+    formality: 'ngoko',
   },
   {
     id: '10',
@@ -85,6 +130,7 @@ export const placeholderWords: Word[] = [
     dutch: 'Rood',
     category: 'Colors',
     level: 'Beginner',
+    formality: 'ngoko', // Generally Ngoko, Abrit for Krama
   },
 ];
 
@@ -208,3 +254,4 @@ export const placeholderAdminUsers: User[] = [
     { id: 'user2', name: 'Piet Pietersen', email: 'piet@example.com', role: 'user', xp: 800, streak: 5, badges: ['newbie'] },
     { id: 'user3', name: 'Admin Account', email: 'admin@example.com', role: 'admin', xp: 0, streak: 0, badges: [] },
 ];
+

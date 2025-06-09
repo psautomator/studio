@@ -12,6 +12,7 @@ export interface Word {
   exampleSentenceJavanese?: string;
   exampleSentenceDutch?: string;
   level?: 'Beginner' | 'Intermediate' | 'Advanced';
+  formality?: 'ngoko' | 'krama' | 'madya'; // Added formality
 }
 
 export interface QuizOption {
@@ -56,3 +57,4 @@ export interface Badge {
   icon: string; // Icon name from lucide-react or path to image
   threshold?: number; // e.g., XP needed or streak length
 }
+
