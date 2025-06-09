@@ -22,7 +22,7 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-  useSidebar,
+  useSidebar, // Import useSidebar
 } from '@/components/ui/sidebar';
 import {
   DropdownMenu,
@@ -52,17 +52,23 @@ const currentUser: UserType = placeholderUser;
 export function AppSidebar() {
   const pathname = usePathname();
   const { translations } = useLanguage();
-  const { open } = useSidebar();
+  const { open, isMobile, setOpenMobile } = useSidebar(); // Get isMobile and setOpenMobile
 
   const getLabel = (labelKey: string, defaultLabel?: string) => {
     return translations[labelKey.toLowerCase()] || defaultLabel || labelKey;
+  };
+
+  const handleMobileLinkClick = () => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
   };
 
   return (
     <Sidebar collapsible="icon" side="left" variant="sidebar">
       <SidebarHeader className="p-4">
         {open && (
-           <Link href="/dashboard" className="flex items-center">
+           <Link href="/dashboard" onClick={handleMobileLinkClick} className="flex items-center">
             <span className="font-headline text-lg font-semibold text-sidebar-foreground">
               {APP_NAME}
             </span>
@@ -78,7 +84,7 @@ export function AppSidebar() {
                 isActive={pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href))}
                 tooltip={{ children: getLabel(item.labelKey, item.labelKey) }}
               >
-                <Link href={item.href}>
+                <Link href={item.href} onClick={handleMobileLinkClick}>
                   <item.icon />
                   <span>{getLabel(item.labelKey, item.labelKey)}</span>
                 </Link>
@@ -102,13 +108,13 @@ export function AppSidebar() {
               </DropdownMenuTrigger>
               <DropdownMenuContent side="right" align="start" className="w-56 mb-2 ml-1">
                 <DropdownMenuItem asChild>
-                  <Link href="/profile" className="flex items-center w-full">
+                  <Link href="/profile" className="flex items-center w-full" onClick={handleMobileLinkClick}>
                     <User className="mr-2 h-4 w-4" />
                     <span>{getLabel('profile', 'Profile')}</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href="/progress" className="flex items-center w-full">
+                  <Link href="/progress" className="flex items-center w-full" onClick={handleMobileLinkClick}>
                     <BarChart3 className="mr-2 h-4 w-4" />
                     <span>{getLabel('progress', 'Progress')}</span>
                   </Link>
@@ -117,7 +123,7 @@ export function AppSidebar() {
                   <>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
-                      <Link href="/admin" className="flex items-center w-full">
+                      <Link href="/admin" className="flex items-center w-full" onClick={handleMobileLinkClick}>
                         <Shield className="mr-2 h-4 w-4" />
                         <span>{getLabel('admin', 'Admin Panel')}</span>
                       </Link>
