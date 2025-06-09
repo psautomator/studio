@@ -28,6 +28,7 @@ const translationsData = {
     grammarLessons: "Grammar Lessons",
     grammarManagement: "Grammar Management",
     admin: "Admin Panel",
+    backToApp: "Back to App", // New translation
     toggleToDutch: "Switch to Dutch",
     toggleToEnglish: "Switch to English",
     welcome: "Welcome to Javanese Journey!",
@@ -170,6 +171,7 @@ const translationsData = {
     grammarLessons: "Grammaticalessen",
     grammarManagement: "Grammaticabeheer",
     admin: "Beheerderspaneel",
+    backToApp: "Terug naar App", // New translation
     toggleToDutch: "Schakel naar Nederlands",
     toggleToEnglish: "Switch to English",
     welcome: "Welkom bij Javaanse Reis!",
