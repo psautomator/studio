@@ -99,6 +99,10 @@ export default function PronunciationPage() {
           audioDataUri: dummyAudioDataUri,
         });
         setAiFeedback(result);
+        toast({ title: "+5 XP!", description: "Pronunciation practice attempted." });
+        if (result.score >= 80) {
+            toast({ title: "+10 XP Bonus!", description: "Great pronunciation!" });
+        }
       } catch (error) {
         console.error("Error getting AI feedback:", error);
         toast({

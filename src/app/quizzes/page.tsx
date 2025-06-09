@@ -33,6 +33,7 @@ export default function QuizzesPage() {
       title: translations.quizCompleted,
       description: `You finished the "${activeQuizSet?.title}" quiz.`,
     });
+    toast({ title: "+25 XP Bonus!", description: `Quiz "${activeQuizSet?.title}" completed!` });
     setActiveQuizSet(null);
     setCurrentQuestionIndex(0);
   };

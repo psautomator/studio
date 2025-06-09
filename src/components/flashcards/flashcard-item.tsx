@@ -43,7 +43,7 @@ export function FlashcardItem({ word, onPlayAudio, showJavaneseFirst }: Flashcar
   
   const handleKnown = (e: React.MouseEvent) => {
     e.stopPropagation();
-    toast({ title: "Marked as Known!", description: `You marked "${word.javanese}" as known.` });
+    toast({ title: "+5 XP!", description: `You marked "${word.javanese}" as known.` });
     // Add logic to advance or mark as known
   };
 

@@ -34,6 +34,7 @@ export function QuizItem({ quizQuestion, onAdvance, isLastQuestion }: QuizItemPr
     if (chosenOption) {
       if (chosenOption.isCorrect) {
         setFeedback({ type: 'correct', message: translations.correct });
+        toast({ title: "+10 XP!", description: "Correct answer!" });
       } else {
         const correctAnswerText = quizQuestion.options.find(opt => opt.isCorrect)?.text;
         const incorrectMessage = correctAnswerText 

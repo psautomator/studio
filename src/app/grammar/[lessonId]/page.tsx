@@ -13,6 +13,7 @@ import { Volume2, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
 import { useToast } from '@/hooks/use-toast';
+import { useEffect } from 'react';
 
 export default function GrammarLessonPage() {
   const params = useParams();
@@ -21,6 +22,21 @@ export default function GrammarLessonPage() {
   const { toast } = useToast();
 
   const lesson = placeholderGrammarLessons.find(l => l.id === lessonId);
+
+  useEffect(() => {
+    if (lesson) {
+      // Basic check to prevent duplicate toasts if component re-renders for other reasons
+      const viewedKey = `viewed_lesson_${lesson.id}`;
+      if (!sessionStorage.getItem(viewedKey)) {
+        toast({
+          title: "+5 XP",
+          description: `Viewed lesson: ${lesson.title}`,
+        });
+        sessionStorage.setItem(viewedKey, 'true');
+      }
+    }
+  }, [lesson, toast]);
+
 
   const handlePlayAudio = (example: GrammarExample) => {
     if (example.audioUrl) {

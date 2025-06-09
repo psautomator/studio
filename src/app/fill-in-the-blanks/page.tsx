@@ -73,6 +73,7 @@ export default function FillInTheBlanksPage() {
     const isCorrect = userAnswer.trim().toLowerCase() === currentExercise.correctAnswer.toLowerCase();
     if (isCorrect) {
       setFeedback({ type: 'correct', message: translations.correct });
+      toast({ title: "+10 XP!", description: "Correct! You earned 10 XP." });
     } else {
       setFeedback({
         type: 'incorrect',
@@ -111,7 +112,7 @@ export default function FillInTheBlanksPage() {
       <PageHeader title={translations.fillInTheBlanks} description={translations.fillInTheBlankInstruction} />
       
       <div className="flex justify-center">
-        <Card className="w-full max-w-2xl shadow-xl">
+        <Card key={currentExercise.id} className="w-full max-w-2xl shadow-xl">
           <CardHeader>
             <CardTitle className="font-normal text-2xl md:text-3xl text-primary text-center leading-relaxed">
               {currentExercise.questionSentence.split('_______').map((part, index, arr) => (
