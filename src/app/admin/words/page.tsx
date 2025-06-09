@@ -224,6 +224,7 @@ Make sure all IDs are unique.
         return {
           ...word,
           formality: word.formality || 'ngoko', // Default to 'ngoko'
+          level: word.level || 'Beginner', // Default to 'Beginner'
         };
       });
 
@@ -328,6 +329,7 @@ export default function AdminWordsPage() {
   };
 
   const handleBulkImport = (importedWords: Word[]) => {
+    // Simple merge: add new, overwrite existing by ID
     const updatedWordsMap = new Map(words.map(w => [w.id, w]));
     importedWords.forEach(iw => updatedWordsMap.set(iw.id, iw));
     setWords(Array.from(updatedWordsMap.values()));
