@@ -73,6 +73,7 @@ export interface GrammarLesson {
   examples: GrammarExample[];
   relatedQuizId?: string; // ID of a Quiz set
   relatedFillInTheBlankWordIds?: string[]; // Array of Word IDs
+  status?: 'published' | 'draft' | 'archived'; // Added status for grammar lessons
 }
 
 // Type for Fill in the Blanks exercises

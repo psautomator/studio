@@ -271,6 +271,7 @@ export const placeholderGrammarLessons: GrammarLesson[] = [
       { javanese: 'Asma kula Budi.', dutch: 'Mijn naam is Budi. (Krama)' },
     ],
     relatedQuizId: 'quizSet1',
+    status: 'published',
   },
   {
     id: 'gl2',
@@ -284,6 +285,7 @@ export const placeholderGrammarLessons: GrammarLesson[] = [
       { javanese: 'Kucing mangan iwak.', dutch: 'De kat eet vis.' },
     ],
     relatedFillInTheBlankWordIds: ['8', '6'], // 'Mangan' (example: Aku arep mangan sega goreng), 'Omah' (example: Omahku cedhak pasar)
+    status: 'published',
   },
   {
     id: 'gl3',
@@ -297,6 +299,7 @@ export const placeholderGrammarLessons: GrammarLesson[] = [
       { javanese: 'Kucingé lucu.', dutch: 'Zijn/haar kat is schattig. (Ngoko)' },
       { javanese: 'Punika buku kagunganipun Bapak.', dutch: 'Dit is het boek van vader. (Krama-like possessive)' },
     ],
+    status: 'published',
   },
   {
     id: 'gl4',
@@ -316,6 +319,7 @@ export const placeholderGrammarLessons: GrammarLesson[] = [
       { javanese: 'mangan', dutch: 'eten (ng sound)' },
       { javanese: 'nyanyi', dutch: 'zingen (ny sound)' },
     ],
+    status: 'published',
   },
 ];
 

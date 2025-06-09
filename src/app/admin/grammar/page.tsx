@@ -27,6 +27,7 @@ export default function AdminGrammarPage() {
     { accessorKey: 'category', header: 'Category', cell: (item: GrammarLesson) => item.category },
     { accessorKey: 'level', header: 'Level', cell: (item: GrammarLesson) => <Badge variant="secondary" className="capitalize">{item.level}</Badge> },
     { accessorKey: 'examples', header: 'Examples', cell: (item: GrammarLesson) => item.examples.length },
+    { accessorKey: 'status', header: 'Status', cell: (item: GrammarLesson) => <Badge variant={item.status === 'published' ? 'default' : item.status === 'draft' ? 'secondary' : 'outline'} className="capitalize">{item.status || 'N/A'}</Badge> },
   ];
 
   // Placeholder handlers for future CRUD operations

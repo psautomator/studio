@@ -13,7 +13,7 @@ import { GraduationCap, ArrowRight } from 'lucide-react';
 
 export default function GrammarPage() {
   const { translations } = useLanguage();
-  const lessons: GrammarLesson[] = placeholderGrammarLessons;
+  const lessons: GrammarLesson[] = placeholderGrammarLessons.filter(lesson => lesson.status === 'published');
 
   return (
     <MainAppLayout>
