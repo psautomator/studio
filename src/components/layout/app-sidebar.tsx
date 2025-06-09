@@ -15,6 +15,7 @@ import {
   User,
   GraduationCap,
   FileSignature,
+  LogOut, // Added LogOut
 } from 'lucide-react';
 import {
   Sidebar,
@@ -38,6 +39,7 @@ import { APP_NAME } from '@/lib/constants';
 import { useLanguage } from '@/hooks/use-language';
 import { placeholderUser } from '@/lib/placeholder-data';
 import type { User as UserType } from '@/types';
+import { useToast } from '@/hooks/use-toast'; // Added useToast
 
 
 const mainNavItems = [
@@ -46,7 +48,7 @@ const mainNavItems = [
   { baseHref: '/quizzes', labelKey: 'quizzes', icon: HelpCircle },
   { baseHref: '/pronunciation', labelKey: 'pronunciation', icon: Volume2 },
   { baseHref: '/grammar', labelKey: 'grammar', icon: GraduationCap },
-  { baseHref: '/fill-in-the-blanks', labelKey: 'fillintheblanks', icon: FileSignature },
+  // { baseHref: '/fill-in-the-blanks', labelKey: 'fillintheblanks', icon: FileSignature }, // Removed
   { baseHref: '/progress', labelKey: 'progress', icon: BarChart3 },
   { baseHref: '/goals', labelKey: 'goals', icon: Target },
 ];
@@ -56,17 +58,27 @@ const adminAccessRoles = ['admin', 'editor', 'publisher'];
 
 export function AppSidebar() {
   const pathname = usePathname();
-  const { translations, language } = useLanguage(); // language is the current locale (en/nl)
+  const { translations, language } = useLanguage(); 
+  const { toast } = useToast(); // Added toast
   const { open, isMobile, setOpenMobile } = useSidebar();
 
   const getLabel = (labelKey: string, defaultLabel?: string) => {
-    return translations[labelKey.toLowerCase()] || defaultLabel || labelKey;
+    return translations[labelKey.toLowerCase() as keyof typeof translations] || defaultLabel || labelKey;
   };
 
   const handleMobileLinkClick = () => {
     if (isMobile) {
       setOpenMobile(false);
     }
+  };
+
+  const handleLogout = () => {
+    handleMobileLinkClick();
+    toast({
+      title: translations.logout || "Logout",
+      description: translations.loggedOutSuccessfully || "You have been logged out (simulated).",
+    });
+    // In a real app, you'd clear session/token and redirect.
   };
 
   const canAccessAdminPanel = currentUser.roles.some(role => adminAccessRoles.includes(role));
@@ -146,6 +158,11 @@ export function AppSidebar() {
                     </DropdownMenuItem>
                   </>
                 )}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive-foreground focus:bg-destructive/90">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>{getLabel('logout', 'Logout')}</span>
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </SidebarMenuItem>

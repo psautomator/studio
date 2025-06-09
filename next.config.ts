@@ -2,7 +2,6 @@
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
-  transpilePackages: ['handlebars'], // Keep this for Handlebars compatibility
   typescript: {
     // Set to false to fail build on TypeScript errors
     ignoreBuildErrors: false,

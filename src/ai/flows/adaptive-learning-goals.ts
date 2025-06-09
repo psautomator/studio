@@ -15,6 +15,7 @@
  */
 
 import {ai} from '@/ai/genkit';
+import {formatPrompt} from '@/lib/prompt-utils';
 import {z} from 'genkit';
 
 /**
@@ -57,6 +58,21 @@ const AdaptiveLearningGoalsOutputSchema = z.object({
  */
 export type AdaptiveLearningGoalsOutput = z.infer<typeof AdaptiveLearningGoalsOutputSchema>;
 
+const adaptiveLearningGoalsTemplate = `You are an AI learning assistant specializing in Javanese language education. Based on the learner's progress, preferred learning style, and time available, generate a set of personalized daily learning goals.
+
+Learner Progress: <%= learningProgress %>
+Preferred Learning Style: <%= preferredLearningStyle %>
+Time Available: <%= timeAvailable %>
+
+Consider the learner's weaknesses and areas where they need the most improvement. Provide 3-5 specific and achievable learning goals for the day, along with a brief explanation of why these goals were chosen.
+
+Output should be JSON in the following format (ensure correct JSON escaping where necessary):
+{
+  "dailyGoals": ["Goal 1", "Goal 2", "Goal 3"],
+    "explanation": "Explanation of why these goals were chosen.",
+    "progress": "A one-sentence summary of progress."
+}
+`;
 /**
  * Flow definition for generating adaptive learning goals.
  */
@@ -66,36 +82,37 @@ const adaptiveLearningGoalsFlow = ai.defineFlow(
     inputSchema: AdaptiveLearningGoalsInputSchema,
     outputSchema: AdaptiveLearningGoalsOutputSchema,
   },
-  async input => {
-    const {output} = await adaptiveLearningGoalsPrompt(input);
-    return output!;
-  }
-);
+  async (input) => {
+    // Render the prompt template with the input variables
+    const renderedPrompt = formatPrompt(adaptiveLearningGoalsTemplate, input);
 
-/**
- * Prompt definition for generating adaptive learning goals.
- */
-const adaptiveLearningGoalsPrompt = ai.definePrompt({
-  name: 'adaptiveLearningGoalsPrompt',
-  input: {schema: AdaptiveLearningGoalsInputSchema},
-  output: {schema: AdaptiveLearningGoalsOutputSchema},
-  prompt: `You are an AI learning assistant specializing in Javanese language education. Based on the learner's progress, preferred learning style, and time available, generate a set of personalized daily learning goals.
+    // Call the language model with the rendered prompt
+    const {output} = await ai.generate({
+      prompt: renderedPrompt,
+      model: 'googleai/gemini-1.5-flash', // Specify your desired model
+    });
 
-Learner Progress: {{{learningProgress}}}
-Preferred Learning Style: {{{preferredLearningStyle}}}
-Time Available: {{{timeAvailable}}}
+Learner Progress: <%= learningProgress %>
+Preferred Learning Style: <%= preferredLearningStyle %>
+Time Available: <%= timeAvailable %>
 
 Consider the learner's weaknesses and areas where they need the most improvement. Provide 3-5 specific and achievable learning goals for the day, along with a brief explanation of why these goals were chosen.
 
-Output should be JSON in the following format:
+Output should be JSON in the following format (ensure correct JSON escaping where necessary):
 {
   "dailyGoals": ["Goal 1", "Goal 2", "Goal 3"],
     "explanation": "Explanation of why these goals were chosen.",
     "progress": "A one-sentence summary of progress."
 }
-`,
-});
-
+`;
+    if (!output) {
+      throw new Error('AI failed to generate learning goals.');
+    }
+    // The model is expected to return JSON directly matching the output schema.
+    return output;
+  }
+);
+ 
 /**
  * Wrapper function for the adaptive learning goals flow.
  */

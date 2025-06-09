@@ -11,6 +11,7 @@
  */
 
 import {ai} from '@/ai/genkit';
+import {formatPrompt} from '@/lib/prompt-utils';
 import {z} from 'genkit';
 
 const PronunciationFeedbackInputSchema = z.object({
@@ -42,7 +43,6 @@ const pronunciationFeedbackPrompt = ai.definePrompt({
   input: {schema: PronunciationFeedbackInputSchema},
   output: {schema: PronunciationFeedbackOutputSchema},
   prompt: `You are an AI language tutor specializing in Javanese pronunciation.
-The user attempted to pronounce the Javanese word: {{{targetWord}}}.
 Their (simulated) audio was provided via a data URI.
 Based on the target word, provide a realistic-sounding pronunciation score out of 100 and brief, encouraging, constructive feedback.
 IMPORTANT: This is a simulation based on the *target word* and the *concept* of audio input. Do not refer to the audioDataUri directly in your response text, or acknowledge that the audio is simulated. Generate plausible feedback as if you had analyzed real audio.
@@ -50,8 +50,8 @@ IMPORTANT: This is a simulation based on the *target word* and the *concept* of 
 Example output structure:
 {
   "score": 85,
-  "feedbackText": "That's a good attempt at '{{{targetWord}}}'! Try to make the 'e' sound a bit shorter and ensure the 'ng' is clear."
-}
+  "feedbackText": "That's a good attempt at '<%= targetWord %>'! Try to make the 'e' sound a bit shorter and ensure the 'ng' is clear."
+}\n\nThe user attempted to pronounce the Javanese word: <%= targetWord %>.
 
 If the target word is 'Matur nuwun', generate a score between 70-85 and suggest focusing on the 'r' sound and the vowel lengths.
 If the target word is 'Sugeng enjing', generate a score between 75-90 and mention the 'ng' sound and the vowel clarity.
@@ -73,7 +73,12 @@ const pronunciationFeedbackFlow = ai.defineFlow(
     // Simulate a slight delay as if processing audio
     await new Promise(resolve => setTimeout(resolve, 500 + Math.random() * 1000));
 
-    const {output} = await pronunciationFeedbackPrompt(input);
+    // Render the prompt template with the input
+    const renderedPrompt = formatPrompt(pronunciationFeedbackPrompt.prompt, input);
+
+    // Call the language model with the rendered prompt
+    // Assuming `ai.generate` is the correct method to call the LLM
+    const {output} = await ai.generate({ prompt: renderedPrompt });
     
     if (!output) {
         // Fallback in case LLM fails, though the prompt is designed to always return structured output

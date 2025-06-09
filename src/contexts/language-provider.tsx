@@ -64,7 +64,7 @@ const translationsData = {
     backToApp: "Back to App",
     toggleToDutch: "Switch to Dutch",
     toggleToEnglish: "Switch to English",
-    welcome: "Welcome to", // Changed from "Welcome to Javanese Journey!" to allow dynamic app name
+    welcome: "Welcome to", 
     welcomeBack: "Welcome back,",
     days: "days",
     startLearning: "Start Learning",
@@ -82,8 +82,8 @@ const translationsData = {
     badges: "Badges",
     noBadgesEarned: "No badges earned yet. Keep learning!",
     learningProgress: "Learning Progress",
-    preferredLearningStyle: "Preferred Learning Style (optional)",
-    timeAvailable: "Time Available Today (optional)",
+    preferredLearningStyle: "Preferred Learning Style",
+    timeAvailable: "Time Available Today",
     generateGoals: "Generate Goals",
     generateYourGoals: "Generate Your Goals",
     viewYourGoals: "View Your Goals",
@@ -171,6 +171,16 @@ const translationsData = {
     featureAdaptiveGoalsDesc: "Get daily learning goals tailored to you.",
     profile: "Profile",
     profileSettings: "Profile Settings",
+    manageYourProfile: "Manage your profile, preferences, and account.",
+    loggedOutSuccessfully: "You have been logged out (simulated).",
+    accountDeleted: "Account Deleted",
+    accountDeletedDesc: "Your account has been deleted (simulated).",
+    confirmDeleteAccount: "Are you sure you want to delete your account? This action is irreversible (simulated).",
+    customizeExperience: "Customize your learning experience.",
+    notSet: "Not set",
+    editPreferences: "Edit Preferences",
+    comingSoon: "Coming soon",
+    badgesYouveEarned: "A collection of your achievements.",
     updateProfile: "Update Profile",
     learningPreferences: "Learning Preferences",
     dailyStudyGoal: "Daily Study Goal (minutes)",
@@ -187,7 +197,7 @@ const translationsData = {
     selectQuizPrompt: "Select a quiz to begin.",
     quizCompleted: "Quiz Completed!",
     startQuiz: "Start Quiz",
-    fillintheblanks: "Fill in Blanks",
+    fillintheblanks: "Fill in Blanks", // Kept for consistency if any direct use remains, though page is removed
     fillInTheBlankInstruction: "Type the missing Javanese word.",
     nextExercise: "Next Exercise",
     typeYourAnswer: "Type your answer here...",
@@ -208,15 +218,15 @@ const translationsData = {
     filterByDifficulty: "Filter by Difficulty:",
     filterByCategory: "Filter by Category:",
     allDifficulties: "All Difficulties",
-    allCategories: "Alle Categorieën", // Needs Dutch translation
+    allCategories: "All Categories", 
     noQuizzesMatchFilters: "No quizzes match your current filters.",
     resetFilters: "Reset Filters",
     draft: "Draft",
     published: "Published",
     archived: "Archived",
     ngoko: "Ngoko (Informal)",
-    krama: "Krama (Formeel)",
-    madya: "Madya (Semi-formeel)",
+    krama: "Krama (Formal)",
+    madya: "Madya (Semi-formal)",
     neutral: "Neutral",
     other: "Other",
     english: "English",
@@ -332,7 +342,7 @@ const translationsData = {
     backToApp: "Terug naar App",
     toggleToDutch: "Schakel naar Nederlands",
     toggleToEnglish: "Switch to English",
-    welcome: "Welkom bij", // Changed for dynamic app name
+    welcome: "Welkom bij", 
     welcomeBack: "Welkom terug,",
     days: "dagen",
     startLearning: "Begin met Leren",
@@ -350,8 +360,8 @@ const translationsData = {
     badges: "Badges",
     noBadgesEarned: "Nog geen badges verdiend. Blijf leren!",
     learningProgress: "Leervoortgang",
-    preferredLearningStyle: "Voorkeur Leerstijl (optioneel)",
-    timeAvailable: "Beschikbare Tijd Vandaag (optioneel)",
+    preferredLearningStyle: "Voorkeur Leerstijl",
+    timeAvailable: "Beschikbare Tijd Vandaag",
     generateGoals: "Genereer Doelen",
     generateYourGoals: "Genereer Je Doelen",
     viewYourGoals: "Bekijk Je Doelen",
@@ -439,6 +449,16 @@ const translationsData = {
     featureAdaptiveGoalsDesc: "Ontvang dagelijkse leerdoelen op maat.",
     profile: "Profiel",
     profileSettings: "Profielinstellingen",
+    manageYourProfile: "Beheer je profiel, voorkeuren en account.",
+    loggedOutSuccessfully: "Je bent uitgelogd (gesimuleerd).",
+    accountDeleted: "Account Verwijderd",
+    accountDeletedDesc: "Je account is verwijderd (gesimuleerd).",
+    confirmDeleteAccount: "Weet je zeker dat je je account wilt verwijderen? Deze actie is onomkeerbaar (gesimuleerd).",
+    customizeExperience: "Personaliseer je leerervaring.",
+    notSet: "Niet ingesteld",
+    editPreferences: "Voorkeuren Bewerken",
+    comingSoon: "Binnenkort beschikbaar",
+    badgesYouveEarned: "Een verzameling van jouw prestaties.",
     updateProfile: "Profiel Bijwerken",
     learningPreferences: "Leervoorkeuren",
     dailyStudyGoal: "Dagelijks Studiedoel (minuten)",
@@ -455,7 +475,7 @@ const translationsData = {
     selectQuizPrompt: "Selecteer een quiz om te beginnen.",
     quizCompleted: "Quiz Voltooid!",
     startQuiz: "Start Quiz",
-    fillintheblanks: "Zoek het woord",
+    fillintheblanks: "Zoek het woord", // Kept for consistency
     fillInTheBlankInstruction: "Typ het ontbrekende Javaanse woord.",
     nextExercise: "Volgende Oefening",
     typeYourAnswer: "Typ hier je antwoord...",
@@ -566,6 +586,7 @@ export function LanguageProvider({ children, passedLocale }: LanguageProviderPro
 
   useEffect(() => {
     localStorage.setItem('javaneseJourneyLanguagePref', language);
+    document.documentElement.lang = language; // Set lang attribute on HTML element
   }, [language]);
 
 
@@ -575,9 +596,9 @@ export function LanguageProvider({ children, passedLocale }: LanguageProviderPro
     let newPath = pathname;
     if (pathname.startsWith(`/${language}`)) {
       newPath = pathname.substring(`/${language}`.length);
-      if (newPath === "") newPath = "/"; // Ensure base path is handled
+      if (newPath === "") newPath = "/"; 
     }
-     // Ensure newPath starts with a slash if it's not empty, or is just a slash
+    
     if (newPath && !newPath.startsWith('/')) newPath = `/${newPath}`;
     else if (!newPath) newPath = '/';
 
@@ -601,5 +622,3 @@ export function useLanguage() {
   }
   return context;
 }
-
-    

@@ -9,6 +9,7 @@
  */
 
 import {ai} from '@/ai/genkit';
+import {formatPrompt} from '@/lib/prompt-utils';
 import {z} from 'genkit';
 import type { Word, QuestionType } from '@/types'; // Assuming Word and QuestionType are in your types
 
@@ -49,96 +50,90 @@ const GenerateQuizForWordOutputSchema = z.object({
 });
 export type GenerateQuizForWordOutput = z.infer<typeof GenerateQuizForWordOutputSchema>;
 
-const generateQuizPrompt = ai.definePrompt({
-  name: 'generateQuizForWordPrompt',
-  input: {schema: GenerateQuizForWordInputSchema},
-  output: {schema: GenerateQuizForWordOutputSchema}, // The flow will construct the final output
-  prompt: `You are an AI assistant specialized in creating Javanese language learning quizzes.
+const generateQuizTemplate = `You are an AI assistant specialized in creating Javanese language learning quizzes.
 Your task is to generate a complete JSON object for a single Javanese quiz.
 The quiz will contain exactly ONE question based on the provided Javanese word, desired question type, and difficulty.
 
 Word details:
-- Javanese: {{{word.javanese}}}
-- Dutch: {{{word.dutch}}}
-- Category: {{{word.category}}}
-- Level: {{{word.level}}}
-- Formality: {{{word.formality}}}
-- Example Javanese: {{{word.exampleSentenceJavanese}}}
-- Example Dutch: {{{word.exampleSentenceDutch}}}
+- Javanese: <%= word.javanese %>
+- Dutch: <%= word.dutch %>
+- Category: <%= word.category %>
+- Level: <%= word.level %>
+- Formality: <%= word.formality %>
+- Example Javanese: <%= word.exampleSentenceJavanese %>
+- Example Dutch: <%= word.exampleSentenceDutch %>
 
 Desired quiz parameters:
-- Question Type: {{{targetQuestionType}}}
-- Difficulty: {{{difficulty}}}
+- Question Type: <%= targetQuestionType %>
+- Difficulty: <%= difficulty %>
 
 Your output MUST be a single, valid JSON string representing a Quiz object.
 The Quiz object structure is:
 {
   "id": "quiz-ai-[timestamp]", // Generate a unique ID, e.g., using Date.now() or similar random string.
-  "title": "AI Quiz for: {{{word.javanese}}}",
-  "description": "An AI-generated quiz question focusing on the word '{{{word.javanese}}}'. Type: {{{targetQuestionType}}}, Difficulty: {{{difficulty}}}.",
-  "category": "AI Generated - {{{word.category}}}", // Combine AI Generated with word category
-  "difficulty": "{{{difficulty}}}",
+  "title": "AI Quiz for: <%= word.javanese %>",
+  "description": "An AI-generated quiz question focusing on the word '<%= word.javanese %>'. Type: <%= targetQuestionType %>, Difficulty: <%= difficulty %>.",
+  "category": "AI Generated - <%= word.category %>", // Combine AI Generated with word category
+  "difficulty": "<%= difficulty %>",
   "status": "draft",
   "questions": [
     {
       "id": "q-ai-[timestamp]-1", // Generate a unique question ID.
-      "questionType": "{{{targetQuestionType}}}",
+      "questionType": "<%= targetQuestionType %>",
       "questionText": "[Generate appropriate question text based on word and targetQuestionType. See examples below]",
       "options": [ /* Generate options. See examples below */ ],
       "explanation": "[Generate a concise explanation for the correct answer, referencing the word and its Dutch translation.]"
       // "audioUrl": "" // Optional: leave empty or omit if not applicable
     }
   ]
-}
-
 Question Text and Options Examples:
 
 1. If targetQuestionType is 'multiple-choice' (general knowledge about the word):
-   - questionText: "Which of the following is true about the Javanese word '{{{word.javanese}}}'?"
+   - questionText: "Which of the following is true about the Javanese word '<%= word.javanese %>'?"
    - options: [
-       { "text": "[A plausible correct fact, e.g., 'Its Dutch translation is \"{{{word.dutch}}}\"']", "isCorrect": true },
+       { "text": "[A plausible correct fact, e.g., 'Its Dutch translation is \"<%= word.dutch %>\"']", "isCorrect": true },
        { "text": "[A plausible incorrect fact 1]", "isCorrect": false },
        { "text": "[A plausible incorrect fact 2]", "isCorrect": false },
        { "text": "[A plausible incorrect fact 3, if difficulty is medium/hard]", "isCorrect": false }
      ]
-   - explanation: "The word '{{{word.javanese}}}' means '{{{word.dutch}}}'. [Add more context if relevant, e.g., its formality or category]."
+   - explanation: "The word '<%= word.javanese %>' means '<%= word.dutch %>'. [Add more context if relevant, e.g., its formality or category]."
 
 2. If targetQuestionType is 'translation-word-to-dutch':
-   - questionText: "What is the Dutch translation of the Javanese word '{{{word.javanese}}}'?"
+   - questionText: "What is the Dutch translation of the Javanese word '<%= word.javanese %>'?"
    - options: [
-       { "text": "{{{word.dutch}}}", "isCorrect": true },
+       { "text": "<%= word.dutch %>", "isCorrect": true },
        { "text": "[Plausible incorrect Dutch word 1]", "isCorrect": false },
        { "text": "[Plausible incorrect Dutch word 2]", "isCorrect": false },
        { "text": "[Plausible incorrect Dutch word 3, if difficulty is medium/hard]", "isCorrect": false }
      ]
-   - explanation: "The correct Dutch translation for '{{{word.javanese}}}' is '{{{word.dutch}}}'."
+   - explanation: "The correct Dutch translation for '<%= word.javanese %>' is '<%= word.dutch %>'."
 
 3. If targetQuestionType is 'translation-word-to-javanese':
-   - questionText: "What is the Javanese translation of the Dutch word '{{{word.dutch}}}'?"
+   - questionText: "What is the Javanese translation of the Dutch word '<%= word.dutch %>'?"
    - options: [
-       { "text": "{{{word.javanese}}}", "isCorrect": true },
+       { "text": "<%= word.javanese %>", "isCorrect": true },
        { "text": "[Plausible incorrect Javanese word 1]", "isCorrect": false },
        { "text": "[Plausible incorrect Javanese word 2]", "isCorrect": false },
        { "text": "[Plausible incorrect Javanese word 3, if difficulty is medium/hard]", "isCorrect": false }
      ]
-   - explanation: "The correct Javanese translation for '{{{word.dutch}}}' is '{{{word.javanese}}}'."
+   - explanation: "The correct Javanese translation for '<%= word.dutch %>' is '<%= word.javanese %>'."
 
 4. If targetQuestionType is 'fill-in-the-blank-mcq':
    - Use word.exampleSentenceJavanese if available. Create a blank for word.javanese.
-   - questionText: "Complete the sentence: {{{word.exampleSentenceJavanese}}}". Replace '{{{word.javanese}}}' with '_______'.
+   - questionText: "Complete the sentence: <%= word.exampleSentenceJavanese %>". Replace '<%= word.javanese %>' with '_______'.
    - options: [
-       { "text": "{{{word.javanese}}}", "isCorrect": true },
+       { "text": "<%= word.javanese %>", "isCorrect": true },
        { "text": "[Plausible incorrect Javanese word 1 that could fit grammatically]", "isCorrect": false },
        { "text": "[Plausible incorrect Javanese word 2 that could fit grammatically]", "isCorrect": false }
      ]
-   - explanation: "The missing word is '{{{word.javanese}}}'. The full sentence means: '{{{word.exampleSentenceDutch}}}'."
+   - explanation: "The missing word is '<%= word.javanese %>'. The full sentence means: '<%= word.exampleSentenceDutch %>'."
    - If no example sentence is available for the word, state that this type cannot be generated for this word and provide an empty quiz JSON or a message.
 
 5. If targetQuestionType is 'fill-in-the-blank-text-input':
    - Use word.exampleSentenceJavanese if available. Create a blank for word.javanese.
-   - questionText: "Complete the sentence by typing the missing word: {{{word.exampleSentenceJavanese}}}". Replace '{{{word.javanese}}}' with '_______'.
-   - options: [ { "text": "{{{word.javanese}}}", "isCorrect": true } ] // Only one option, the correct answer
-   - explanation: "The missing word is '{{{word.javanese}}}'. The full sentence means: '{{{word.exampleSentenceDutch}}}'."
+   - questionText: "Complete the sentence by typing the missing word: <%= word.exampleSentenceJavanese %>". Replace '<%= word.javanese %>' with '_______'.
+   - options: [ { "text": "<%= word.javanese %>", "isCorrect": true } ] // Only one option, the correct answer
+   - explanation: "The missing word is '<%= word.javanese %>'. The full sentence means: '<%= word.exampleSentenceDutch %>'."
    - If no example sentence is available for the word, state that this type cannot be generated and provide an empty quiz JSON or a message.
 
 General instructions for JSON generation:
@@ -172,7 +167,7 @@ Example of a full JSON output:
   ]
 }
 Make sure the output is a single minified JSON string if possible, or at least a valid JSON string.
-`,
+` as const, // Use 'as const' to treat the template string as a constant
 });
 
 const generateQuizForWordFlow = ai.defineFlow(

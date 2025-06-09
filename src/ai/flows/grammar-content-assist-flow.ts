@@ -11,6 +11,7 @@
  */
 
 import {ai} from '@/ai/genkit';
+import { formatPrompt } from '@/lib/prompt-utils';
 import {z} from 'genkit';
 
 const GrammarContentAssistInputSchema = z.object({
@@ -52,22 +53,22 @@ Your tasks are:
     *   \`feedbackMessage\` should be a concise summary of the actions taken (e.g., "Proofread English and Dutch content.", "Translated Dutch explanation to English and proofread both fields.").
 
 Input Data:
-Title EN: {{{titleEn}}}
-Title NL: {{{titleNl}}}
+Title EN: <%= titleEn %>
+Title NL: <%= titleNl %>
 Explanation EN (Markdown):
 \`\`\`markdown
-{{{explanationEn}}}
+<%= explanationEn %>
 \`\`\`
 Explanation NL (Markdown):
 \`\`\`markdown
-{{{explanationNl}}}
+<%= explanationNl %> 
 \`\`\`
 `,
 });
 
 const grammarContentAssistFlow = ai.defineFlow(
   {
-    name: 'grammarContentAssistFlow',
+    name: "grammarContentAssistFlow",
     inputSchema: GrammarContentAssistInputSchema,
     outputSchema: GrammarContentAssistOutputSchema,
   },
@@ -75,7 +76,13 @@ const grammarContentAssistFlow = ai.defineFlow(
     const {output} = await grammarContentAssistPrompt(input);
     if (!output) {
       throw new Error('AI assistant failed to generate content.');
-    }
+    } 
+    const renderedPrompt = formatPrompt(
+      grammarContentAssistPrompt.prompt,
+      input
+    );
+    const { output: llmOutput } = await ai.generate({ prompt: renderedPrompt });
+
     // Ensure all fields are present in the output, even if empty strings
     return {
       assistedTitleEn: output.assistedTitleEn || '',
