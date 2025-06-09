@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from 'next/link';
@@ -14,7 +15,7 @@ import {
   SidebarProvider,
 } from '@/components/ui/sidebar';
 import { Navbar } from '@/components/layout/navbar'; // Could have an AdminNavbar
-import { Package, Users, FileText, LayoutDashboard } from 'lucide-react';
+import { Package, Users, FileText, LayoutDashboard, Home } from 'lucide-react'; // Added Home icon
 import { APP_NAME } from '@/lib/constants';
 import { useLanguage } from '@/hooks/use-language';
 
@@ -24,6 +25,8 @@ const adminNavItems = [
   { href: '/admin/quizzes', label: 'Quizzes Management', icon: Package },
   { href: '/admin/users', label: 'Users Management', icon: Users },
 ];
+
+const appLink = { href: '/dashboard', label: 'Back to App', icon: Home };
 
 function AdminSidebar() {
   const pathname = usePathname();
@@ -55,6 +58,20 @@ function AdminSidebar() {
             </SidebarMenuItem>
           ))}
         </SidebarMenu>
+        <SidebarMenu className="mt-auto pt-2 border-t border-sidebar-border">
+           <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={pathname === appLink.href}
+                tooltip={{ children: appLink.label }}
+              >
+                <Link href={appLink.href}>
+                  <appLink.icon />
+                  <span>{appLink.label}</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarContent>
     </Sidebar>
   );
@@ -66,19 +83,12 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // For admin, we might want a slightly different Navbar or overall structure.
-  // For now, re-using MainAppLayout components but with AdminSidebar.
   return (
-    // Wrap with SidebarProvider if not already done by AppProviders at root
-    // However, if AppProviders already has SidebarProvider, this might cause issues
-    // Let's assume AppProviders handles it, and this layout just adds its specific sidebar
-    // If AppProviders is NOT used for /admin routes, then this SidebarProvider is needed.
-    // For now, we assume admin routes are separate and need their own provider.
     <SidebarProvider defaultOpen={true}>
       <div className="flex min-h-screen">
         <AdminSidebar />
         <div className="flex flex-1 flex-col">
-          <Navbar /> {/* Or an AdminNavbar */}
+          <Navbar />
           <SidebarInset>
             <main className="flex-1 p-4 md:p-6 lg:p-8">
               {children}
