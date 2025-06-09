@@ -13,7 +13,8 @@ import {
   UserCircle,
   Shield,
   User,
-  GraduationCap, // Added for Grammar
+  GraduationCap,
+  FileSignature, // Added for Fill in the Blanks
 } from 'lucide-react';
 import {
   Sidebar,
@@ -23,7 +24,7 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-  useSidebar, // Import useSidebar
+  useSidebar,
 } from '@/components/ui/sidebar';
 import {
   DropdownMenu,
@@ -34,7 +35,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { APP_NAME } from '@/lib/constants';
 import { useLanguage } from '@/hooks/use-language';
-import { placeholderUser } from '@/lib/placeholder-data'; // For admin role simulation
+import { placeholderUser } from '@/lib/placeholder-data'; 
 import type { User as UserType } from '@/types';
 
 
@@ -44,17 +45,17 @@ const mainNavItems = [
   { href: '/quizzes', labelKey: 'quizzes', icon: HelpCircle },
   { href: '/pronunciation', labelKey: 'pronunciation', icon: Volume2 },
   { href: '/grammar', labelKey: 'grammar', icon: GraduationCap },
+  { href: '/fill-in-the-blanks', labelKey: 'fillInTheBlanks', icon: FileSignature },
   { href: '/progress', labelKey: 'progress', icon: BarChart3 },
   { href: '/goals', labelKey: 'goals', icon: Target },
 ];
 
-// User for simulation, in a real app this would come from context or API
 const currentUser: UserType = placeholderUser;
 
 export function AppSidebar() {
   const pathname = usePathname();
   const { translations } = useLanguage();
-  const { open, isMobile, setOpenMobile } = useSidebar(); // Get isMobile and setOpenMobile
+  const { open, isMobile, setOpenMobile } = useSidebar(); 
 
   const getLabel = (labelKey: string, defaultLabel?: string) => {
     return translations[labelKey.toLowerCase()] || defaultLabel || labelKey;

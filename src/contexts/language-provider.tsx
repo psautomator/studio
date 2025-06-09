@@ -90,6 +90,13 @@ const translationsData = {
     selectQuizPrompt: "Select a quiz to begin.",
     quizCompleted: "Quiz Completed!",
     startQuiz: "Start Quiz",
+    fillInTheBlanks: "Fill in the Blanks",
+    fillInTheBlankInstruction: "Type the missing Javanese word.",
+    nextExercise: "Next Exercise",
+    typeYourAnswer: "Type your answer here...",
+    showAnswer: "Show Answer",
+    missingWordWas: "The missing word was:",
+    noFillExercises: "No fill-in-the-blank exercises available at the moment.",
   },
   nl: {
     appName: "Javaanse Reis",
@@ -165,6 +172,13 @@ const translationsData = {
     selectQuizPrompt: "Selecteer een quiz om te beginnen.",
     quizCompleted: "Quiz Voltooid!",
     startQuiz: "Start Quiz",
+    fillInTheBlanks: "Vul de Leemtes In",
+    fillInTheBlankInstruction: "Typ het ontbrekende Javaanse woord.",
+    nextExercise: "Volgende Oefening",
+    typeYourAnswer: "Typ hier je antwoord...",
+    showAnswer: "Toon Antwoord",
+    missingWordWas: "Het ontbrekende woord was:",
+    noFillExercises: "Momenteel geen invuloefeningen beschikbaar.",
   },
 };
 

@@ -73,3 +73,12 @@ export interface GrammarLesson {
   examples: GrammarExample[];
   // Future: exercises: Exercise[];
 }
+
+// Type for Fill in the Blanks exercises
+export interface FillInTheBlankExercise {
+  id: string; // Derived from word.id
+  questionSentence: string; // Javanese sentence with a blank
+  hintSentence: string; // Dutch translation of the full sentence
+  correctAnswer: string; // The Javanese word that was blanked out
+  originalJavaneseSentence: string; // Full original Javanese sentence
+}
