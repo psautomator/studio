@@ -6,11 +6,11 @@ import Image from 'next/image';
 import { MainAppLayout } from '@/components/layout/main-app-layout';
 import { PageHeader } from '@/components/shared/page-header';
 import { placeholderGrammarLessons, placeholderQuizzes, placeholderWords } from '@/lib/placeholder-data';
-import type { GrammarLesson, GrammarExample, Quiz, Word, EmbeddedFillInTheBlankExercise } from '@/types';
+import type { GrammarLesson, Quiz, Word } from '@/types';
 import { useLanguage } from '@/hooks/use-language';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Volume2, ArrowLeft, HelpCircle, FileSignature, BookHeadphones } from 'lucide-react';
+import { Volume2, ArrowLeft, HelpCircle, FileSignature, BookHeadphones, List } from 'lucide-react';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
 import { useToast } from '@/hooks/use-toast';
@@ -20,13 +20,12 @@ import { EmbeddedFillInTheBlankItem } from '@/components/grammar/embedded-fill-i
 export default function GrammarLessonPage() {
   const params = useParams();
   const { lessonId } = params;
-  const { translations, language } = useLanguage(); // Added language
+  const { translations, language } = useLanguage();
   const { toast } = useToast();
 
   const [lesson, setLesson] = useState<GrammarLesson | undefined>(undefined);
-  const [relatedQuiz, setRelatedQuiz] = useState<Quiz | undefined>(undefined);
-  const [relatedFillWords, setRelatedFillWords] = useState<Word[]>([]);
-
+  const [relatedQuizzes, setRelatedQuizzes] = useState<Quiz[]>([]);
+  const [linkedWords, setLinkedWords] = useState<Word[]>([]);
 
   useEffect(() => {
     const foundLesson = placeholderGrammarLessons.find(l => l.id === lessonId);
@@ -34,7 +33,7 @@ export default function GrammarLessonPage() {
 
     if (foundLesson) {
       const viewedKey = `viewed_lesson_${foundLesson.id}`;
-      if (!sessionStorage.getItem(viewedKey)) {
+      if (typeof window !== 'undefined' && !sessionStorage.getItem(viewedKey)) {
         toast({
           title: "+5 XP",
           description: `Viewed lesson: ${foundLesson.title[language] || foundLesson.title.en}`,
@@ -43,20 +42,21 @@ export default function GrammarLessonPage() {
       }
 
       if (foundLesson.relatedQuizIds && foundLesson.relatedQuizIds.length > 0) {
-        // For simplicity, assuming the first related quiz if multiple are possible in future
-        const quiz = placeholderQuizzes.find(q => q.id === foundLesson.relatedQuizIds![0] && q.status === 'published');
-        setRelatedQuiz(quiz);
+        const quizzes = placeholderQuizzes.filter(q => foundLesson.relatedQuizIds.includes(q.id) && q.status === 'published');
+        setRelatedQuizzes(quizzes);
+      } else {
+        setRelatedQuizzes([]);
       }
       
-      // For fill-in-the-blanks, we use relatedWordIds if the embeddedExercises array is empty,
-      // otherwise, we assume embeddedExercises are self-contained.
-      // For this iteration, we will prioritize direct embeddedExercises.
-      // The logic for relatedWordIds to dynamically create fill-in-the-blanks can be a fallback or separate.
-      // This was a previous implementation detail, now directly using `lesson.embeddedExercises`.
+      if (foundLesson.relatedWordIds && foundLesson.relatedWordIds.length > 0) {
+        const words = placeholderWords.filter(w => foundLesson.relatedWordIds.includes(w.id));
+        setLinkedWords(words);
+      } else {
+        setLinkedWords([]);
+      }
 
     }
   }, [lessonId, toast, language]);
-
 
   const handlePlayAudio = (url: string, itemName: string) => {
     if (url) {
@@ -164,62 +164,68 @@ export default function GrammarLessonPage() {
           <CardContent className="space-y-6">
             {lesson.embeddedExercises.map((exercise) => {
               if (exercise.type === 'fill-in-the-blank') {
-                // Create a temporary Word-like object for EmbeddedFillInTheBlankItem
-                // This is a bit of a hack because EmbeddedFillInTheBlankItem expects a Word object
-                // Ideally, EmbeddedFillInTheBlankItem would be refactored or a new component made.
-                const pseudoWord: Word = {
-                    id: exercise.id,
-                    javanese: exercise.correctAnswer, // The word to be blanked out
-                    dutch: exercise.hint?.[language] || exercise.hint?.en || '', // Hint for the full sentence
-                    exampleSentenceJavanese: exercise.javaneseSentenceWithPlaceholder.replace('_______', exercise.correctAnswer), // Reconstruct original for logic
-                    exampleSentenceDutch: exercise.hint?.[language] || exercise.hint?.en || '', // Provide hint if available
-                };
-                // Use original sentence for display if it's structured differently by admin
-                // For the component, it tries to re-blank it. Ensure the placeholder marker is consistent.
-                const exerciseForComponent: EmbeddedFillInTheBlankExercise & { originalJavaneseSentenceForDisplay?: string } = {
-                  ...exercise,
-                  originalJavaneseSentenceForDisplay: exercise.javaneseSentenceWithPlaceholder.replace('_______', exercise.correctAnswer)
-                };
-
                 return (
                     <EmbeddedFillInTheBlankItem
                         key={exercise.id}
-                        // Pass the necessary props, adapting from EmbeddedFillInTheBlankExercise
-                        // The component will derive the blanked sentence from the "correctAnswer" and the sentence.
-                        // This structure might need refinement if `EmbeddedFillInTheBlankItem` is strictly tied to `Word` type.
-                        // For now, attempting to pass the core information.
-                        // Let's refine EmbeddedFillInTheBlankItem to accept exercise directly in a future step.
-                        // For now, we adapt.
-                        exerciseData={exerciseForComponent}
+                        exerciseData={exercise}
                     />
                 );
               }
-              // Future: Add rendering for other exercise types
               return null;
             })}
           </CardContent>
         </Card>
       )}
 
-      {relatedQuiz && (
+      {linkedWords.length > 0 && (
+        <Card className="mt-6 shadow-lg mb-6">
+          <CardHeader>
+            <CardTitle className="font-headline text-xl text-primary flex items-center">
+              <List className="mr-2 h-5 w-5" />
+              Related Vocabulary
+            </CardTitle>
+            <CardDescription>Key words related to this lesson.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ul className="list-disc list-inside space-y-1">
+              {linkedWords.map(word => (
+                <li key={word.id} className="text-sm">
+                  <strong className="text-primary">{word.javanese}</strong> ({word.formality}): {word.dutch}
+                </li>
+              ))}
+            </ul>
+             <Button asChild variant="link" className="mt-2 px-0">
+              <Link href="/flashcards">
+                Practice these words in Flashcards <ArrowLeft className="ml-1 h-3 w-3 -rotate-180"/>
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {relatedQuizzes.length > 0 && (
         <Card className="mt-6 shadow-lg mb-6">
           <CardHeader>
             <CardTitle className="font-headline text-xl text-primary flex items-center">
               <HelpCircle className="mr-2 h-5 w-5" />
-              Related Quiz
+              Related Quizzes
             </CardTitle>
             <CardDescription>Test your understanding of concepts from this lesson.</CardDescription>
           </CardHeader>
-          <CardContent>
-            <p className="mb-3">
-              This lesson relates to the quiz: <strong className="text-primary">{relatedQuiz.title}</strong>.
-            </p>
-            <Button asChild>
-              <Link href={`/quizzes?quizId=${relatedQuiz.id}`}>
-                {translations.startQuiz || "Start Quiz"}: {relatedQuiz.title}
-              </Link>
-            </Button>
-             <p className="text-xs text-muted-foreground mt-2">
+          <CardContent className="space-y-3">
+            {relatedQuizzes.map(quiz => (
+                 <div key={quiz.id}>
+                    <p className="mb-1">
+                    This lesson relates to the quiz: <strong className="text-primary">{quiz.title}</strong>.
+                    </p>
+                    <Button asChild>
+                    <Link href={`/quizzes?quizId=${quiz.id}`}>
+                        {translations.startQuiz || "Start Quiz"}: {quiz.title}
+                    </Link>
+                    </Button>
+                </div>
+            ))}
+            <p className="text-xs text-muted-foreground mt-2">
               (This will take you to the main Quizzes page where you can select this quiz.)
             </p>
           </CardContent>
@@ -228,23 +234,3 @@ export default function GrammarLessonPage() {
     </MainAppLayout>
   );
 }
-
-// We need to update EmbeddedFillInTheBlankItem to accept `exerciseData`
-// or adapt how we call it. Let's assume we pass `exerciseData` and modify the component.
-// For this pass, I will assume the current `EmbeddedFillInTheBlankItem` can be made to work
-// with a slightly adapted input or needs to be refactored. The above tries to pass the needed data.
-// If it breaks, the next step is to refactor `EmbeddedFillInTheBlankItem`.
-
-// The existing `EmbeddedFillInTheBlankItem` expects a `word` prop.
-// I'll need to adjust how it's called or adjust the component itself.
-// For now, I've created a `pseudoWord` and passed that. This might not be ideal.
-// A better approach is to make `EmbeddedFillInTheBlankItem` more generic or have
-// it accept the `EmbeddedFillInTheBlankExercise` type directly.
-// The current implementation of calling `EmbeddedFillInTheBlankItem` is a placeholder
-// to show where it would go and will likely need adjustment.
-// Let's simplify the `EmbeddedFillInTheBlankItem` call for now to make it work with `exercise` directly.
-
-// The previous logic for `relatedFillWords` is now superseded by `lesson.embeddedExercises`.
-// If `lesson.embeddedExercises` is empty, `relatedFillWords` could still be used as a fallback.
-// For clarity, I've focused on `embeddedExercises` here.
-

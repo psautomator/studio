@@ -6,7 +6,7 @@ import { PageHeader } from '@/components/shared/page-header';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, X, Upload } from 'lucide-react';
 import { DataTable } from '@/components/admin/data-table';
-import type { Quiz, QuizOption, QuizQuestion } from '@/types';
+import type { Quiz, QuizOption, QuizQuestion, QuestionType } from '@/types';
 import { placeholderQuizzes } from '@/lib/placeholder-data';
 import { useLanguage } from '@/hooks/use-language';
 import {
@@ -24,6 +24,7 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Select,
   SelectContent,
@@ -50,8 +51,17 @@ function QuizForm({
   const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('easy');
   const [status, setStatus] = useState<'published' | 'draft' | 'archived'>('draft');
   const [questions, setQuestions] = useState<Partial<QuizQuestion>[]>([
-    { questionText: '', options: [{ text: '', isCorrect: false }, { text: '', isCorrect: false }] },
+    { questionType: 'multiple-choice', questionText: '', options: [{ text: '', isCorrect: false }, { text: '', isCorrect: false }] },
   ]);
+
+  const questionTypes: QuestionType[] = [
+    'multiple-choice',
+    'translation-word-to-dutch',
+    'translation-sentence-to-dutch',
+    'translation-word-to-javanese',
+    'translation-sentence-to-javanese',
+    'fill-in-the-blank-mcq',
+  ];
 
   useEffect(() => {
     if (quiz) {
@@ -59,23 +69,26 @@ function QuizForm({
       setDescription(quiz.description || '');
       setDifficulty(quiz.difficulty || 'easy');
       setStatus(quiz.status || 'draft');
-      setQuestions(quiz.questions?.length ? quiz.questions.map(q => ({...q, questionText: q.questionText || q.question})) : [{ questionText: '', options: [{ text: '', isCorrect: false }, { text: '', isCorrect: false }] }]);
+      setQuestions(quiz.questions?.length ? quiz.questions.map(q => ({...q})) : [{ questionType: 'multiple-choice', questionText: '', options: [{ text: '', isCorrect: false }, { text: '', isCorrect: false }] }]);
     } else {
       // Reset form for new quiz
       setTitle('');
       setDescription('');
       setDifficulty('easy');
       setStatus('draft');
-      setQuestions([{ questionText: '', options: [{ text: '', isCorrect: false }, { text: '', isCorrect: false }] }]);
+      setQuestions([{ questionType: 'multiple-choice', questionText: '', options: [{ text: '', isCorrect: false }, { text: '', isCorrect: false }] }]);
     }
   }, [quiz, open]);
 
 
-  const handleQuestionChange = (qIndex: number, field: keyof QuizQuestion, value: string) => {
+  const handleQuestionChange = (qIndex: number, field: keyof QuizQuestion, value: string | QuestionType) => {
     const newQuestions = [...questions];
-    newQuestions[qIndex] = { ...newQuestions[qIndex], [field]: value };
+    const currentQuestion = { ...newQuestions[qIndex] };
+    (currentQuestion[field as keyof QuizQuestion] as any) = value; // Type assertion
+    newQuestions[qIndex] = currentQuestion;
     setQuestions(newQuestions);
   };
+  
 
   const handleOptionChange = (qIndex: number, oIndex: number, field: keyof QuizOption, value: string | boolean) => {
     const newQuestions = [...questions];
@@ -105,7 +118,7 @@ function QuizForm({
   };
   
   const addQuestion = () => {
-    setQuestions([...questions, { questionText: '', options: [{ text: '', isCorrect: false }, { text: '', isCorrect: false }] }]);
+    setQuestions([...questions, { questionType: 'multiple-choice', questionText: '', options: [{ text: '', isCorrect: false }, { text: '', isCorrect: false }] }]);
   };
 
   const removeQuestion = (qIndex: number) => {
@@ -121,7 +134,7 @@ function QuizForm({
     
     const finalQuestions: QuizQuestion[] = questions.map((q, index) => ({
         id: q.id || `q-${Date.now()}-${index}`, // Generate ID if not present
-        questionType: q.questionType || 'multiple-choice', // Default question type
+        questionType: q.questionType!, // Assert as it's set by default
         questionText: q.questionText!,
         options: q.options! as QuizOption[],
         explanation: q.explanation,
@@ -148,7 +161,8 @@ function QuizForm({
             {quiz?.id ? 'Modify the details of the quiz set.' : 'Enter the details for the new quiz set.'}
           </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 py-4 overflow-y-auto pr-2">
+        <ScrollArea className="max-h-[calc(90vh-200px)] pr-4">
+        <div className="grid gap-4 py-4">
           <div>
             <Label htmlFor="title">Quiz Title</Label>
             <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} className="mt-1" />
@@ -196,8 +210,26 @@ function QuizForm({
                         <Button variant="ghost" size="sm" onClick={() => removeQuestion(qIndex)}><X className="h-4 w-4 mr-1" /> Remove Question</Button>
                     )}
                 </div>
-                <Textarea id={`question-${qIndex}`} value={q.questionText || ''} onChange={(e) => handleQuestionChange(qIndex, 'questionText', e.target.value)} placeholder="Enter question text" />
-                 {/* TODO: Add select for questionType here in future */}
+                <div>
+                  <Label htmlFor={`questionType-${qIndex}`}>Question Type</Label>
+                  <Select
+                    value={q.questionType}
+                    onValueChange={(value) => handleQuestionChange(qIndex, 'questionType', value as QuestionType)}
+                  >
+                    <SelectTrigger id={`questionType-${qIndex}`} className="mt-1">
+                      <SelectValue placeholder="Select question type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {questionTypes.map(type => (
+                        <SelectItem key={type} value={type}>
+                          {type.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Textarea id={`questionText-${qIndex}`} value={q.questionText || ''} onChange={(e) => handleQuestionChange(qIndex, 'questionText', e.target.value)} placeholder="Enter question text" />
+                 
                  <div className="space-y-2">
                     <Label>Options</Label>
                     {q.options?.map((opt, oIndex) => (
@@ -238,7 +270,8 @@ function QuizForm({
           </div>
 
         </div>
-        <DialogFooter>
+        </ScrollArea>
+        <DialogFooter className="pt-4">
           <Button variant="outline" onClick={() => onOpenChange(false)}>{translations.cancel}</Button>
           <Button onClick={handleSubmit}>{translations.save}</Button>
         </DialogFooter>
@@ -311,13 +344,12 @@ function BulkImportDialog({
         quiz.difficulty = quiz.difficulty || 'easy';
 
         quiz.questions.forEach((q, idx) => {
-          if(!q.id || !q.questionText || !Array.isArray(q.options) || q.options.length < 2) {
-            throw new Error(`Question #${idx+1} in quiz "${quiz.title}" is missing id, questionText, or has insufficient options.`);
+          if(!q.id || !q.questionText || !Array.isArray(q.options) || q.options.length < 2 || !q.questionType) { // Added !q.questionType
+            throw new Error(`Question #${idx+1} in quiz "${quiz.title}" is missing id, questionType, questionText, or has insufficient options.`);
           }
           if(!q.options.some(opt => opt.isCorrect)) {
             throw new Error(`Question "${q.questionText.substring(0,30)}..." in quiz "${quiz.title}" must have at least one correct option.`);
           }
-          q.questionType = q.questionType || 'multiple-choice';
         });
         return quiz;
       });
@@ -458,4 +490,3 @@ export default function AdminQuizzesPage() {
     </>
   );
 }
-

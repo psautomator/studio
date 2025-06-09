@@ -1,5 +1,5 @@
 
-import type { Word, Quiz, User, Badge, GrammarLesson, GrammarExample, EmbeddedExercise, SpeechLevel } from '@/types';
+import type { Word, Quiz, User, Badge, GrammarLesson, GrammarExample, EmbeddedExercise, SpeechLevel, QuizQuestion } from '@/types';
 
 export const placeholderWords: Word[] = [
   {
@@ -264,8 +264,8 @@ export const placeholderBadges: Badge[] = [
   { id: 'wordmaster_lvl1', name: 'Word Master Lv. 1', description: 'Learned 50 new words.', icon: 'BookOpenCheck', threshold: 50 },
   { id: 'streak_7', name: '7-Day Streak', description: 'Logged in for 7 days in a row!', icon: 'Flame', threshold: 7 },
   { id: 'quiz_champ_easy', name: 'Quiz Champion (Easy)', description: 'Completed 10 easy quizzes with 80%+ accuracy.', icon: 'StarIcon', threshold: 10 },
-  { id: 'grammar_initiate', name: 'Grammar Initiate', description: 'Completed your first grammar lesson.', icon: 'GraduationCap' }, // Added Trophy
-  { id: 'perfect_pronunciation_1', name: 'Clear Speaker', description: 'Achieved 90%+ on a pronunciation exercise.', icon: 'Trophy' }, // Added Trophy
+  { id: 'grammar_initiate', name: 'Grammar Initiate', description: 'Completed your first grammar lesson.', icon: 'GraduationCap' }, 
+  { id: 'perfect_pronunciation_1', name: 'Clear Speaker', description: 'Achieved 90%+ on a pronunciation exercise.', icon: 'Trophy' },
 ];
 
 export const placeholderAdminUsers: User[] = [
@@ -288,15 +288,17 @@ export const placeholderGrammarLessons: GrammarLesson[] = [
     level: 'Beginner',
     category: 'Formality & Speech Levels',
     examples: [
-      { id: 'ex1-1', javanese: 'Aku mangan sega.', dutch: 'Ik eet rijst.', speechLevel: 'ngoko' },
-      { id: 'ex1-2', javanese: 'Kula nedha sekul.', dutch: 'Ik eet rijst.', speechLevel: 'krama' },
-      { id: 'ex1-3', javanese: 'Kowe arep lunga?', dutch: 'Ga jij weg?', speechLevel: 'ngoko' },
-      { id: 'ex1-4', javanese: 'Sampeyan badhe tindak?', dutch: 'Gaat u weg?', speechLevel: 'krama' },
+      { id: 'gl1-ex1', javanese: 'Aku mangan sega.', dutch: 'Ik eet rijst.', speechLevel: 'ngoko' },
+      { id: 'gl1-ex2', javanese: 'Kula nedha sekul.', dutch: 'Ik eet rijst.', speechLevel: 'krama' },
+      { id: 'gl1-ex3', javanese: 'Kowe arep lunga?', dutch: 'Ga jij weg?', speechLevel: 'ngoko' },
+      { id: 'gl1-ex4', javanese: 'Sampeyan badhe tindak?', dutch: 'Gaat u weg?', speechLevel: 'krama' },
     ],
     relatedQuizIds: ['quizSet1'],
-    relatedWordIds: [],
+    relatedWordIds: ['word3krama', 'word3ngoko', 'word4krama', 'word4ngoko', 'word8ngoko', 'word8krama'],
     embeddedExercises: [],
     status: 'published',
+    imageUrl: 'https://placehold.co/600x300.png',
+    lessonAudioUrl: 'https://translate.google.com/translate_tts?ie=UTF-8&q=Introduction%20to%20Javanese%20Speech%20Levels&tl=en&client=tw-ob'
   },
   {
     id: 'gl2',
@@ -311,19 +313,26 @@ export const placeholderGrammarLessons: GrammarLesson[] = [
     level: 'Beginner',
     category: 'Sentence Structure',
     examples: [
-      { id: 'ex2-1', javanese: 'Aku maca buku.', dutch: 'Ik lees een boek.', speechLevel: 'ngoko' },
-      { id: 'ex2-2', javanese: 'Bapak ngunjuk kopi.', dutch: 'Vader drinkt koffie.', speechLevel: 'krama' },
-      { id: 'ex2-3', javanese: 'Kucing mangan iwak.', dutch: 'De kat eet vis.', speechLevel: 'ngoko' },
+      { id: 'gl2-ex1', javanese: 'Aku maca buku.', dutch: 'Ik lees een boek.', speechLevel: 'ngoko' },
+      { id: 'gl2-ex2', javanese: 'Bapak ngunjuk kopi.', dutch: 'Vader drinkt koffie.', speechLevel: 'krama' },
+      { id: 'gl2-ex3', javanese: 'Kucing mangan iwak.', dutch: 'De kat eet vis.', speechLevel: 'ngoko' },
     ],
     relatedQuizIds: [],
     relatedWordIds: ['word8ngoko', 'word6'],
     embeddedExercises: [
         {
-            id: 'ee2-1',
+            id: 'gl2-ee1',
             type: 'fill-in-the-blank',
             javaneseSentenceWithPlaceholder: 'Aku arep ____ sega goreng.',
             correctAnswer: 'mangan',
             hint: { en: 'I want to eat fried rice.', nl: 'Ik wil gebakken rijst eten.'}
+        },
+        {
+            id: 'gl2-ee2',
+            type: 'fill-in-the-blank',
+            javaneseSentenceWithPlaceholder: 'Omahku cedhak _____.',
+            correctAnswer: 'pasar',
+            hint: { en: 'My house is near the market.', nl: 'Mijn huis is dichtbij de markt.'}
         }
     ],
     status: 'published',
@@ -338,8 +347,8 @@ export const placeholderGrammarLessons: GrammarLesson[] = [
     level: 'Intermediate',
     category: 'Pronouns',
     examples: [
-      { id: 'ex3-1', javanese: 'Omahku gedhe.', dutch: 'Mijn huis is groot.', speechLevel: 'ngoko' },
-      { id: 'ex3-2', javanese: 'Jenengmu sapa?', dutch: 'Wat is jouw naam?', speechLevel: 'ngoko' },
+      { id: 'gl3-ex1', javanese: 'Omahku gedhe.', dutch: 'Mijn huis is groot.', speechLevel: 'ngoko' },
+      { id: 'gl3-ex2', javanese: 'Jenengmu sapa?', dutch: 'Wat is jouw naam?', speechLevel: 'ngoko' },
     ],
     relatedQuizIds: [],
     relatedWordIds: [],
@@ -356,8 +365,8 @@ export const placeholderGrammarLessons: GrammarLesson[] = [
     level: 'Beginner',
     category: 'Pronunciation & Phonetics',
     examples: [
-      { id: 'ex4-1', javanese: 'apa', dutch: 'wat', speechLevel: 'neutral' },
-      { id: 'ex4-2', javanese: 'sega', dutch: 'rijst', speechLevel: 'ngoko' },
+      { id: 'gl4-ex1', javanese: 'apa', dutch: 'wat', speechLevel: 'neutral' },
+      { id: 'gl4-ex2', javanese: 'sega', dutch: 'rijst', speechLevel: 'ngoko' },
     ],
     relatedQuizIds: [],
     relatedWordIds: [],

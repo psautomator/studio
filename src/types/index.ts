@@ -30,12 +30,11 @@ export type QuestionType =
 
 export interface QuizQuestion {
   id: string;
-  questionType?: QuestionType; // Optional for backward compatibility, default to 'multiple-choice'
+  questionType: QuestionType; // Made mandatory
   questionText: string; // Main question text (e.g., "What is X?", "Translate Y", "Aku ____ Z.")
   options: QuizOption[];
   explanation?: string;
   audioUrl?: string;
-  question?: string; // Legacy, prefer questionText
 }
 
 export interface Quiz {
@@ -75,7 +74,7 @@ export interface LocaleString {
 export type SpeechLevel = 'ngoko' | 'krama' | 'madya' | 'neutral' | 'other';
 
 export interface GrammarExample {
-  id: string; // Add ID for unique key in arrays
+  id: string; 
   javanese: string;
   dutch: string;
   speechLevel: SpeechLevel;
@@ -85,37 +84,26 @@ export interface GrammarExample {
 export interface EmbeddedFillInTheBlankExercise {
   id: string;
   type: 'fill-in-the-blank';
-  javaneseSentenceWithPlaceholder: string; // e.g., "Kula badhe ___ pasar." (placeholder: ____ or {BLANK})
+  javaneseSentenceWithPlaceholder: string; 
   correctAnswer: string;
-  hint?: LocaleString; // Optional hint in both languages
+  hint?: LocaleString; 
 }
 
-// Future: Add other exercise types
-// export interface EmbeddedMultipleChoiceExercise {
-//   id: string;
-//   type: 'multiple-choice';
-//   question: LocaleString;
-//   options: { text: LocaleString; isCorrect: boolean }[];
-//   explanation?: LocaleString;
-// }
-
-export type EmbeddedExercise = EmbeddedFillInTheBlankExercise; // | EmbeddedMultipleChoiceExercise;
+export type EmbeddedExercise = EmbeddedFillInTheBlankExercise; 
 
 export interface GrammarLesson {
   id: string;
   title: LocaleString;
-  explanation: LocaleString; // Rich text content for each language
+  explanation: LocaleString; 
   level: 'Beginner' | 'Intermediate' | 'Advanced';
   category: string;
   examples: GrammarExample[];
-  relatedQuizIds: string[]; // Array of Quiz IDs
-  relatedWordIds: string[]; // Array of Word IDs (for general vocab linking, or could be used by exercises)
+  relatedQuizIds: string[]; // Changed from relatedQuizId?: string
+  relatedWordIds: string[]; 
   embeddedExercises: EmbeddedExercise[];
   status: 'published' | 'draft' | 'archived';
-  imageUrl?: string; // Optional lesson-wide image
-  lessonAudioUrl?: string; // Optional lesson-wide audio
-  // Future: sections for drag-and-drop ordering
-  // contentOrder: ('explanation' | 'examples' | 'exercises')[];
+  imageUrl?: string; 
+  lessonAudioUrl?: string; 
 }
 
 export interface FillInTheBlankExercise {
@@ -125,4 +113,3 @@ export interface FillInTheBlankExercise {
   correctAnswer: string;
   originalJavaneseSentence: string;
 }
-
