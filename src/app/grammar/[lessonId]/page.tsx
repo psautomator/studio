@@ -4,16 +4,17 @@
 import { useParams } from 'next/navigation';
 import { MainAppLayout } from '@/components/layout/main-app-layout';
 import { PageHeader } from '@/components/shared/page-header';
-import { placeholderGrammarLessons } from '@/lib/placeholder-data';
-import type { GrammarLesson, GrammarExample } from '@/types';
+import { placeholderGrammarLessons, placeholderQuizzes, placeholderWords } from '@/lib/placeholder-data';
+import type { GrammarLesson, GrammarExample, Quiz, Word } from '@/types';
 import { useLanguage } from '@/hooks/use-language';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Volume2, ArrowLeft } from 'lucide-react';
+import { Volume2, ArrowLeft, HelpCircle, FileSignature } from 'lucide-react';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
 import { useToast } from '@/hooks/use-toast';
-import { useEffect } from 'react';
+import { useEffect, useState, useMemo } from 'react';
+import { EmbeddedFillInTheBlankItem } from '@/components/grammar/embedded-fill-in-the-blank-item';
 
 export default function GrammarLessonPage() {
   const params = useParams();
@@ -22,10 +23,11 @@ export default function GrammarLessonPage() {
   const { toast } = useToast();
 
   const lesson = placeholderGrammarLessons.find(l => l.id === lessonId);
+  const [relatedQuiz, setRelatedQuiz] = useState<Quiz | undefined>(undefined);
+  const [relatedFillWords, setRelatedFillWords] = useState<Word[]>([]);
 
   useEffect(() => {
     if (lesson) {
-      // Basic check to prevent duplicate toasts if component re-renders for other reasons
       const viewedKey = `viewed_lesson_${lesson.id}`;
       if (!sessionStorage.getItem(viewedKey)) {
         toast({
@@ -34,6 +36,21 @@ export default function GrammarLessonPage() {
         });
         sessionStorage.setItem(viewedKey, 'true');
       }
+
+      if (lesson.relatedQuizId) {
+        const quiz = placeholderQuizzes.find(q => q.id === lesson.relatedQuizId && q.status === 'published');
+        setRelatedQuiz(quiz);
+      }
+
+      if (lesson.relatedFillInTheBlankWordIds && lesson.relatedFillInTheBlankWordIds.length > 0) {
+        const words = placeholderWords.filter(word => 
+          lesson.relatedFillInTheBlankWordIds!.includes(word.id) && 
+          word.exampleSentenceJavanese && 
+          word.javanese
+        );
+        setRelatedFillWords(words);
+      }
+
     }
   }, [lesson, toast]);
 
@@ -74,7 +91,7 @@ export default function GrammarLessonPage() {
         </Button>
       </PageHeader>
 
-      <Card className="shadow-lg">
+      <Card className="shadow-lg mb-6">
         <CardHeader>
           <CardTitle className="font-headline text-2xl text-primary">Explanation</CardTitle>
         </CardHeader>
@@ -91,7 +108,7 @@ export default function GrammarLessonPage() {
       </Card>
 
       {lesson.examples && lesson.examples.length > 0 && (
-        <Card className="mt-6 shadow-lg">
+        <Card className="mt-6 shadow-lg mb-6">
           <CardHeader>
             <CardTitle className="font-headline text-2xl text-primary">Examples</CardTitle>
           </CardHeader>
@@ -108,6 +125,48 @@ export default function GrammarLessonPage() {
                 </div>
                 <p className="text-muted-foreground italic">({translations.dutch || "Dutch"}): {example.dutch}</p>
               </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
+
+      {relatedQuiz && (
+        <Card className="mt-6 shadow-lg mb-6">
+          <CardHeader>
+            <CardTitle className="font-headline text-xl text-primary flex items-center">
+              <HelpCircle className="mr-2 h-5 w-5" />
+              Related Quiz
+            </CardTitle>
+            <CardDescription>Test your understanding of concepts from this lesson.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="mb-3">
+              This lesson relates to the quiz: <strong className="text-primary">{relatedQuiz.title}</strong>.
+            </p>
+            <Button asChild>
+              <Link href="/quizzes">
+                {translations.startQuiz || "Start Quiz"}: {relatedQuiz.title}
+              </Link>
+            </Button>
+            <p className="text-xs text-muted-foreground mt-2">
+              (This will take you to the main Quizzes page where you can select this quiz.)
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
+      {relatedFillWords.length > 0 && (
+        <Card className="mt-6 shadow-lg">
+          <CardHeader>
+            <CardTitle className="font-headline text-xl text-primary flex items-center">
+              <FileSignature className="mr-2 h-5 w-5" />
+              Practice with Fill-in-the-Blanks
+            </CardTitle>
+            <CardDescription>Apply what you've learned with these exercises.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {relatedFillWords.map(word => (
+              <EmbeddedFillInTheBlankItem key={word.id} word={word} />
             ))}
           </CardContent>
         </Card>

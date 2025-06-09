@@ -71,7 +71,8 @@ export interface GrammarLesson {
   level: 'Beginner' | 'Intermediate' | 'Advanced';
   category: string;
   examples: GrammarExample[];
-  // Future: exercises: Exercise[];
+  relatedQuizId?: string; // ID of a Quiz set
+  relatedFillInTheBlankWordIds?: string[]; // Array of Word IDs
 }
 
 // Type for Fill in the Blanks exercises
@@ -82,3 +83,4 @@ export interface FillInTheBlankExercise {
   correctAnswer: string; // The Javanese word that was blanked out
   originalJavaneseSentence: string; // Full original Javanese sentence
 }
+

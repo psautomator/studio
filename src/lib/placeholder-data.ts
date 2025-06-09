@@ -270,6 +270,7 @@ export const placeholderGrammarLessons: GrammarLesson[] = [
       { javanese: 'Jenengku Budi.', dutch: 'Mijn naam is Budi. (Ngoko)' },
       { javanese: 'Asma kula Budi.', dutch: 'Mijn naam is Budi. (Krama)' },
     ],
+    relatedQuizId: 'quizSet1',
   },
   {
     id: 'gl2',
@@ -282,6 +283,7 @@ export const placeholderGrammarLessons: GrammarLesson[] = [
       { javanese: 'Bapak ngunjuk kopi.', dutch: 'Vader drinkt koffie. (Krama for "drinken" - ngunjuk)' },
       { javanese: 'Kucing mangan iwak.', dutch: 'De kat eet vis.' },
     ],
+    relatedFillInTheBlankWordIds: ['8', '6'], // 'Mangan' (example: Aku arep mangan sega goreng), 'Omah' (example: Omahku cedhak pasar)
   },
   {
     id: 'gl3',
@@ -316,3 +318,4 @@ export const placeholderGrammarLessons: GrammarLesson[] = [
     ],
   },
 ];
+
