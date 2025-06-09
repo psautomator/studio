@@ -128,67 +128,72 @@ export default function PronunciationPage() {
     <MainAppLayout>
       <PageHeader title={translations.pronunciation} description="Listen, learn, and practice one word at a time." />
       
-      <div className="mb-6 max-w-xs mx-auto md:mx-0"> {/* Centered on small screens, left on md+ */}
-        <Label htmlFor="level-filter" className="text-sm font-medium">Filter by Level:</Label>
-        <Select
-          value={selectedLevel}
-          onValueChange={(value) => setSelectedLevel(value as Word['level'] | 'all')}
-        >
-          <SelectTrigger id="level-filter" className="mt-1">
-            <SelectValue placeholder="Select level" />
-          </SelectTrigger>
-          <SelectContent>
-            {levels.map(level => (
-              <SelectItem key={level || 'all'} value={level || 'all'}>
-                {level === 'all' ? 'All Levels' : level}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {currentWord ? (
-        <div className="flex justify-center"> {/* Centering wrapper */}
-          <div className="flex flex-col items-center gap-6 w-full max-w-2xl"> {/* Content block */}
-            <Card className="w-full shadow-lg">
-              <CardContent className="p-0">
-                <PronunciationItem
-                  word={currentWord}
-                  onAiPracticeToggle={handleAiPracticeToggle}
-                  isRecordingAi={isRecordingAi}
-                  isProcessingAi={isProcessingAi}
-                  aiFeedback={aiFeedback}
-                />
-              </CardContent>
-            </Card>
-            
-            <div className="flex w-full justify-center gap-4 mt-4">
-              <Button variant="outline" onClick={handleMarkKnown} className="text-green-600 border-green-600 hover:bg-green-50 hover:text-green-700">
-                <ThumbsUp className="mr-2 h-4 w-4" /> I Know This
-              </Button>
-              <Button variant="outline" onClick={handleMarkRepeat} className="text-orange-500 border-orange-500 hover:bg-orange-50 hover:text-orange-600">
-                <RotateCcw className="mr-2 h-4 w-4" /> Repeat Later
-              </Button>
-              <Button onClick={handleNextWord} variant="default" className="bg-primary hover:bg-primary/90">
-                Next Word <ChevronRight className="ml-2 h-4 w-4" />
-              </Button>
-            </div>
-            <p className="text-sm text-muted-foreground mt-2">
-                Word {currentIndex + 1} of {filteredWords.length}
-              </p>
+      <div className="flex justify-center"> {/* Outer centering wrapper */}
+        <div className="w-full max-w-2xl space-y-6"> {/* Content block with max-width and spacing */}
+          
+          {/* Filter by Level Select */}
+          <div className="max-w-xs"> {/* Limit filter width, it will be left-aligned within this max-w-2xl block */}
+            <Label htmlFor="level-filter" className="text-sm font-medium">Filter by Level:</Label>
+            <Select
+              value={selectedLevel}
+              onValueChange={(value) => setSelectedLevel(value as Word['level'] | 'all')}
+            >
+              <SelectTrigger id="level-filter" className="mt-1">
+                <SelectValue placeholder="Select level" />
+              </SelectTrigger>
+              <SelectContent>
+                {levels.map(level => (
+                  <SelectItem key={level || 'all'} value={level || 'all'}>
+                    {level === 'all' ? 'All Levels' : level}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
+
+          {/* Main Pronunciation Content */}
+          {currentWord ? (
+            <div className="flex flex-col items-center gap-4"> {/* Centers card and buttons below it */}
+              <Card className="w-full shadow-lg"> {/* Card takes full width of its max-w-2xl parent */}
+                <CardContent className="p-0">
+                  <PronunciationItem
+                    word={currentWord}
+                    onAiPracticeToggle={handleAiPracticeToggle}
+                    isRecordingAi={isRecordingAi}
+                    isProcessingAi={isProcessingAi}
+                    aiFeedback={aiFeedback}
+                  />
+                </CardContent>
+              </Card>
+              
+              <div className="flex w-full justify-center gap-4">
+                <Button variant="outline" onClick={handleMarkKnown} className="text-green-600 border-green-600 hover:bg-green-50 hover:text-green-700">
+                  <ThumbsUp className="mr-2 h-4 w-4" /> I Know This
+                </Button>
+                <Button variant="outline" onClick={handleMarkRepeat} className="text-orange-500 border-orange-500 hover:bg-orange-50 hover:text-orange-600">
+                  <RotateCcw className="mr-2 h-4 w-4" /> Repeat Later
+                </Button>
+                <Button onClick={handleNextWord} variant="default" className="bg-primary hover:bg-primary/90">
+                  Next Word <ChevronRight className="ml-2 h-4 w-4" />
+                </Button>
+              </div>
+              <p className="text-sm text-muted-foreground mt-2">
+                  Word {currentIndex + 1} of {filteredWords.length}
+                </p>
+            </div>
+          ) : (
+            <div className="flex justify-center"> {/* Centering for no words message */}
+              <Card className="shadow-lg w-full"> {/* Card takes full width of its max-w-2xl parent */}
+                <CardContent className="p-6">
+                  <p className="text-muted-foreground text-center py-4">
+                    No words found for the selected level. Please try a different filter.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          )}
         </div>
-      ) : (
-        <div className="flex justify-center">
-          <Card className="shadow-lg w-full max-w-2xl">
-            <CardContent className="p-6">
-              <p className="text-muted-foreground text-center py-4">
-                No words found for the selected level. Please try a different filter.
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-      )}
+      </div>
     </MainAppLayout>
   );
 }
