@@ -56,12 +56,12 @@ export function FlashcardItem({ word, onPlayAudio }: FlashcardItemProps) {
       aria-label={isFlipped ? `Showing ${translations.dutch} side. Click to show ${translations.javanese} side.` : `Showing ${translations.javanese} side. Click to show ${translations.dutch} side.`}
     >
       <div
-        className={`absolute inset-0 w-full h-full transition-transform duration-700 [transform-style:preserve-3d] ${
-          isFlipped ? 'rotate-y-180' : ''
+        className={`absolute inset-0 w-full h-full transition-transform ease-in-out duration-700 [transform-style:preserve-3d] ${
+          isFlipped ? '[transform:rotateY(180deg)]' : '[transform:rotateY(0deg)]'
         }`}
       >
         {/* Front of the card */}
-        <div className="absolute inset-0 w-full h-full [backface-visibility:hidden] flex flex-col items-center justify-center p-6 bg-card rounded-lg border">
+        <div className="absolute inset-0 w-full h-full [backface-visibility:hidden] flex flex-col items-center justify-center p-6 bg-card">
           <h2 className="font-headline text-3xl md:text-4xl font-semibold text-primary text-center">
             {word.javanese}
           </h2>
@@ -73,17 +73,19 @@ export function FlashcardItem({ word, onPlayAudio }: FlashcardItemProps) {
         </div>
 
         {/* Back of the card */}
-        <div className="absolute inset-0 w-full h-full [backface-visibility:hidden] rotate-y-180 flex flex-col items-center justify-center p-6 bg-card rounded-lg border">
+        <div className="absolute inset-0 w-full h-full [backface-visibility:hidden] [transform:rotateY(180deg)] flex flex-col items-center justify-center p-6 bg-card">
           <p className="text-sm text-muted-foreground mb-1">({translations.dutch})</p>
           <h2 className="font-headline text-3xl md:text-4xl font-semibold text-primary text-center mb-3">
             {word.dutch}
           </h2>
           
-          {(word.category || word.level) && (
-            <div className="text-xs text-muted-foreground mb-3 text-center">
-              {word.category && <span>Category: {word.category}</span>}
-              {word.category && word.level && <span className="mx-1">|</span>}
-              {word.level && <span>Level: {word.level}</span>}
+          {(word.category || word.level || word.formality) && (
+            <div className="text-xs text-muted-foreground mb-3 text-center capitalize">
+              {word.category && <span>{word.category}</span>}
+              {(word.category && word.level) && <span className="mx-1">|</span>}
+              {word.level && <span>{word.level}</span>}
+              {((word.category || word.level) && word.formality) && <span className="mx-1">|</span>}
+              {word.formality && <span>{word.formality}</span>}
             </div>
           )}
 
