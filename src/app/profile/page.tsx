@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
+import { Separator } from '@/components/ui/separator'; // Added import
 import { useLanguage } from '@/hooks/use-language';
 import { placeholderUser } from '@/lib/placeholder-data';
 import { UserCircle, Shield, BookOpen, Settings, Trash2, Save } from 'lucide-react'; // Added Save icon, removed Edit3, KeyRound
