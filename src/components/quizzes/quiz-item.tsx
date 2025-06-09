@@ -2,10 +2,11 @@
 "use client";
 
 import type { QuizQuestion, QuizOption, QuestionType } from '@/types';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Input } from '@/components/ui/input'; // Added Input
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { CheckCircle, XCircle, Volume2 } from 'lucide-react';
@@ -19,41 +20,62 @@ interface QuizItemProps {
 }
 
 export function QuizItem({ quizQuestion, onAdvance, isLastQuestion }: QuizItemProps) {
-  const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const [selectedOption, setSelectedOption] = useState<string | null>(null); // For MCQs
+  const [textInputAnswer, setTextInputAnswer] = useState<string>(''); // For text input
   const [feedback, setFeedback] = useState<{ type: 'correct' | 'incorrect'; message: string } | null>(null);
   const [isAnswered, setIsAnswered] = useState(false);
   const { translations } = useLanguage();
   const { toast } = useToast();
 
-  const handleOptionSelect = (value: string) => {
+  // Reset local state when quizQuestion changes
+  useEffect(() => {
+    setSelectedOption(null);
+    setTextInputAnswer('');
+    setFeedback(null);
+    setIsAnswered(false);
+  }, [quizQuestion]);
+
+
+  const handleSubmitAnswer = () => {
     if (isAnswered) return;
 
-    setSelectedOption(value);
-    const chosenOption = quizQuestion.options.find(opt => opt.text === value);
+    let isCorrect = false;
+    let correctAnswerText: string | undefined = '';
 
-    if (chosenOption) {
-      if (chosenOption.isCorrect) {
-        setFeedback({ type: 'correct', message: translations.correct });
-        toast({ title: "+10 XP!", description: "Correct answer!" });
-      } else {
-        const correctAnswerText = quizQuestion.options.find(opt => opt.isCorrect)?.text;
-        const incorrectMessage = correctAnswerText
-          ? `${translations.incorrect} ${correctAnswerText}`
-          : translations.incorrect;
-        setFeedback({
-          type: 'incorrect',
-          message: incorrectMessage,
-        });
+    if (quizQuestion.questionType === 'fill-in-the-blank-text-input') {
+      if (!textInputAnswer.trim()) {
+        toast({ title: translations.typeYourAnswer || "Please enter an answer.", variant: "destructive" });
+        return;
       }
-      setIsAnswered(true);
+      correctAnswerText = quizQuestion.options[0]?.text; // Assuming correct answer is the first option's text
+      isCorrect = textInputAnswer.trim().toLowerCase() === correctAnswerText?.toLowerCase();
+    } else { // MCQ types
+      if (!selectedOption) {
+         toast({ title: "Please select an option.", variant: "destructive" }); // TODO: Add translation
+        return;
+      }
+      const chosenOption = quizQuestion.options.find(opt => opt.text === selectedOption);
+      isCorrect = chosenOption?.isCorrect || false;
+      correctAnswerText = quizQuestion.options.find(opt => opt.isCorrect)?.text;
     }
+
+    if (isCorrect) {
+      setFeedback({ type: 'correct', message: translations.correct });
+      toast({ title: "+10 XP!", description: "Correct answer!" });
+    } else {
+      const incorrectMessage = correctAnswerText
+        ? `${translations.incorrect} ${correctAnswerText}`
+        : translations.incorrect;
+      setFeedback({
+        type: 'incorrect',
+        message: incorrectMessage,
+      });
+    }
+    setIsAnswered(true);
   };
 
   const handleAdvanceClick = () => {
-    setSelectedOption(null);
-    setFeedback(null);
-    setIsAnswered(false);
-    onAdvance();
+    onAdvance(); // This will trigger useEffect in parent to change question, then this useEffect will reset local state
   };
 
   const playAudio = () => {
@@ -72,16 +94,14 @@ export function QuizItem({ quizQuestion, onAdvance, isLastQuestion }: QuizItemPr
     if (!isAnswered) {
       return "text-base cursor-pointer flex-1";
     }
-    if (optionText === selectedOption) { // User's selection
+    if (optionText === selectedOption) { // User's selection for MCQ
       return isOptionCorrect
-        ? "text-base cursor-pointer flex-1 text-green-700 font-bold" // Selected and Correct
-        : "text-base cursor-pointer flex-1 text-red-700 font-bold";   // Selected and Incorrect
+        ? "text-base cursor-pointer flex-1 text-green-700 font-bold"
+        : "text-base cursor-pointer flex-1 text-red-700 font-bold";
     }
-    // Not selected by user, but IS the correct answer
     if (isOptionCorrect) {
       return "text-base cursor-pointer flex-1 text-green-600";
     }
-    // Other options that were not selected and are not correct
     return "text-base cursor-pointer flex-1 text-muted-foreground opacity-75";
   };
 
@@ -103,10 +123,10 @@ export function QuizItem({ quizQuestion, onAdvance, isLastQuestion }: QuizItemPr
         typeLabel = translations.translateSentenceJavanese || "Translate sentence to Javanese:";
         break;
       case 'fill-in-the-blank-mcq':
-        typeLabel = translations.fillInTheBlankMCQ || "Complete the sentence:";
+      case 'fill-in-the-blank-text-input':
+        typeLabel = translations.fillInTheBlankMCQ || "Complete the sentence:"; // Re-use for text input too
         break;
-      default: // 'multiple-choice'
-        // No specific label needed, the questionText is self-explanatory
+      default:
         break;
     }
 
@@ -117,6 +137,10 @@ export function QuizItem({ quizQuestion, onAdvance, isLastQuestion }: QuizItemPr
       </>
     );
   };
+
+  const isMcqType = ![
+    'fill-in-the-blank-text-input'
+  ].includes(quizQuestion.questionType);
 
 
   return (
@@ -134,38 +158,55 @@ export function QuizItem({ quizQuestion, onAdvance, isLastQuestion }: QuizItemPr
         </div>
       </CardHeader>
       <CardContent>
-        <RadioGroup
-          value={selectedOption || undefined}
-          onValueChange={handleOptionSelect}
-          disabled={isAnswered}
-          className="space-y-3"
-          aria-label="Quiz options"
-        >
-          {quizQuestion.options.map((option, index) => (
-            <div key={index} className={`flex items-center space-x-3 p-3 rounded-md border transition-colors ${selectedOption === option.text && !isAnswered ? 'bg-accent/10 border-accent' : 'border-border'}`}>
-              <RadioGroupItem value={option.text} id={`option-${quizQuestion.id}-${index}`} />
-              <Label
-                htmlFor={`option-${quizQuestion.id}-${index}`}
-                className={getOptionLabelClass(option.text, option.isCorrect)}
-              >
-                {option.text}
-              </Label>
-            </div>
-          ))}
-        </RadioGroup>
+        {isMcqType ? (
+          <RadioGroup
+            value={selectedOption || undefined}
+            onValueChange={(value) => setSelectedOption(value)}
+            disabled={isAnswered}
+            className="space-y-3"
+            aria-label="Quiz options"
+          >
+            {quizQuestion.options.map((option, index) => (
+              <div key={index} className={`flex items-center space-x-3 p-3 rounded-md border transition-colors ${selectedOption === option.text && !isAnswered ? 'bg-accent/10 border-accent' : 'border-border'}`}>
+                <RadioGroupItem value={option.text} id={`option-${quizQuestion.id}-${index}`} />
+                <Label
+                  htmlFor={`option-${quizQuestion.id}-${index}`}
+                  className={getOptionLabelClass(option.text, option.isCorrect)}
+                >
+                  {option.text}
+                </Label>
+              </div>
+            ))}
+          </RadioGroup>
+        ) : ( // For 'fill-in-the-blank-text-input'
+          <Input
+            type="text"
+            value={textInputAnswer}
+            onChange={(e) => setTextInputAnswer(e.target.value)}
+            placeholder={translations.typeYourAnswer}
+            disabled={isAnswered}
+            className="text-lg h-12"
+            onKeyDown={(e) => { if (e.key === 'Enter' && !isAnswered) handleSubmitAnswer(); }}
+          />
+        )}
 
         {feedback && (
           <Alert variant={feedback.type === 'correct' ? 'default' : 'destructive'} className="mt-6 animate-in fade-in">
             {feedback.type === 'correct' ? <CheckCircle className="h-5 w-5" /> : <XCircle className="h-5 w-5" />}
             <AlertTitle>{feedback.type === 'correct' ? translations.correct : translations.yourAnswer}</AlertTitle>
             <AlertDescription>{feedback.message}</AlertDescription>
-            {quizQuestion.explanation && (isAnswered || feedback.type === 'incorrect') && ( // Show explanation if answered or if incorrect
+            {quizQuestion.explanation && (isAnswered || feedback.type === 'incorrect') && (
                  <p className="text-sm mt-2">{quizQuestion.explanation}</p>
             )}
           </Alert>
         )}
       </CardContent>
-      <CardFooter>
+      <CardFooter className="flex flex-col gap-3">
+        {!isAnswered && (
+            <Button type="button" onClick={handleSubmitAnswer} className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
+              {translations.checkAnswer}
+            </Button>
+        )}
         {isAnswered && (
           <Button type="button" onClick={handleAdvanceClick} className="w-full bg-primary hover:bg-primary/90">
             {isLastQuestion ? translations.finishQuiz : translations.nextQuestion}

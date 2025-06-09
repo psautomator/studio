@@ -14,8 +14,7 @@ import {
   Shield,
   User,
   GraduationCap,
-  FileSignature,
-  LogOut, // Added LogOut
+  LogOut, 
 } from 'lucide-react';
 import {
   Sidebar,
@@ -39,7 +38,7 @@ import { APP_NAME } from '@/lib/constants';
 import { useLanguage } from '@/hooks/use-language';
 import { placeholderUser } from '@/lib/placeholder-data';
 import type { User as UserType } from '@/types';
-import { useToast } from '@/hooks/use-toast'; // Added useToast
+import { useToast } from '@/hooks/use-toast'; 
 
 
 const mainNavItems = [
@@ -48,7 +47,6 @@ const mainNavItems = [
   { baseHref: '/quizzes', labelKey: 'quizzes', icon: HelpCircle },
   { baseHref: '/pronunciation', labelKey: 'pronunciation', icon: Volume2 },
   { baseHref: '/grammar', labelKey: 'grammar', icon: GraduationCap },
-  // { baseHref: '/fill-in-the-blanks', labelKey: 'fillintheblanks', icon: FileSignature }, // Removed
   { baseHref: '/progress', labelKey: 'progress', icon: BarChart3 },
   { baseHref: '/goals', labelKey: 'goals', icon: Target },
 ];
@@ -59,7 +57,7 @@ const adminAccessRoles = ['admin', 'editor', 'publisher'];
 export function AppSidebar() {
   const pathname = usePathname();
   const { translations, language } = useLanguage(); 
-  const { toast } = useToast(); // Added toast
+  const { toast } = useToast(); 
   const { open, isMobile, setOpenMobile } = useSidebar();
 
   const getLabel = (labelKey: string, defaultLabel?: string) => {
@@ -79,6 +77,10 @@ export function AppSidebar() {
       description: translations.loggedOutSuccessfully || "You have been logged out (simulated).",
     });
     // In a real app, you'd clear session/token and redirect.
+    // For now, we can redirect to the main landing page after a short delay.
+    // setTimeout(() => {
+    //   window.location.href = `/${language}/`; 
+    // }, 1500);
   };
 
   const canAccessAdminPanel = currentUser.roles.some(role => adminAccessRoles.includes(role));

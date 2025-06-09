@@ -49,6 +49,10 @@ export default function ProfilePage() {
         variant: "destructive",
       });
       // In a real app, handle actual account deletion and redirect.
+      // For example, redirect to a "goodbye" page or the root.
+      // setTimeout(() => {
+      //   window.location.href = `/${language}/`; 
+      // }, 1500);
     }
   };
 
@@ -94,7 +98,6 @@ export default function ProfilePage() {
                 <h4 className="text-sm font-medium text-muted-foreground">{translations.dailyStudyGoal || "Daily Study Goal (minutes)"}</h4>
                 <p className="text-md">{user.learningPreferences?.dailyGoalMinutes || (translations.notSet || "Not set")}</p>
               </div>
-              {/* Placeholder for edit button */}
                <Button variant="outline" size="sm" className="mt-2" disabled>
                 {translations.editPreferences || "Edit Preferences"} ({translations.comingSoon || "Coming soon"})
               </Button>
