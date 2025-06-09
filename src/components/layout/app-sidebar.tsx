@@ -128,7 +128,7 @@ export function AppSidebar() {
                 {currentUser.role === 'admin' && (
                   <>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
+                    <DropdownMenuItem asChild className="text-primary hover:text-primary focus:text-accent-foreground">
                       <Link href="/admin" className="flex items-center w-full" onClick={handleMobileLinkClick}>
                         <Shield className="mr-2 h-4 w-4" />
                         <span>{getLabel('admin', 'Admin Panel')}</span>
